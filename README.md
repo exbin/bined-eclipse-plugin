@@ -1,5 +1,5 @@
-BinEd - Binary Editor Plugin for Eclipse
-========================================
+BinEd - Binary/Hexadecimal Editor - Plugin for Eclipse Platform
+===============================================================
 
 Hexadecimal viewer/editor plugin module for Eclipse platform.
 
@@ -10,7 +10,7 @@ Not yet published
 Screenshot
 ----------
 
-![BinEd-Editor Screenshot](images/bined-screenshot.png?raw=true)
+![BinEd-Editor Screenshot](images/bined-eclipse-screenshot.png?raw=true)
 
 Features
 --------

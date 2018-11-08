@@ -12,6 +12,14 @@
             class="org.exbin.bined.eclipse.editors.MultiPageEditor"
             id="org.exbin.bined.eclipse.editors.MultiPageEditor">
       </editor>
+      <editor
+            class="org.exbin.bined.eclipse.editors.BinEdEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            extensions="bin"
+            icon="icons/sample.gif"
+            id="org.exbin.bined.eclipse.editors.BinEdEditor"
+            name="BinEd Hexadecimal Editor">
+      </editor>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
