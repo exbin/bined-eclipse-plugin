@@ -12,6 +12,7 @@ public class BinEdEditor extends TextEditor {
 		setSourceViewerConfiguration(new XMLConfiguration(colorManager));
 		setDocumentProvider(new XMLDocumentProvider());
 	}
+
 	public void dispose() {
 		colorManager.dispose();
 		super.dispose();

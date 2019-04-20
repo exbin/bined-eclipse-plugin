@@ -29,7 +29,7 @@ public class MultiPageEditorContributor extends MultiPageEditorActionBarContribu
 		createActions();
 	}
 	/**
-	 * Returns the action registed with the given text editor.
+	 * Returns the action registered with the given text editor.
 	 * @return IAction or null if editor is null.
 	 */
 	protected IAction getAction(ITextEditor editor, String actionID) {

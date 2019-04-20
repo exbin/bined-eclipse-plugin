@@ -1,4 +1,4 @@
-package bined_hexadecimal_editor;
+package org.exbin.bined.eclipse;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
