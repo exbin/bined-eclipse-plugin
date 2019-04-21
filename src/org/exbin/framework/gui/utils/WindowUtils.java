@@ -46,13 +46,11 @@ import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.exbin.framework.gui.utils.panel.WindowHeaderPanel;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
 
 /**
  * Utility static methods usable for windows and dialogs.
  *
- * @version 0.2.0 2016/12/27
+ * @version 0.2.0 2019/04/21
  * @author ExBin Project (http://exbin.org)
  */
 public class WindowUtils {
@@ -116,8 +114,11 @@ public class WindowUtils {
 
     @Nonnull
     public static DialogWrapper createDialog(final JComponent component, Window parent, String dialogTitle, Dialog.ModalityType modalityType) {
-        DialogDescriptor dialogDescriptor = new DialogDescriptor(component, dialogTitle, modalityType != Dialog.ModalityType.MODELESS, new Object[0], null, 0, null, null);
-        final Dialog dialog = DialogDisplayer.getDefault().createDialog(dialogDescriptor);
+        // DialogDescriptor dialogDescriptor = new DialogDescriptor(component, dialogTitle, modalityType != Dialog.ModalityType.MODELESS, new Object[0], null, 0, null, null);
+    	// DialogDisplayer.getDefault().createDialog(dialogDescriptor);
+        final Dialog dialog = new Dialog(getFrame(component));
+        dialog.setModalityType(modalityType);
+        dialog.setTitle(dialogTitle);
         Dimension size = component.getPreferredSize();
         dialog.setSize(size.width + 8, size.height + 24);
         //        JDialog dialog = new JDialog(parent, modalityType);

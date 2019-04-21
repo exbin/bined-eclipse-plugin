@@ -16,9 +16,13 @@
 package org.exbin.bined.eclipse.panel;
 
 import org.exbin.bined.eclipse.BinEdApplyOptions;
+import org.exbin.bined.eclipse.BinEdPlugin;
+
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.Preferences;
+
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.DefaultListCellRenderer;
@@ -46,7 +50,6 @@ import org.exbin.framework.gui.utils.WindowUtils;
 import org.exbin.framework.gui.utils.WindowUtils.DialogWrapper;
 import org.exbin.framework.gui.utils.handler.DefaultControlHandler;
 import org.exbin.framework.gui.utils.panel.DefaultControlPanel;
-import org.openide.util.NbPreferences;
 
 /**
  * Hexadecimal editor options panel.
@@ -58,7 +61,6 @@ import org.openide.util.NbPreferences;
 public class BinEdOptionsPanel extends javax.swing.JPanel {
 
     private final BinaryEditorPreferences preferences;
-    private final BinEdOptionsPanelController controller;
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(BinEdOptionsPanel.class);
 
     private DefaultListModel<CategoryItem> categoryModel = new DefaultListModel<>();
@@ -81,13 +83,8 @@ public class BinEdOptionsPanel extends javax.swing.JPanel {
     private final ProfileSelectionPanel colorSelectionPanel = new ProfileSelectionPanel(colorProfilesPanel);
 
     public BinEdOptionsPanel() {
-        this(new BinEdOptionsPanelController());
-    }
-
-    public BinEdOptionsPanel(BinEdOptionsPanelController controller) {
-        this.controller = controller;
         initComponents();
-        preferences = new BinaryEditorPreferences(new PreferencesWrapper(NbPreferences.forModule(BinaryEditorPreferences.class)));
+        preferences = new BinaryEditorPreferences(new PreferencesWrapper(BinEdPlugin.getDefault().getPreferenceStore()));
 
         categoryModel.addElement(new CategoryItem("Editor", editorParametersPanel));
         categoryModel.addElement(new CategoryItem("Status Panel", statusParametersPanel));

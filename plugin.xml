@@ -5,20 +5,12 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            name="Sample Multi-page Editor"
-            extensions="mpe"
-            icon="icons/sample.gif"
-            contributorClass="org.exbin.bined.eclipse.editors.MultiPageEditorContributor"
-            class="org.exbin.bined.eclipse.editors.MultiPageEditor"
-            id="org.exbin.bined.eclipse.editors.MultiPageEditor">
-      </editor>
-      <editor
-            class="org.exbin.bined.eclipse.editors.BinEdEditor"
+            class="org.exbin.bined.eclipse.BinEdEditor"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             extensions="bin"
-            icon="icons/sample.gif"
-            id="org.exbin.bined.eclipse.editors.BinEdEditor"
-            name="BinEd Hexadecimal Editor">
+            icon="icons/icon.png"
+            id="org.exbin.bined.eclipse.BinEdEditor"
+            name="BinEd Binary/Hexadecimal Editor">
       </editor>
    </extension>
    <extension

@@ -15,10 +15,10 @@
  */
 package org.exbin.framework;
 
-import java.util.prefs.BackingStoreException;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import org.openide.util.Exceptions;
+
+import org.eclipse.jface.preference.IPreferenceStore;
 
 /**
  * Wrapper for preferences.
@@ -29,106 +29,112 @@ import org.openide.util.Exceptions;
 @ParametersAreNonnullByDefault
 public class PreferencesWrapper implements Preferences {
 
-    private final java.util.prefs.Preferences preferences;
+    private final IPreferenceStore preferences;
 
-    public PreferencesWrapper(java.util.prefs.Preferences preferences) {
+    public PreferencesWrapper(IPreferenceStore preferences) {
         this.preferences = preferences;
     }
 
     @Override
     public void put(String key, @Nullable String value) {
-        if (value == null) {
-            preferences.remove(key);
-        } else {
-            preferences.put(key, value);
-        }
+//        if (value == null) {
+//            preferences.remove(key);
+//        } else {
+            preferences.setValue(key, value);
+//        }
     }
 
     @Override
     public String get(String key, @Nullable String def) {
-        return preferences.get(key, def);
+    	preferences.setDefault(key, def);
+        return preferences.getString(key);
     }
 
     @Override
     public void remove(String key) {
-        preferences.remove(key);
+        // TODO preferences.remove(key);
     }
 
     @Override
     public void putInt(String key, int value) {
-        preferences.putInt(key, value);
+        preferences.setValue(key, value);
     }
 
     @Override
     public int getInt(String key, int def) {
-        return preferences.getInt(key, def);
+    	preferences.setDefault(key, def);
+        return preferences.getInt(key);
     }
 
     @Override
     public void putLong(String key, long value) {
-        preferences.putLong(key, value);
+        preferences.setValue(key, value);
     }
 
     @Override
     public long getLong(String key, long def) {
-        return preferences.getLong(key, def);
+    	preferences.setDefault(key, def);
+        return preferences.getLong(key);
     }
 
     @Override
     public void putBoolean(String key, boolean value) {
-        preferences.putBoolean(key, value);
+        preferences.setValue(key, value);
     }
 
     @Override
     public boolean getBoolean(String key, boolean def) {
-        return preferences.getBoolean(key, def);
+    	preferences.setDefault(key, def);
+        return preferences.getBoolean(key);
     }
 
     @Override
     public void putFloat(String key, float value) {
-        preferences.putFloat(key, value);
+        preferences.setValue(key, value);
     }
 
     @Override
     public float getFloat(String key, float def) {
-        return preferences.getFloat(key, def);
+    	preferences.setDefault(key, def);
+        return preferences.getFloat(key);
     }
 
     @Override
     public void putDouble(String key, double value) {
-        preferences.putDouble(key, value);
+        preferences.setValue(key, value);
     }
 
     @Override
     public double getDouble(String key, double def) {
-        return preferences.getDouble(key, def);
+    	preferences.setDefault(key, def);
+        return preferences.getDouble(key);
     }
 
     @Override
     public void putByteArray(String key, byte[] value) {
-        preferences.putByteArray(key, value);
+        // TODO preferences.setValue(key, value);
     }
 
     @Override
     public byte[] getByteArray(String key, byte[] def) {
-        return preferences.getByteArray(key, def);
+        return null; // TODO preferences.getByteArray(key, def);
     }
 
     @Override
     public void flush() {
-        try {
-            preferences.flush();
-        } catch (BackingStoreException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+//        try {
+//            preferences.flush();
+//        } catch (BackingStoreException ex) {
+//            ex.printStackTrace();
+//        }
     }
 
     @Override
     public void sync() {
-        try {
-            preferences.sync();
-        } catch (BackingStoreException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+//        try {
+//            preferences.sync();
+//        } catch (BackingStoreException ex) {
+//            ex.printStackTrace();
+//        }
     }
 }
