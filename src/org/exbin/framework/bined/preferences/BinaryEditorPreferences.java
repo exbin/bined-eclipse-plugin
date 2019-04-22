@@ -15,21 +15,10 @@
  */
 package org.exbin.framework.bined.preferences;
 
-import org.exbin.framework.Preferences;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import org.exbin.bined.capability.RowWrappingCapable;
-import org.exbin.bined.eclipse.BinEdPlugin;
-import org.exbin.bined.eclipse.FileHandlingMode;
-import org.exbin.bined.swing.extended.layout.DefaultExtendedCodeAreaLayoutProfile;
-import org.exbin.bined.swing.extended.layout.ExtendedCodeAreaDecorations;
-import org.exbin.bined.swing.extended.theme.ExtendedCodeAreaThemeProfile;
-import org.exbin.framework.PreferencesWrapper;
-import org.exbin.framework.bined.options.CodeAreaOptions;
-import org.exbin.framework.editor.text.EncodingsHandler;
+
+import org.exbin.framework.Preferences;
 
 /**
  * Hexadecimal editor preferences.
@@ -63,6 +52,13 @@ public class BinaryEditorPreferences {
         layoutParameters = new LayoutParameters(preferences);
         themeParameters = new ThemeParameters(preferences);
         colorParameters = new ColorParameters(preferences);
+
+        final String legacyDef = "LEGACY";
+        String storedVersion = preferences.get(PREFERENCES_VERSION, legacyDef);
+        if (legacyDef.equals(storedVersion)) {
+            preferences.put(PREFERENCES_VERSION, PREFERENCES_VERSION_VALUE);
+            preferences.flush();
+        }
     }
 
     @Nonnull

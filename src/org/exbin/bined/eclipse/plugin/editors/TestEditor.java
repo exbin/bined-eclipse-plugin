@@ -1,12 +1,12 @@
-package org.exbin.bined.eclipse.editors;
+package org.exbin.bined.eclipse.plugin.editors;
 
 import org.eclipse.ui.editors.text.TextEditor;
 
-public class BinEdEditor extends TextEditor {
+public class TestEditor extends TextEditor {
 
 	private ColorManager colorManager;
 
-	public BinEdEditor() {
+	public TestEditor() {
 		super();
 		colorManager = new ColorManager();
 		setSourceViewerConfiguration(new XMLConfiguration(colorManager));

@@ -1,4 +1,4 @@
-package org.exbin.bined.eclipse.editors;
+package org.exbin.bined.eclipse.plugin.editors;
 
 
 import java.io.StringWriter;

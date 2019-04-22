@@ -16,12 +16,11 @@
 package org.exbin.bined.eclipse.panel;
 
 import org.exbin.bined.eclipse.BinEdApplyOptions;
-import org.exbin.bined.eclipse.BinEdPlugin;
+import org.exbin.bined.eclipse.plugin.BinEdPlugin;
 
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;

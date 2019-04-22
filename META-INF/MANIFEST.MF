@@ -2,8 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: BinEd Binary/Hexadecimal Editor
 Bundle-SymbolicName: org.exbin.bined.eclipse;singleton:=true
+Automatic-Module-Name: org.exbin.bined.eclipse
 Bundle-Version: 0.2.0
-Bundle-Activator: org.exbin.bined.eclipse.BinEdPlugin
+Bundle-Activator: org.exbin.bined.eclipse.plugin.BinEdPlugin
 Bundle-Vendor: ExBin Project
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -13,6 +14,23 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
+Export-Package: org.exbin.bined.eclipse,
+ org.exbin.bined.eclipse.plugin,
+ org.exbin.bined.eclipse.plugin.editors,
+ org.exbin.bined.eclipse.wizards,
+ org.exbin.bined.extended;
+  uses:="org.exbin.bined,
+   org.exbin.bined.basic,
+   org.exbin.bined.capability,
+   org.exbin.bined.extended.layout",
+ org.exbin.bined.extended.capability;
+  uses:="org.exbin.bined,
+   org.exbin.bined.basic,
+   org.exbin.bined.capability,
+   org.exbin.bined.extended",
+ org.exbin.bined.extended.color;uses:="org.exbin.bined.color",
+ org.exbin.bined.extended.layout;uses:="org.exbin.bined,org.exbin.bined.basic,org.exbin.bined.extended",
+ org.exbin.bined.extended.theme
 Bundle-ClassPath: lib/bined-core-0.2.0-SNAPSHOT.jar,
  lib/bined-delta-0.2.0-SNAPSHOT.jar,
  lib/bined-highlight-swing-0.2.0-SNAPSHOT.jar,
@@ -22,5 +40,4 @@ Bundle-ClassPath: lib/bined-core-0.2.0-SNAPSHOT.jar,
  lib/bined-swing-extended-0.2.0-SNAPSHOT.jar,
  lib/bined-swt-0.2.0-SNAPSHOT.jar,
  lib/exbin-binary_data-0.1.3-20190227.214847-12.jar,
- lib/jsr305-2.0.1.jar,
- .
+ lib/jsr305-2.0.1.jar

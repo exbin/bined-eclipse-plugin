@@ -5,11 +5,10 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="org.exbin.bined.eclipse.BinEdEditor"
-            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            class="org.exbin.bined.eclipse.plugin.editors.BinEdEditor"
             extensions="bin"
             icon="icons/icon.png"
-            id="org.exbin.bined.eclipse.BinEdEditor"
+            id="org.exbin.bined.eclipse.plugin.editors.BinEdEditor"
             name="BinEd Binary/Hexadecimal Editor">
       </editor>
    </extension>

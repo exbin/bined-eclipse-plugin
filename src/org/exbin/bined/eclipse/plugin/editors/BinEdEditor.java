@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.exbin.bined.eclipse;
+package org.exbin.bined.eclipse.plugin.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -70,9 +70,14 @@ import org.exbin.bined.PositionCodeType;
 import org.exbin.bined.delta.DeltaDocument;
 import org.exbin.bined.delta.FileDataSource;
 import org.exbin.bined.delta.SegmentsRepository;
+import org.exbin.bined.eclipse.BinEdApplyOptions;
+import org.exbin.bined.eclipse.FileHandlingMode;
+import org.exbin.bined.eclipse.GoToPositionAction;
+import org.exbin.bined.eclipse.SearchAction;
 import org.exbin.bined.eclipse.panel.BinEdOptionsPanelBorder;
 import org.exbin.bined.eclipse.panel.BinEdToolbarPanel;
 import org.exbin.bined.eclipse.panel.BinarySearchPanel;
+import org.exbin.bined.eclipse.plugin.BinEdPlugin;
 import org.exbin.bined.extended.layout.ExtendedCodeAreaLayoutProfile;
 import org.exbin.bined.highlight.swing.extended.ExtendedHighlightNonAsciiCodeAreaPainter;
 import org.exbin.bined.operation.BinaryDataCommand;
@@ -106,7 +111,6 @@ import org.exbin.utils.binary_data.PagedData;
  * @version 0.2.0 2019/04/21
  * @author ExBin Project (http://exbin.org)
  */
-@ParametersAreNonnullByDefault
 public final class BinEdEditor extends EditorPart implements ISelectionProvider {
 	
     private static final FileHandlingMode DEFAULT_FILE_HANDLING_MODE = FileHandlingMode.DELTA;
