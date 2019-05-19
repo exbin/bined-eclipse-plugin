@@ -23,7 +23,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 /**
  * Wrapper for preferences.
  *
- * @version 0.2.0 2019/03/11
+ * @version 0.2.0 2019/05/19
  * @author ExBin Project (http://exbin.org)
  */
 @ParametersAreNonnullByDefault
@@ -46,8 +46,9 @@ public class PreferencesWrapper implements Preferences {
 
     @Override
     public String get(String key, @Nullable String def) {
-    	preferences.setDefault(key, def);
-        return preferences.getString(key);
+    	if (def != null) preferences.setDefault(key, def);
+        String value = preferences.getString(key);
+        return "".equals(value) ? def : value;
     }
 
     @Override

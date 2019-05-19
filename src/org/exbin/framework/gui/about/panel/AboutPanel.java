@@ -407,7 +407,7 @@ public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener 
     }
 
     public void setupFields() {
-        appBundle = ResourceBundle.getBundle("org.exbin.bined.netbeans.Bundle");
+        appBundle = ResourceBundle.getBundle("org.exbin.bined.eclipse.Bundle");
 
         // Load license
         try {

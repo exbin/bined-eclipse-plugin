@@ -45,6 +45,13 @@ import javax.swing.JTextPane;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.exbin.framework.gui.utils.panel.WindowHeaderPanel;
 
 /**
@@ -114,42 +121,78 @@ public class WindowUtils {
 
     @Nonnull
     public static DialogWrapper createDialog(final JComponent component, Window parent, String dialogTitle, Dialog.ModalityType modalityType) {
-        // DialogDescriptor dialogDescriptor = new DialogDescriptor(component, dialogTitle, modalityType != Dialog.ModalityType.MODELESS, new Object[0], null, 0, null, null);
-    	// DialogDisplayer.getDefault().createDialog(dialogDescriptor);
-        final Dialog dialog = new Dialog(getFrame(component));
-        dialog.setModalityType(modalityType);
-        dialog.setTitle(dialogTitle);
-        Dimension size = component.getPreferredSize();
-        dialog.setSize(size.width + 8, size.height + 24);
-        //        JDialog dialog = new JDialog(parent, modalityType);
-        //        dialog.add(component);
-        return new DialogWrapper() {
-            @Override
-            public void show() {
-                dialog.setVisible(true);
-            }
+    	final DialogWrapperHolder holder = new DialogWrapperHolder(); 
+    	Display.getDefault().syncExec(new Runnable() {
+    	    public void run() {
+    	    	Display display = Display.getCurrent();
+    	        if (display == null) display = Display.getDefault();
+    		    final Shell shell = new Shell(display, SWT.SHELL_TRIM | SWT.CENTER);
 
-            @Override
-            public void close() {
-                closeWindow(dialog);
-            }
+    		    // DialogDescriptor dialogDescriptor = new DialogDescriptor(component, dialogTitle, modalityType != Dialog.ModalityType.MODELESS, new Object[0], null, 0, null, null);
+    	    	// DialogDisplayer.getDefault().createDialog(dialogDescriptor);
+    	        //final Dialog dialog = new Dialog(getFrame(component));
+    	        //dialog.setModalityType(modalityType);
+    			shell.setText(dialogTitle);
+    	        Dimension size = component.getPreferredSize();
 
-            @Override
-            public Window getWindow() {
-                return dialog;
-            }
+    	        shell.setSize(size.width + 8, size.height + 24);
+    	        //dialog.setSize(size.width + 8, size.height + 24);
+    	        //        JDialog dialog = new JDialog(parent, modalityType);
+    	        //        dialog.add(component);
 
-            @Override
-            public void dispose() {
-                dialog.dispose();
-            }
+    		    Composite wrapper = new Composite(shell, SWT.EMBEDDED);
+    		    shell.layout();
+    			java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
+    			frame.setLayout(new BorderLayout());
+    			frame.add(component);
 
-            @Override
-            public void center() {
-                dialog.setLocationByPlatform(true);
-            }
-        };
+    			holder.dialogWrapper = new DialogWrapper() {
+    	            @Override
+    	            public void show() {
+    	            	Display.getDefault().syncExec(new Runnable() {
+    	            	    public void run() {
+	            	    		shell.open();
+    	            	    }
+    	            	});
+    	            }
+
+    	            @Override
+    	            public void close() {
+    	            	Display.getDefault().syncExec(new Runnable() {
+    	            	    public void run() {
+	            	    		shell.close();
+    	            	    }
+    	            	});
+    	            }
+
+    	            @Override
+    	            public Window getWindow() {
+    	                return frame;
+    	            }
+
+    	            @Override
+    	            public void dispose() {
+    	            	Display.getDefault().syncExec(new Runnable() {
+    	            	    public void run() {
+    	            	    	shell.dispose();
+    	            	    }
+    	            	});
+    	            }
+
+    	            @Override
+    	            public void center() {
+    	                // dialog.setLocationByPlatform(true);
+    	            }
+    	        };
+    	    }
+    	});
+    	return holder.dialogWrapper;
     }
+    
+    private static class DialogWrapperHolder {
+    	private DialogWrapper dialogWrapper;
+    }
+    
 
     public static JDialog createDialog(final JComponent component) {
         JDialog dialog = new JDialog();

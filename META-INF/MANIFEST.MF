@@ -3,35 +3,35 @@ Bundle-ManifestVersion: 2
 Bundle-Name: BinEd Binary/Hexadecimal Editor
 Bundle-SymbolicName: org.exbin.bined.eclipse;singleton:=true
 Automatic-Module-Name: org.exbin.bined.eclipse
-Bundle-Version: 0.2.0
+Bundle-Version: 0.2.0.snapshot
 Bundle-Activator: org.exbin.bined.eclipse.plugin.BinEdPlugin
 Bundle-Vendor: ExBin Project
-Require-Bundle: org.eclipse.ui,
+Require-Bundle: org.eclipse.core.filesystem,
  org.eclipse.core.runtime,
- org.eclipse.jface.text,
  org.eclipse.core.resources,
+ org.eclipse.jface.text,
+ org.eclipse.ui,
+ org.eclipse.ui.views,
  org.eclipse.ui.editors,
  org.eclipse.ui.ide
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Export-Package: org.exbin.bined.eclipse,
+Export-Package: org.exbin.bined,
+ org.exbin.bined.basic,
+ org.exbin.bined.capability,
+ org.exbin.bined.color,
+ org.exbin.bined.eclipse,
+ org.exbin.bined.eclipse.panel,
  org.exbin.bined.eclipse.plugin,
  org.exbin.bined.eclipse.plugin.editors,
  org.exbin.bined.eclipse.wizards,
- org.exbin.bined.extended;
-  uses:="org.exbin.bined,
-   org.exbin.bined.basic,
-   org.exbin.bined.capability,
-   org.exbin.bined.extended.layout",
- org.exbin.bined.extended.capability;
-  uses:="org.exbin.bined,
-   org.exbin.bined.basic,
-   org.exbin.bined.capability,
-   org.exbin.bined.extended",
- org.exbin.bined.extended.color;uses:="org.exbin.bined.color",
- org.exbin.bined.extended.layout;uses:="org.exbin.bined,org.exbin.bined.basic,org.exbin.bined.extended",
- org.exbin.bined.extended.theme
+ org.exbin.bined.swing.extended,
+ org.exbin.bined.swing.extended.capability,
+ org.exbin.bined.swing.extended.color,
+ org.exbin.bined.swing.extended.layout,
+ org.exbin.bined.swing.extended.theme
 Bundle-ClassPath: lib/bined-core-0.2.0-SNAPSHOT.jar,
+ lib/bined-extended-0.2.0-SNAPSHOT.jar,
  lib/bined-delta-0.2.0-SNAPSHOT.jar,
  lib/bined-highlight-swing-0.2.0-SNAPSHOT.jar,
  lib/bined-operation-0.2.0-SNAPSHOT.jar,
@@ -40,4 +40,5 @@ Bundle-ClassPath: lib/bined-core-0.2.0-SNAPSHOT.jar,
  lib/bined-swing-extended-0.2.0-SNAPSHOT.jar,
  lib/bined-swt-0.2.0-SNAPSHOT.jar,
  lib/exbin-binary_data-0.1.3-20190227.214847-12.jar,
- lib/jsr305-2.0.1.jar
+ lib/jsr305-2.0.1.jar,
+ .

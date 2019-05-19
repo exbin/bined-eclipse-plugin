@@ -26,5 +26,13 @@
             id="org.exbin.bined.eclipse.wizards.SampleNewWizard">
       </wizard>
    </extension>
-
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            file-extensions="bin"
+            id="javahexeditor.binaryFile"
+            name="Binary file"
+            priority="high">
+      </content-type>
+   </extension>
 </plugin>
