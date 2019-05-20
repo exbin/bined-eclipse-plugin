@@ -32,6 +32,7 @@ import java.awt.event.WindowEvent;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.annotation.Nonnull;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -48,10 +49,13 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.exbin.framework.gui.utils.panel.WindowHeaderPanel;
 
 /**
@@ -62,395 +66,424 @@ import org.exbin.framework.gui.utils.panel.WindowHeaderPanel;
  */
 public class WindowUtils {
 
-    private static final int BUTTON_CLICK_TIME = 150;
-    private static LookAndFeel lookAndFeel = null;
+	private static final int BUTTON_CLICK_TIME = 150;
+	private static LookAndFeel lookAndFeel = null;
 
-    public static void addHeaderPanel(JDialog dialog, ResourceBundle resourceBundle) {
-        addHeaderPanel(dialog, resourceBundle.getString("header.title"), resourceBundle.getString("header.description"), resourceBundle.getString("header.icon"));
-    }
+	public static void addHeaderPanel(JDialog dialog, ResourceBundle resourceBundle) {
+		addHeaderPanel(dialog, resourceBundle.getString("header.title"), resourceBundle.getString("header.description"),
+				resourceBundle.getString("header.icon"));
+	}
 
-    public static void addHeaderPanel(JDialog dialog, String headerTitle, String headerDescription, String headerIcon) {
-        WindowHeaderPanel headerPanel = new WindowHeaderPanel();
-        headerPanel.setTitle(headerTitle);
-        headerPanel.setDescription(headerDescription);
-        if (!headerIcon.isEmpty()) {
-            headerPanel.setIcon(new ImageIcon(dialog.getClass().getResource(headerIcon)));
-        }
-        if (dialog instanceof WindowHeaderPanel.WindowHeaderDecorationProvider) {
-            ((WindowHeaderPanel.WindowHeaderDecorationProvider) dialog).setHeaderDecoration(headerPanel);
-        } else {
-            Frame frame = getFrame(dialog);
-            if (frame instanceof WindowHeaderPanel.WindowHeaderDecorationProvider) {
-                ((WindowHeaderPanel.WindowHeaderDecorationProvider) frame).setHeaderDecoration(headerPanel);
-            }
-        }
-        int height = dialog.getHeight() + headerPanel.getPreferredSize().height;
-        dialog.getContentPane().add(headerPanel, java.awt.BorderLayout.PAGE_START);
-        dialog.setSize(dialog.getWidth(), height);
-    }
+	public static void addHeaderPanel(JDialog dialog, String headerTitle, String headerDescription, String headerIcon) {
+		WindowHeaderPanel headerPanel = new WindowHeaderPanel();
+		headerPanel.setTitle(headerTitle);
+		headerPanel.setDescription(headerDescription);
+		if (!headerIcon.isEmpty()) {
+			headerPanel.setIcon(new ImageIcon(dialog.getClass().getResource(headerIcon)));
+		}
+		if (dialog instanceof WindowHeaderPanel.WindowHeaderDecorationProvider) {
+			((WindowHeaderPanel.WindowHeaderDecorationProvider) dialog).setHeaderDecoration(headerPanel);
+		} else {
+			Frame frame = getFrame(dialog);
+			if (frame instanceof WindowHeaderPanel.WindowHeaderDecorationProvider) {
+				((WindowHeaderPanel.WindowHeaderDecorationProvider) frame).setHeaderDecoration(headerPanel);
+			}
+		}
+		int height = dialog.getHeight() + headerPanel.getPreferredSize().height;
+		dialog.getContentPane().add(headerPanel, java.awt.BorderLayout.PAGE_START);
+		dialog.setSize(dialog.getWidth(), height);
+	}
 
-    private WindowUtils() {
-    }
+	private WindowUtils() {
+	}
 
-    public static void invokeWindow(final Window window) {
-        if (lookAndFeel != null) {
-            try {
-                javax.swing.UIManager.setLookAndFeel(lookAndFeel);
-            } catch (UnsupportedLookAndFeelException ex) {
-                Logger.getLogger(WindowUtils.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+	public static void invokeWindow(final Window window) {
+		if (lookAndFeel != null) {
+			try {
+				javax.swing.UIManager.setLookAndFeel(lookAndFeel);
+			} catch (UnsupportedLookAndFeelException ex) {
+				Logger.getLogger(WindowUtils.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		}
 
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                if (window instanceof JDialog) {
-                    ((JDialog) window).setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-                }
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				if (window instanceof JDialog) {
+					((JDialog) window).setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+				}
 
-                window.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                window.setVisible(true);
-            }
-        });
-    }
+				window.addWindowListener(new java.awt.event.WindowAdapter() {
+					@Override
+					public void windowClosing(java.awt.event.WindowEvent e) {
+						System.exit(0);
+					}
+				});
+				window.setVisible(true);
+			}
+		});
+	}
 
-    @Nonnull
-    public static DialogWrapper createDialog(final JComponent component, Window parent, String dialogTitle, Dialog.ModalityType modalityType) {
-    	final DialogWrapperHolder holder = new DialogWrapperHolder(); 
-    	Display.getDefault().syncExec(new Runnable() {
-    	    public void run() {
-    	    	Display display = Display.getCurrent();
-    	        if (display == null) display = Display.getDefault();
-    		    final Shell shell = new Shell(display, SWT.SHELL_TRIM | SWT.CENTER);
+	@Nonnull
+	public static DialogWrapper createDialog(final JComponent component, Window parent, String dialogTitle,
+			Dialog.ModalityType modalityType) {
+		final DialogWrapperHolder holder = new DialogWrapperHolder();
+		Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				Display currentDisplay = Display.getCurrent();
+				if (currentDisplay == null)
+					currentDisplay = Display.getDefault();
+				final Display display = currentDisplay;
+				final Shell shell = new Shell(display, SWT.SHELL_TRIM | SWT.CENTER | SWT.APPLICATION_MODAL);
 
-    		    // DialogDescriptor dialogDescriptor = new DialogDescriptor(component, dialogTitle, modalityType != Dialog.ModalityType.MODELESS, new Object[0], null, 0, null, null);
-    	    	// DialogDisplayer.getDefault().createDialog(dialogDescriptor);
-    	        //final Dialog dialog = new Dialog(getFrame(component));
-    	        //dialog.setModalityType(modalityType);
-    			shell.setText(dialogTitle);
-    	        Dimension size = component.getPreferredSize();
+				// DialogDescriptor dialogDescriptor = new DialogDescriptor(component,
+				// dialogTitle, modalityType != Dialog.ModalityType.MODELESS, new Object[0],
+				// null, 0, null, null);
+				// DialogDisplayer.getDefault().createDialog(dialogDescriptor);
+				// final Dialog dialog = new Dialog(getFrame(component));
+				// dialog.setModalityType(modalityType);
+				shell.setText(dialogTitle);
+				Dimension size = component.getPreferredSize();
 
-    	        shell.setSize(size.width + 8, size.height + 24);
-    	        //dialog.setSize(size.width + 8, size.height + 24);
-    	        //        JDialog dialog = new JDialog(parent, modalityType);
-    	        //        dialog.add(component);
+				shell.setSize(size.width + 8, size.height + 24);
+				// dialog.setSize(size.width + 8, size.height + 24);
+				// JDialog dialog = new JDialog(parent, modalityType);
+				// dialog.add(component);
 
-    		    Composite wrapper = new Composite(shell, SWT.EMBEDDED);
-    		    shell.layout();
-    			java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
-    			frame.setLayout(new BorderLayout());
-    			frame.add(component);
+				shell.setLayout(new FillLayout());
+				Composite wrapper = new Composite(shell, SWT.EMBEDDED | SWT.FILL);
+				java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
+				frame.setLayout(new BorderLayout());
+				frame.add(component, BorderLayout.CENTER);
+//				frame.setSize(size.width + 8, size.height + 24);
 
-    			holder.dialogWrapper = new DialogWrapper() {
-    	            @Override
-    	            public void show() {
-    	            	Display.getDefault().syncExec(new Runnable() {
-    	            	    public void run() {
-	            	    		shell.open();
-    	            	    }
-    	            	});
-    	            }
+//				Label label = new Label(shell, SWT.NO_FOCUS);
+//				label.setText("TEST");
 
-    	            @Override
-    	            public void close() {
-    	            	Display.getDefault().syncExec(new Runnable() {
-    	            	    public void run() {
-	            	    		shell.close();
-    	            	    }
-    	            	});
-    	            }
+				holder.dialogWrapper = new DialogWrapper() {
 
-    	            @Override
-    	            public Window getWindow() {
-    	                return frame;
-    	            }
+					@Override
+					public void show() {
+						Display.getDefault().syncExec(new Runnable() {
+							public void run() {
+								shell.open();
+							}
+						});
+					}
 
-    	            @Override
-    	            public void dispose() {
-    	            	Display.getDefault().syncExec(new Runnable() {
-    	            	    public void run() {
-    	            	    	shell.dispose();
-    	            	    }
-    	            	});
-    	            }
+					@Override
+					public void close() {
+						Display.getDefault().syncExec(new Runnable() {
+							public void run() {
+								shell.close();
+							}
+						});
+					}
 
-    	            @Override
-    	            public void center() {
-    	                // dialog.setLocationByPlatform(true);
-    	            }
-    	        };
-    	    }
-    	});
-    	return holder.dialogWrapper;
-    }
-    
-    private static class DialogWrapperHolder {
-    	private DialogWrapper dialogWrapper;
-    }
-    
+					@Override
+					public Window getWindow() {
+						return frame;
+					}
 
-    public static JDialog createDialog(final JComponent component) {
-        JDialog dialog = new JDialog();
-        Dimension size = component.getPreferredSize();
-        dialog.add(component);
-        dialog.setSize(size.width + 8, size.height + 24);
-        return dialog;
-    }
+					@Override
+					public void dispose() {
+						Display.getDefault().syncExec(new Runnable() {
+							public void run() {
+								shell.dispose();
+							}
+						});
+					}
 
-    public static void invokeDialog(final JComponent component) {
-        JDialog dialog = createDialog(component);
-        invokeWindow(dialog);
-    }
+					@Override
+					public void center() {
+						IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+						if (activeWorkbenchWindow != null) {
+							Shell parentShell = activeWorkbenchWindow.getShell();
+							placeDialogInCenter(parentShell, shell);
+						}
+					}
+				};
+				holder.dialogWrapper.center();
+			}
+		});
+		return holder.dialogWrapper;
+	}
 
-    public static void initWindow(Window window) {
+	private static class DialogWrapperHolder {
+		private DialogWrapper dialogWrapper;
+	}
+
+	public static JDialog createDialog(final JComponent component) {
+		JDialog dialog = new JDialog();
+		Dimension size = component.getPreferredSize();
+		dialog.add(component);
+		dialog.setSize(size.width + 8, size.height + 24);
+		return dialog;
+	}
+
+	public static void invokeDialog(final JComponent component) {
+		JDialog dialog = createDialog(component);
+		invokeWindow(dialog);
+	}
+
+	public static void initWindow(Window window) {
 //        if (window.getParent() instanceof XBEditorFrame) {
 //            window.setIconImage(((XBEditorFrame) window.getParent()).getMainFrameManagement().getFrameIcon());
 //        }
-    }
+	}
 
-    public static LookAndFeel getLookAndFeel() {
-        return lookAndFeel;
-    }
+	public static LookAndFeel getLookAndFeel() {
+		return lookAndFeel;
+	}
 
-    public static void setLookAndFeel(LookAndFeel lookAndFeel) {
-        WindowUtils.lookAndFeel = lookAndFeel;
-    }
+	public static void setLookAndFeel(LookAndFeel lookAndFeel) {
+		WindowUtils.lookAndFeel = lookAndFeel;
+	}
 
-    public static void closeWindow(Window window) {
-        window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
-    }
+	public static void closeWindow(Window window) {
+		window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+	}
 
-    public static JDialog createBasicDialog() {
-        JDialog dialog = new JDialog(new javax.swing.JFrame(), true);
-        dialog.setSize(640, 480);
-        dialog.setLocationByPlatform(true);
-        return dialog;
-    }
+	public static JDialog createBasicDialog() {
+		JDialog dialog = new JDialog(new javax.swing.JFrame(), true);
+		dialog.setSize(640, 480);
+		dialog.setLocationByPlatform(true);
+		return dialog;
+	}
 
-    /**
-     * Find frame component for given component.
-     *
-     * @param component instantiated component
-     * @return frame instance if found
-     */
-    public static Frame getFrame(Component component) {
-        Component parentComponent = SwingUtilities.getWindowAncestor(component);
-        while (!(parentComponent == null || parentComponent instanceof Frame)) {
-            parentComponent = parentComponent.getParent();
-        }
-        return (Frame) parentComponent;
-    }
+	/**
+	 * Find frame component for given component.
+	 *
+	 * @param component instantiated component
+	 * @return frame instance if found
+	 */
+	public static Frame getFrame(Component component) {
+		Component parentComponent = SwingUtilities.getWindowAncestor(component);
+		while (!(parentComponent == null || parentComponent instanceof Frame)) {
+			parentComponent = parentComponent.getParent();
+		}
+		return (Frame) parentComponent;
+	}
 
-    /**
-     * Assign ESCAPE/ENTER key for all focusable components recursively.
-     *
-     * @param component target component
-     * @param closeButton button which will be used for closing operation
-     */
-    public static void assignGlobalKeyListener(Container component, final JButton closeButton) {
-        assignGlobalKeyListener(component, closeButton, closeButton);
-    }
+	/**
+	 * Assign ESCAPE/ENTER key for all focusable components recursively.
+	 *
+	 * @param component   target component
+	 * @param closeButton button which will be used for closing operation
+	 */
+	public static void assignGlobalKeyListener(Container component, final JButton closeButton) {
+		assignGlobalKeyListener(component, closeButton, closeButton);
+	}
 
-    /**
-     * Assign ESCAPE/ENTER key for all focusable components recursively.
-     *
-     * @param component target component
-     * @param okButton button which will be used for default ENTER
-     * @param cancelButton button which will be used for closing operation
-     */
-    public static void assignGlobalKeyListener(Container component, final JButton okButton, final JButton cancelButton) {
-        assignGlobalKeyListener(component, new OkCancelListener() {
-            @Override
-            public void okEvent() {
-                doButtonClick(okButton);
-            }
+	/**
+	 * Assign ESCAPE/ENTER key for all focusable components recursively.
+	 *
+	 * @param component    target component
+	 * @param okButton     button which will be used for default ENTER
+	 * @param cancelButton button which will be used for closing operation
+	 */
+	public static void assignGlobalKeyListener(Container component, final JButton okButton,
+			final JButton cancelButton) {
+		assignGlobalKeyListener(component, new OkCancelListener() {
+			@Override
+			public void okEvent() {
+				doButtonClick(okButton);
+			}
 
-            @Override
-            public void cancelEvent() {
-                doButtonClick(cancelButton);
-            }
-        });
-    }
+			@Override
+			public void cancelEvent() {
+				doButtonClick(cancelButton);
+			}
+		});
+	}
 
-    /**
-     * Assign ESCAPE/ENTER key for all focusable components recursively.
-     *
-     * @param component target component
-     * @param listener ok and cancel event listener
-     */
-    public static void assignGlobalKeyListener(Container component, final OkCancelListener listener) {
-        KeyListener keyListener = new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
+	/**
+	 * Assign ESCAPE/ENTER key for all focusable components recursively.
+	 *
+	 * @param component target component
+	 * @param listener  ok and cancel event listener
+	 */
+	public static void assignGlobalKeyListener(Container component, final OkCancelListener listener) {
+		KeyListener keyListener = new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
 
-            @Override
-            public void keyPressed(KeyEvent evt) {
-                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-                    boolean performOkAction = true;
+			@Override
+			public void keyPressed(KeyEvent evt) {
+				if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+					boolean performOkAction = true;
 
-                    if (evt.getSource() instanceof JButton) {
-                        ((JButton) evt.getSource()).doClick(BUTTON_CLICK_TIME);
-                        performOkAction = false;
-                    } else if (evt.getSource() instanceof JTextArea) {
-                        performOkAction = !((JTextArea) evt.getSource()).isEditable();
-                    } else if (evt.getSource() instanceof JTextPane) {
-                        performOkAction = !((JTextPane) evt.getSource()).isEditable();
-                    } else if (evt.getSource() instanceof JEditorPane) {
-                        performOkAction = !((JEditorPane) evt.getSource()).isEditable();
-                    }
+					if (evt.getSource() instanceof JButton) {
+						((JButton) evt.getSource()).doClick(BUTTON_CLICK_TIME);
+						performOkAction = false;
+					} else if (evt.getSource() instanceof JTextArea) {
+						performOkAction = !((JTextArea) evt.getSource()).isEditable();
+					} else if (evt.getSource() instanceof JTextPane) {
+						performOkAction = !((JTextPane) evt.getSource()).isEditable();
+					} else if (evt.getSource() instanceof JEditorPane) {
+						performOkAction = !((JEditorPane) evt.getSource()).isEditable();
+					}
 
-                    if (performOkAction && listener != null) {
-                        listener.okEvent();
-                    }
+					if (performOkAction && listener != null) {
+						listener.okEvent();
+					}
 
-                } else if (evt.getKeyCode() == KeyEvent.VK_ESCAPE && listener != null) {
-                    listener.cancelEvent();
-                }
-            }
+				} else if (evt.getKeyCode() == KeyEvent.VK_ESCAPE && listener != null) {
+					listener.cancelEvent();
+				}
+			}
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-            }
-        };
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+		};
 
-        assignGlobalKeyListener(component, keyListener);
-    }
+		assignGlobalKeyListener(component, keyListener);
+	}
 
-    /**
-     * Assign key listener for all focusable components recursively.
-     *
-     * @param component target component
-     * @param keyListener key lisneter
-     */
-    public static void assignGlobalKeyListener(Container component, KeyListener keyListener) {
-        Component[] comps = component.getComponents();
-        for (Component item : comps) {
-            if (item.isFocusable()) {
-                item.addKeyListener(keyListener);
-            }
+	/**
+	 * Assign key listener for all focusable components recursively.
+	 *
+	 * @param component   target component
+	 * @param keyListener key lisneter
+	 */
+	public static void assignGlobalKeyListener(Container component, KeyListener keyListener) {
+		Component[] comps = component.getComponents();
+		for (Component item : comps) {
+			if (item.isFocusable()) {
+				item.addKeyListener(keyListener);
+			}
 
-            if (item instanceof Container) {
-                assignGlobalKeyListener((Container) item, keyListener);
-            }
-        }
-    }
+			if (item instanceof Container) {
+				assignGlobalKeyListener((Container) item, keyListener);
+			}
+		}
+	}
 
-    /**
-     * Performs visually visible click on the button component.
-     *
-     * @param button button component
-     */
-    public static void doButtonClick(JButton button) {
-        button.doClick(BUTTON_CLICK_TIME);
-    }
+	/**
+	 * Performs visually visible click on the button component.
+	 *
+	 * @param button button component
+	 */
+	public static void doButtonClick(JButton button) {
+		button.doClick(BUTTON_CLICK_TIME);
+	}
 
-    public static WindowPosition getWindowPosition(Window window) {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] screenDevices = ge.getScreenDevices();
-        int windowX = window.getX();
-        int windowY = window.getY();
-        int screenX = 0;
-        int screenY = 0;
-        int screenWidth = 0;
-        int screenHeight = 0;
-        int screenIndex = 0;
-        for (GraphicsDevice screen : screenDevices) {
-            Rectangle bounds = screen.getDefaultConfiguration().getBounds();
-            if (bounds.contains(windowX, windowY)) {
-                screenX = bounds.x;
-                screenY = bounds.y;
-                screenWidth = bounds.width;
-                screenHeight = bounds.height;
-                break;
-            }
-            screenIndex++;
-        }
-        WindowPosition position = new WindowPosition();
-        position.setScreenIndex(screenIndex);
-        position.setScreenWidth(screenWidth);
-        position.setScreenHeight(screenHeight);
-        position.setRelativeX(window.getX() - screenX);
-        position.setRelativeY(window.getY() - screenY);
-        position.setWidth(window.getWidth());
-        position.setHeight(window.getHeight());
-        position.setMaximized(window instanceof Frame ? (((Frame) window).getExtendedState() & JFrame.MAXIMIZED_BOTH) > 0 : false);
-        return position;
-    }
+	public static WindowPosition getWindowPosition(Window window) {
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] screenDevices = ge.getScreenDevices();
+		int windowX = window.getX();
+		int windowY = window.getY();
+		int screenX = 0;
+		int screenY = 0;
+		int screenWidth = 0;
+		int screenHeight = 0;
+		int screenIndex = 0;
+		for (GraphicsDevice screen : screenDevices) {
+			Rectangle bounds = screen.getDefaultConfiguration().getBounds();
+			if (bounds.contains(windowX, windowY)) {
+				screenX = bounds.x;
+				screenY = bounds.y;
+				screenWidth = bounds.width;
+				screenHeight = bounds.height;
+				break;
+			}
+			screenIndex++;
+		}
+		WindowPosition position = new WindowPosition();
+		position.setScreenIndex(screenIndex);
+		position.setScreenWidth(screenWidth);
+		position.setScreenHeight(screenHeight);
+		position.setRelativeX(window.getX() - screenX);
+		position.setRelativeY(window.getY() - screenY);
+		position.setWidth(window.getWidth());
+		position.setHeight(window.getHeight());
+		position.setMaximized(
+				window instanceof Frame ? (((Frame) window).getExtendedState() & JFrame.MAXIMIZED_BOTH) > 0 : false);
+		return position;
+	}
 
-    public static void setWindowPosition(Window window, WindowPosition position) {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] screenDevices = ge.getScreenDevices();
-        GraphicsDevice device;
-        if (screenDevices.length > position.getScreenIndex()) {
-            device = screenDevices[position.getScreenIndex()];
-        } else {
-            device = ge.getDefaultScreenDevice();
-        }
-        Rectangle screenBounds = device.getDefaultConfiguration().getBounds();
-        double absoluteX = position.getScreenWidth() > 0
-                ? screenBounds.x + position.getRelativeX() * screenBounds.width / position.getScreenWidth()
-                : screenBounds.x + position.getRelativeX();
-        double absoluteY = position.getScreenHeight() > 0
-                ? screenBounds.y + position.getRelativeY() * screenBounds.height / position.getScreenHeight()
-                : screenBounds.y + position.getRelativeY();
-        double widthX = position.getScreenWidth() > 0
-                ? position.getWidth() * screenBounds.width / position.getScreenWidth()
-                : position.getWidth();
-        double widthY = position.getScreenHeight() > 0
-                ? position.getHeight() * screenBounds.height / position.getScreenHeight()
-                : position.getHeight();
-        if (position.isMaximized()) {
-            window.setLocation((int) absoluteX, (int) absoluteY);
-            if (window instanceof Frame) {
-                ((Frame) window).setExtendedState(JFrame.MAXIMIZED_BOTH);
-            } else {
-                // TODO if (window instanceof JDialog) 
-            }
-        } else {
-            window.setBounds((int) absoluteX, (int) absoluteY, (int) widthX, (int) widthY);
-        }
-    }
+	public static void setWindowPosition(Window window, WindowPosition position) {
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] screenDevices = ge.getScreenDevices();
+		GraphicsDevice device;
+		if (screenDevices.length > position.getScreenIndex()) {
+			device = screenDevices[position.getScreenIndex()];
+		} else {
+			device = ge.getDefaultScreenDevice();
+		}
+		Rectangle screenBounds = device.getDefaultConfiguration().getBounds();
+		double absoluteX = position.getScreenWidth() > 0
+				? screenBounds.x + position.getRelativeX() * screenBounds.width / position.getScreenWidth()
+				: screenBounds.x + position.getRelativeX();
+		double absoluteY = position.getScreenHeight() > 0
+				? screenBounds.y + position.getRelativeY() * screenBounds.height / position.getScreenHeight()
+				: screenBounds.y + position.getRelativeY();
+		double widthX = position.getScreenWidth() > 0
+				? position.getWidth() * screenBounds.width / position.getScreenWidth()
+				: position.getWidth();
+		double widthY = position.getScreenHeight() > 0
+				? position.getHeight() * screenBounds.height / position.getScreenHeight()
+				: position.getHeight();
+		if (position.isMaximized()) {
+			window.setLocation((int) absoluteX, (int) absoluteY);
+			if (window instanceof Frame) {
+				((Frame) window).setExtendedState(JFrame.MAXIMIZED_BOTH);
+			} else {
+				// TODO if (window instanceof JDialog)
+			}
+		} else {
+			window.setBounds((int) absoluteX, (int) absoluteY, (int) widthX, (int) widthY);
+		}
+	}
 
-    /**
-     * Creates panel for given main and control panel.
-     *
-     * @param mainPanel main panel
-     * @param controlPanel control panel
-     * @return panel
-     */
-    public static JPanel createDialogPanel(JPanel mainPanel, JPanel controlPanel) {
-        JPanel dialogPanel = new JPanel(new BorderLayout());
-        dialogPanel.add(mainPanel, BorderLayout.CENTER);
-        dialogPanel.add(controlPanel, BorderLayout.SOUTH);
-        Dimension mainPreferredSize = mainPanel.getPreferredSize();
-        Dimension controlPreferredSize = controlPanel.getPreferredSize();
-        dialogPanel.setPreferredSize(new Dimension(mainPreferredSize.width, mainPreferredSize.height + controlPreferredSize.height));
-        return dialogPanel;
-    }
+	public static void placeDialogInCenter(Shell parent, Shell shell) {
+		org.eclipse.swt.graphics.Rectangle parentSize = parent.getBounds();
+		org.eclipse.swt.graphics.Rectangle mySize = shell.getBounds();
 
-    public interface OkCancelListener {
+		int locationX, locationY;
+		locationX = (parentSize.width - mySize.width) / 2 + parentSize.x;
+		locationY = (parentSize.height - mySize.height) / 2 + parentSize.y;
 
-        void okEvent();
+		shell.setLocation(new Point(locationX, locationY));
+	}
 
-        void cancelEvent();
-    }
+	/**
+	 * Creates panel for given main and control panel.
+	 *
+	 * @param mainPanel    main panel
+	 * @param controlPanel control panel
+	 * @return panel
+	 */
+	public static JPanel createDialogPanel(JPanel mainPanel, JPanel controlPanel) {
+		JPanel dialogPanel = new JPanel(new BorderLayout());
+		dialogPanel.add(mainPanel, BorderLayout.CENTER);
+		dialogPanel.add(controlPanel, BorderLayout.SOUTH);
+		Dimension mainPreferredSize = mainPanel.getPreferredSize();
+		Dimension controlPreferredSize = controlPanel.getPreferredSize();
+		dialogPanel.setPreferredSize(
+				new Dimension(mainPreferredSize.width, mainPreferredSize.height + controlPreferredSize.height));
+		return dialogPanel;
+	}
 
-    public interface DialogWrapper {
+	public interface OkCancelListener {
 
-        void show();
+		void okEvent();
 
-        void close();
-        
-        void dispose();
+		void cancelEvent();
+	}
 
-        Window getWindow();
+	public interface DialogWrapper {
 
-        void center();
-    }
+		void show();
+
+		void close();
+
+		void dispose();
+
+		Window getWindow();
+
+		void center();
+	}
 }

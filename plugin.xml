@@ -10,29 +10,16 @@
             icon="icons/icon.png"
             id="org.exbin.bined.eclipse.plugin.editors.BinEdEditor"
             name="BinEd Binary/Hexadecimal Editor">
+            <contentTypeBinding contentTypeId="bined.binaryFile"/>
       </editor>
-   </extension>
-   <extension
-         point="org.eclipse.ui.newWizards">
-      <category
-            name="Sample Wizards"
-            id="org.exbin.bined.eclipse">
-      </category>
-      <wizard
-            name="Multi-page Editor file"
-            icon="icons/sample.gif"
-            category="org.exbin.bined.eclipse"
-            class="org.exbin.bined.eclipse.wizards.SampleNewWizard"
-            id="org.exbin.bined.eclipse.wizards.SampleNewWizard">
-      </wizard>
    </extension>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             file-extensions="bin"
-            id="javahexeditor.binaryFile"
+            id="bined.binaryFile"
             name="Binary file"
-            priority="high">
+            priority="low">
       </content-type>
    </extension>
 </plugin>

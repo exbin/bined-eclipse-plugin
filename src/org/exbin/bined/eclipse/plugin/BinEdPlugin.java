@@ -35,7 +35,7 @@ public class BinEdPlugin extends AbstractUIPlugin {
 
 	// The shared instance
 	private static BinEdPlugin plugin;
-	
+
 	/**
 	 * The constructor
 	 */
@@ -44,16 +44,30 @@ public class BinEdPlugin extends AbstractUIPlugin {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
+	 * 
+	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.
+	 * BundleContext)
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+
+//		IContentTypeManager contentTypeManager = Platform.getContentTypeManager();
+//		IContentType[] contentTypes = contentTypeManager.getAllContentTypes();
+//		for (int i = 0; i < contentTypes.length; i++) {
+//			IContentType contentType = contentTypes[i];
+//			if (contentType.getBaseType() == null) {
+//				contentType
+//				// contentTypeManager.addContentType();
+//			}
+//		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
+	 * 
+	 * @see
+	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
@@ -70,8 +84,8 @@ public class BinEdPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path
+	 * Returns an image descriptor for the image file at the given plug-in relative
+	 * path
 	 *
 	 * @param path the path
 	 * @return the image descriptor

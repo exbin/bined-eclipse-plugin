@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
@@ -402,12 +403,12 @@ public final class BinEdEditorSwing {
                 "Discard",
                 "Cancel"
             };
-            int result = 0; /* TODO JOptionPane.showOptionDialog(this,
+            int result = JOptionPane.showOptionDialog(codeArea,
                     "Document was modified! Do you wish to save it?",
                     "Save File?",
                     JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
-                    null, options, options[0]); */
+                    null, options, options[0]);
             if (result == JOptionPane.NO_OPTION) {
                 return true;
             }
@@ -453,12 +454,24 @@ public final class BinEdEditorSwing {
     }
 
     public void saveDataObject(IEditorInput dataObject) throws IOException {
-//        node.saveFile(dataObject);
+		if (dataObject instanceof FileEditorInput) {
+			IFile file = ((FileEditorInput) dataObject).getFile();
+			IPath path = file.getLocation();
+			try {
+				saveFileInt(path.toFile());
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
         undoHandler.setSyncPoint();
         setModified(false);
         documentOriginalSize = codeArea.getDataSize();
         updateCurrentDocumentSize();
         updateCurrentMemoryMode();
+    }
+    
+    public void save() throws IOException {
+    	saveDataObject(dataObject);
     }
 
     private void openFileInt(File file) throws IOException {
@@ -480,6 +493,16 @@ public final class BinEdEditorSwing {
         documentOriginalSize = codeArea.getDataSize();
         updateCurrentDocumentSize();
         updateCurrentMemoryMode();
+    }
+
+    private void saveFileInt(File file) throws IOException {
+        BinaryData data = codeArea.getContentData();
+        if (fileHandlingMode == FileHandlingMode.MEMORY) {
+            data.saveToStream(new FileOutputStream(file));
+        } else {
+            DeltaDocument document = (DeltaDocument) data;
+            document.save();
+        }
     }
 
     private void updateCurrentDocumentSize() {
@@ -551,12 +574,8 @@ public final class BinEdEditorSwing {
         return segmentsRepository;
     }
 
-    public void writeProperties(java.util.Properties p) {
-        p.setProperty("version", "1.0");
-    }
-
-    public void readProperties(java.util.Properties p) {
-        String version = p.getProperty("version");
+    public CodeAreaUndoHandler getUndoHandler() {
+    	return undoHandler;
     }
 
     @Nonnull
