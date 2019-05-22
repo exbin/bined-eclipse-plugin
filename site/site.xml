@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description name="BinEd Binary/Hexadecimal Editor" url="https://bined.exbin.org/eclipse-plugin/update">
+      Eclipse plugin for BinEd editor
+   </description>
+   <feature url="features/org.exbin.bined.eclipse.feature_0.2.0.snapshot.jar" id="org.exbin.bined.eclipse.feature" version="0.2.0.snapshot"/>
+</site>
