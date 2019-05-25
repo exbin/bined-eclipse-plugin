@@ -164,7 +164,7 @@ public class WindowUtils {
 
 					@Override
 					public void show() {
-						Display.getDefault().syncExec(new Runnable() {
+						display.syncExec(new Runnable() {
 							public void run() {
 								shell.open();
 							}
@@ -173,7 +173,7 @@ public class WindowUtils {
 
 					@Override
 					public void close() {
-						Display.getDefault().syncExec(new Runnable() {
+						display.syncExec(new Runnable() {
 							public void run() {
 								shell.close();
 							}
@@ -187,7 +187,7 @@ public class WindowUtils {
 
 					@Override
 					public void dispose() {
-						Display.getDefault().syncExec(new Runnable() {
+						display.syncExec(new Runnable() {
 							public void run() {
 								shell.dispose();
 							}
@@ -461,6 +461,11 @@ public class WindowUtils {
 		dialogPanel.add(mainPanel, BorderLayout.CENTER);
 		dialogPanel.add(controlPanel, BorderLayout.SOUTH);
 		Dimension mainPreferredSize = mainPanel.getPreferredSize();
+		if (mainPreferredSize.width == 0)
+			mainPreferredSize.width = 100;
+		if (mainPreferredSize.height == 0)
+			mainPreferredSize.height = 100;
+
 		Dimension controlPreferredSize = controlPanel.getPreferredSize();
 		dialogPanel.setPreferredSize(
 				new Dimension(mainPreferredSize.width, mainPreferredSize.height + controlPreferredSize.height));

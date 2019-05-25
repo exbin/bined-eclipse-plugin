@@ -19,6 +19,7 @@ import org.exbin.bined.eclipse.BinEdApplyOptions;
 import org.exbin.bined.eclipse.plugin.BinEdPlugin;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -172,6 +173,7 @@ public class BinEdOptionsPanel extends javax.swing.JPanel {
                     .addComponent(categoriesScrollPane)
                     .addComponent(mainPane)))
         );
+        setPreferredSize(new Dimension(700, 500));
     }// </editor-fold>//GEN-END:initComponents
 
     public void load() {

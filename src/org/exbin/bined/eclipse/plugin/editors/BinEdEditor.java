@@ -28,6 +28,8 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
@@ -46,19 +48,19 @@ import org.exbin.bined.operation.swing.CodeAreaUndoHandler;
 import org.exbin.bined.swing.extended.ExtCodeArea;
 
 /**
- * Implementation of the Eclipse editor. 
+ * Implementation of the Eclipse editor.
  *
  * @version 0.2.0 2019/05/20
  * @author ExBin Project (http://exbin.org)
  */
 public final class BinEdEditor extends EditorPart implements ISelectionProvider {
-	
+
 	private List<ISelectionChangedListener> selectionChangedListeners = new ArrayList<>();
 	private BinEdEditorSwing editor;
 
-    public BinEdEditor() {
+	public BinEdEditor() {
 		super();
-    }
+	}
 
 	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
@@ -79,7 +81,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 	@Override
 	public void setSelection(ISelection selection) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -96,23 +98,21 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 	@Override
 	public void doSaveAs() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-        setSite(site);
-        if (!(input instanceof IPathEditorInput)
-                && !(input instanceof ILocationProvider)
-                && (!(input instanceof IURIEditorInput))
-                && (!(input instanceof IStorageEditorInput))) {
-            throw new PartInitException("Input '" + input.toString() + "' is not a file");
-        }
-        setInput(input);
-        setPartName(input.getName());
+		setSite(site);
+		if (!(input instanceof IPathEditorInput) && !(input instanceof ILocationProvider)
+				&& (!(input instanceof IURIEditorInput)) && (!(input instanceof IStorageEditorInput))) {
+			throw new PartInitException("Input '" + input.toString() + "' is not a file");
+		}
+		setInput(input);
+		setPartName(input.getName());
 
-        // site.getActionBarContributor().setActiveEditor(this);
-        site.setSelectionProvider(this);
+		// site.getActionBarContributor().setActiveEditor(this);
+		site.setSelectionProvider(this);
 	}
 
 	@Override
@@ -129,13 +129,22 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 	public void createPartControl(Composite parent) {
 		editor = new BinEdEditorSwing();
 
-	    Composite wrapper = new Composite(parent, SWT.EMBEDDED); 
+		Composite wrapper = new Composite(parent, SWT.EMBEDDED);
+		wrapper.addTraverseListener(new TraverseListener() {
+			public void keyTraversed(TraverseEvent e) {
+				if (e.detail == SWT.TRAVERSE_TAB_NEXT) {
+					e.doit = false;
+					e.detail = SWT.TRAVERSE_NONE;
+				}
+			}
+		});
+
 		java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
 		frame.setLayout(new BorderLayout());
 
 		frame.add(editor.getCodeAreaPanel(), java.awt.BorderLayout.CENTER);
 		frame.add(editor.getStatusPanel(), BorderLayout.SOUTH);
-		
+
 		editor.getCodeArea().addDataChangedListener(new DataChangedListener() {
 
 			@Override
@@ -146,17 +155,17 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		editor.openDataObject(getEditorInput());
 		registerActionBars();
 	}
-	
+
 	private void registerActionBars() {
 		IActionBars bars = getEditorSite().getActionBars();
-		bars.setGlobalActionHandler(ActionFactory.UNDO.getId(), new Action( ) {
+		bars.setGlobalActionHandler(ActionFactory.UNDO.getId(), new Action() {
 			@Override
 			public void run() {
 				CodeAreaUndoHandler undoHandler = editor.getUndoHandler();
-		    	if (!undoHandler.canUndo())
-		    		return;
+				if (!undoHandler.canUndo())
+					return;
 
-		    	try {
+				try {
 					undoHandler.performUndo();
 				} catch (BinaryDataOperationException e) {
 					// TODO Auto-generated catch block
@@ -164,14 +173,14 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 				}
 			}
 		});
-		bars.setGlobalActionHandler(ActionFactory.REDO.getId(), new Action( ) {
+		bars.setGlobalActionHandler(ActionFactory.REDO.getId(), new Action() {
 			@Override
 			public void run() {
 				CodeAreaUndoHandler undoHandler = editor.getUndoHandler();
-		    	if (!undoHandler.canRedo())
-		    		return;
+				if (!undoHandler.canRedo())
+					return;
 
-		    	try {
+				try {
 					undoHandler.performRedo();
 				} catch (BinaryDataOperationException e) {
 					// TODO Auto-generated catch block
@@ -179,31 +188,31 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 				}
 			}
 		});
-		bars.setGlobalActionHandler(ActionFactory.CUT.getId(), new Action( ) {
+		bars.setGlobalActionHandler(ActionFactory.CUT.getId(), new Action() {
 			@Override
 			public void run() {
 				editor.getCodeArea().cut();
 			}
 		});
-		bars.setGlobalActionHandler(ActionFactory.COPY.getId(), new Action( ) {
+		bars.setGlobalActionHandler(ActionFactory.COPY.getId(), new Action() {
 			@Override
 			public void run() {
 				editor.getCodeArea().copy();
 			}
 		});
-		bars.setGlobalActionHandler(ActionFactory.PASTE.getId(), new Action( ) {
+		bars.setGlobalActionHandler(ActionFactory.PASTE.getId(), new Action() {
 			@Override
 			public void run() {
 				editor.getCodeArea().paste();
 			}
 		});
-		bars.setGlobalActionHandler(ActionFactory.DELETE.getId(), new Action( ) {
+		bars.setGlobalActionHandler(ActionFactory.DELETE.getId(), new Action() {
 			@Override
 			public void run() {
 				editor.getCodeArea().delete();
 			}
 		});
-		bars.setGlobalActionHandler(ActionFactory.SELECT_ALL.getId(), new Action( ) {
+		bars.setGlobalActionHandler(ActionFactory.SELECT_ALL.getId(), new Action() {
 			@Override
 			public void run() {
 				editor.getCodeArea().selectAll();
@@ -211,7 +220,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		});
 		updateActionBars();
 	}
-	
+
 	private void updateActionBars() {
 		IActionBars bars = getEditorSite().getActionBars();
 		IAction undoAction = bars.getGlobalActionHandler(ActionFactory.UNDO.getId());
@@ -254,7 +263,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		if (selectAllAction != null) {
 			selectAllAction.setEnabled(true);
 		}
-		
+
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -265,16 +274,16 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public void setFocus() {
-        editor.requestFocus();
+		editor.requestFocus();
 	}
 
-    @Override
-    public void dispose() {
+	@Override
+	public void dispose() {
 //      IPreferenceStore store = BinEdPlugin.getDefault().getPreferenceStore();
-    	super.dispose();
-    }
-    
-    private void notifyChanged() {
+		super.dispose();
+	}
+
+	private void notifyChanged() {
 		Display.getDefault().syncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -282,5 +291,5 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 				updateActionBars();
 			}
 		});
-    }
+	}
 }
