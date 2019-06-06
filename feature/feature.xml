@@ -7,7 +7,7 @@
       plugin="org.exbin.bined.eclipse">
 
    <description url="https://bined.exbin.org/eclipse-plugin">
-Binary/hexadecimal editor based on BinEd library. Use &quot;Open With/BinEd
+      Binary/hexadecimal editor based on BinEd library. Use &quot;Open With/BinEd
 Binary/Hexadecimal Editor&quot; action in project explorer context
 menu.
 
@@ -226,6 +226,7 @@ Features
    </license>
 
    <url>
+      <update label="BinEd Binary/Hexadecimal Editor" url="https://bined.exbin.org/eclipse-plugin/update/"/>
       <discovery label="Sources" url="https://github.com/exbin/bined-eclipse-plugin"/>
    </url>
 

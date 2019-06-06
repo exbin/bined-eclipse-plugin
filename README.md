@@ -23,6 +23,9 @@ Features
  - Support for undo/redo
  - Support for files with size up to exabytes
 
+!! Current version is wrapped Swing components into SWT dialogs, therefore it doesn''t fit
+native look and feel and have various rendering issues. 
+
 Compiling
 ---------
 
