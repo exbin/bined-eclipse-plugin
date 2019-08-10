@@ -16,6 +16,7 @@
 package org.exbin.bined.eclipse.plugin.editors;
 
 import java.awt.BorderLayout;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,9 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -48,9 +52,9 @@ import org.exbin.bined.operation.swing.CodeAreaUndoHandler;
 import org.exbin.bined.swing.extended.ExtCodeArea;
 
 /**
- * Implementation of the Eclipse editor.
+ * Implementation of the binary/hexadecimal editor.
  *
- * @version 0.2.0 2019/05/20
+ * @version 0.2.0 2019/08/10
  * @author ExBin Project (http://exbin.org)
  */
 public final class BinEdEditor extends EditorPart implements ISelectionProvider {
@@ -69,8 +73,12 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public ISelection getSelection() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ISelection() {
+			@Override
+			public boolean isEmpty() {
+				return editor == null || editor.getCodeArea() == null || !editor.getCodeArea().hasSelection();
+			}
+		};
 	}
 
 	@Override
@@ -81,7 +89,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 	@Override
 	public void setSelection(ISelection selection) {
 		// TODO Auto-generated method stub
-
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
@@ -97,8 +105,32 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public void doSaveAs() {
-		// TODO Auto-generated method stub
+		Shell shell = getEditorSite().getShell();
+		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+	    dialog.setText("Save As");
 
+		String filePath = dialog.open();
+		if (filePath == null) {
+		    return;
+		}
+
+		File file = new File(filePath);
+		if (file.exists()) {
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
+			messageBox.setText("File already exists.");
+			messageBox.setMessage("File " + file.getName() + " already exists. Overwrite?");
+			int messageResult = messageBox.open();
+			if (messageResult != SWT.YES)
+				return;
+	    }
+	
+		try {
+			editor.saveAsFile(file);
+			notifyChanged();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -122,12 +154,18 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public boolean isSaveAsAllowed() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 		editor = new BinEdEditorSwing(parent);
+		editor.registerActionsStateListener(new BinEdEditorSwing.ActionsStateListener() {
+			@Override
+			public void changed() {
+				notifyChanged();
+			}
+		});
 
 		Composite wrapper = new Composite(parent, SWT.EMBEDDED);
 		wrapper.addTraverseListener(new TraverseListener() {
@@ -156,7 +194,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		registerActionBars();
 	}
 
-	private void registerActionBars() {
+    private void registerActionBars() {
 		IActionBars bars = getEditorSite().getActionBars();
 		bars.setGlobalActionHandler(ActionFactory.UNDO.getId(), new Action() {
 			@Override
@@ -232,7 +270,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		IAction redoAction = bars.getGlobalActionHandler(ActionFactory.REDO.getId());
 		if (redoAction != null) {
 			CodeAreaUndoHandler undoHandler = editor.getUndoHandler();
-			redoAction.setEnabled(undoHandler.canUndo());
+			redoAction.setEnabled(undoHandler.canRedo());
 		}
 
 		IAction cutAction = bars.getGlobalActionHandler(ActionFactory.CUT.getId());
@@ -279,7 +317,6 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public void dispose() {
-//      IPreferenceStore store = BinEdPlugin.getDefault().getPreferenceStore();
 		super.dispose();
 	}
 

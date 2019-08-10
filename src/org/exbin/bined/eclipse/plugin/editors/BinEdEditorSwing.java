@@ -28,6 +28,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.swing.AbstractAction;
@@ -53,6 +55,8 @@ import org.exbin.bined.CodeAreaCaretPosition;
 import org.exbin.bined.EditationMode;
 import org.exbin.bined.EditationOperation;
 import org.exbin.bined.PositionCodeType;
+import org.exbin.bined.SelectionChangedListener;
+import org.exbin.bined.SelectionRange;
 import org.exbin.bined.capability.CharsetCapable;
 import org.exbin.bined.delta.DeltaDocument;
 import org.exbin.bined.delta.FileDataSource;
@@ -141,6 +145,7 @@ public final class BinEdEditorSwing {
     protected String displayName;
     private long documentOriginalSize;
     private IEditorInput dataObject;
+    private ActionsStateListener actionsStateListener;
 
     public BinEdEditorSwing(Composite parent) {
 
@@ -156,7 +161,9 @@ public final class BinEdEditorSwing {
         defaultThemeProfile = codeArea.getThemeProfile();
         defaultColorProfile = codeArea.getColorsProfile();
 
-        toolbarPanel = new BinEdToolbarPanel(preferences, codeArea);
+        undoHandler = new CodeAreaUndoHandler(codeArea);
+        toolbarPanel = new BinEdToolbarPanel(preferences, codeArea, undoHandler);
+        toolbarPanel.setSaveAction(this::saveFileButtonActionPerformed);
         statusPanel = new BinaryStatusPanel();
         codeAreaPanel.add(toolbarPanel, BorderLayout.NORTH);
         registerEncodingStatus(statusPanel);
@@ -177,8 +184,6 @@ public final class BinEdEditorSwing {
                 charsetChangeListener.charsetChanged();
             }
         });
-
-        undoHandler = new CodeAreaUndoHandler(codeArea);
 
         getSegmentsRepository();
         setNewData();
@@ -218,12 +223,14 @@ public final class BinEdEditorSwing {
         codeArea.setComponentPopupMenu(new JPopupMenu() {
             @Override
             public void show(Component invoker, int x, int y) {
+            	int clickedX = x;
+            	int clickedY = y;
             	if (invoker instanceof JViewport) {
             		// Workaround for different behavior of emulated Swing
-            		x += ((JViewport) invoker).getParent().getX();
-            		y += ((JViewport) invoker).getParent().getY();
+            		clickedX += ((JViewport) invoker).getParent().getX();
+            		clickedY += ((JViewport) invoker).getParent().getY();
             	}
-                JPopupMenu popupMenu = createContextMenu(x, y);
+                JPopupMenu popupMenu = createContextMenu(clickedX, clickedY);
                 popupMenu.show(invoker, x, y);
             }
         });
@@ -232,16 +239,19 @@ public final class BinEdEditorSwing {
             @Override
             public void undoCommandPositionChanged() {
                 codeArea.repaint();
+                toolbarPanel.updateUndoState();
                 updateCurrentDocumentSize();
                 updateModified();
             }
 
             @Override
             public void undoCommandAdded(final BinaryDataCommand command) {
+                toolbarPanel.updateUndoState();
                 updateCurrentDocumentSize();
                 updateModified();
             }
         });
+        toolbarPanel.updateUndoState();
 
         searchAction = new SearchAction(codeArea, codeAreaPanel);
         codeArea.addDataChangedListener(() -> {
@@ -393,6 +403,9 @@ public final class BinEdEditorSwing {
 
     void setModified(boolean modified) {
         this.modified = modified;
+        toolbarPanel.updateUndoState();
+        toolbarPanel.updateModified(modified);
+        actionsStateListener.changed();
 //        final String htmlDisplayName;
 //        if (modified && opened) {
 //            savable.activate();
@@ -423,6 +436,27 @@ public final class BinEdEditorSwing {
         } else {
             codeArea.setContentData(new PagedData());
         }
+    }
+    
+    public void registerActionsStateListener(ActionsStateListener listener) {
+    	actionsStateListener = listener;
+    	undoHandler.addUndoUpdateListener(new BinaryDataUndoUpdateListener() {
+			@Override
+			public void undoCommandPositionChanged() {
+				actionsStateListener.changed();
+			}
+			
+			@Override
+			public void undoCommandAdded(BinaryDataCommand arg0) {
+				actionsStateListener.changed();
+			}
+		});
+    	codeArea.addSelectionChangedListener(new SelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionRange arg0) {
+				actionsStateListener.changed();
+			}
+		});
     }
 
     /**
@@ -513,7 +547,11 @@ public final class BinEdEditorSwing {
     	saveDataObject(dataObject);
     }
 
-    private void openFileInt(File file) throws IOException {
+	public void saveAsFile(File file) throws IOException {
+		saveFileInt(file);		
+	}
+
+	private void openFileInt(File file) throws IOException {
         boolean editable = file.canWrite();
         BinaryData oldData = codeArea.getContentData();
         if (fileHandlingMode == FileHandlingMode.MEMORY) {
@@ -950,6 +988,14 @@ public final class BinEdEditorSwing {
         return codeArea;
     }
 
+    private void saveFileButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            save();
+        } catch (IOException ex) {
+            Logger.getLogger(BinEdEditorSwing.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     private void initialLoadFromPreferences() {
         applyOptions(new BinEdApplyOptions() {
             @Override
@@ -1001,7 +1047,11 @@ public final class BinEdEditorSwing {
     
     public static interface CharsetChangeListener {
 
-        public void charsetChanged();
+        void charsetChanged();
+    }
+    
+    public static interface ActionsStateListener {
+    	void changed();
     }
 
 	public void requestFocus() {
