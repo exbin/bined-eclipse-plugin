@@ -60,8 +60,8 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
     }
 
     public void loadFromPreferences() {
-        codeTypeComboBox.setSelectedIndex(preferences.getCodeAreaParameters().getCodeType().ordinal());
-        showUnprintablesToggleButton.setSelected(preferences.getCodeAreaParameters().isShowNonprintables());
+        codeTypeComboBox.setSelectedIndex(preferences.getCodeAreaPreferences().getCodeType().ordinal());
+        showUnprintablesToggleButton.setSelected(preferences.getCodeAreaPreferences().isShowUnprintables());
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -120,7 +120,7 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
     private void codeTypeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codeTypeComboBoxActionPerformed
         CodeType codeType = CodeType.values()[codeTypeComboBox.getSelectedIndex()];
         codeArea.setCodeType(codeType);
-        preferences.getCodeAreaParameters().setCodeType(codeType);
+        preferences.getCodeAreaPreferences().setCodeType(codeType);
     }//GEN-LAST:event_codeTypeComboBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

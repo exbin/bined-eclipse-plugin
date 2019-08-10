@@ -15,15 +15,17 @@
  */
 package org.exbin.framework.editor.text;
 
-import org.exbin.framework.bined.preferences.BinaryEditorPreferences;
 import java.awt.Component;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -34,8 +36,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import org.exbin.framework.editor.text.panel.AddEncodingPanel;
-import org.exbin.framework.editor.text.panel.TextEncodingPanel;
-import org.exbin.framework.editor.text.panel.TextEncodingPanelApi;
+import org.exbin.framework.editor.text.options.panel.TextEncodingPanel;
+import org.exbin.framework.editor.text.options.panel.TextEncodingPanel.AddEncodingsResultListener;
+import org.exbin.framework.editor.text.preferences.TextEncodingPreferences;
 import org.exbin.framework.gui.utils.ActionUtils;
 import org.exbin.framework.gui.utils.LanguageUtils;
 import org.exbin.framework.gui.utils.WindowUtils;
@@ -44,54 +47,51 @@ import org.exbin.framework.gui.utils.handler.DefaultControlHandler;
 import org.exbin.framework.gui.utils.handler.OptionsControlHandler;
 import org.exbin.framework.gui.utils.panel.DefaultControlPanel;
 import org.exbin.framework.gui.utils.panel.OptionsControlPanel;
+import org.exbin.framework.editor.text.service.TextEncodingService;
+import org.exbin.framework.editor.text.service.impl.TextEncodingServiceImpl;
 
 /**
  * Encodings handler.
  *
- * @version 0.2.0 2018/12/31
+ * @version 0.2.1 2019/07/29
  * @author ExBin Project (http://exbin.org)
  */
-public class EncodingsHandler implements TextEncodingPanelApi {
+@ParametersAreNonnullByDefault
+public class EncodingsHandler {
 
     private final ResourceBundle resourceBundle;
 
-    private TextEncodingStatusApi textEncodingStatus;
-    private List<String> encodings = null;
-    private String selectedEncoding;
     private ActionListener encodingActionListener;
     private ButtonGroup encodingButtonGroup;
     private javax.swing.JMenu toolsEncodingMenu;
     private javax.swing.JRadioButtonMenuItem utfEncodingRadioButtonMenuItem;
     private ActionListener utfEncodingActionListener;
-
-    public static final String ENCODING_UTF8 = "UTF-8";
+    private Component parentComponent = null;
 
     public static final String DEFAULT_ENCODING_TEXT = "UTF-8 (default)";
     public static final String ENCODING_TOOLTIP_PREFIX = "Set encoding ";
 
     private Action manageEncodingsAction;
-    private BinaryEditorPreferences preferences;
+    private TextEncodingPreferences preferences;
 
-    public EncodingsHandler(TextEncodingStatusApi textEncodingStatus) {
+    private final TextEncodingService textEncodingService = new TextEncodingServiceImpl();
+
+    public EncodingsHandler() {
         resourceBundle = LanguageUtils.getResourceBundleByClass(EncodingsHandler.class);
-        this.textEncodingStatus = textEncodingStatus;
-        init();
-        EncodingsHandler.this.rebuildEncodings();
     }
 
-    private void init() {
-        encodings = new ArrayList<>();
+    public void init() {
         encodingButtonGroup = new ButtonGroup();
 
         encodingActionListener = (ActionEvent e) -> {
-            setSelectedEncoding(((JRadioButtonMenuItem) e.getSource()).getText());
+            textEncodingService.setSelectedEncoding(((JRadioButtonMenuItem) e.getSource()).getText());
         };
 
         utfEncodingRadioButtonMenuItem = new JRadioButtonMenuItem();
         utfEncodingRadioButtonMenuItem.setSelected(true);
         utfEncodingRadioButtonMenuItem.setText(DEFAULT_ENCODING_TEXT);
-        utfEncodingRadioButtonMenuItem.setToolTipText(ENCODING_TOOLTIP_PREFIX + ENCODING_UTF8);
-        utfEncodingActionListener = (java.awt.event.ActionEvent evt) -> setSelectedEncoding(ENCODING_UTF8);
+        utfEncodingRadioButtonMenuItem.setToolTipText(ENCODING_TOOLTIP_PREFIX + TextEncodingPreferences.ENCODING_UTF8);
+        utfEncodingActionListener = (java.awt.event.ActionEvent evt) -> textEncodingService.setSelectedEncoding(TextEncodingPreferences.ENCODING_UTF8);
         utfEncodingRadioButtonMenuItem.addActionListener(utfEncodingActionListener);
 
         encodingButtonGroup.add(utfEncodingRadioButtonMenuItem);
@@ -99,40 +99,44 @@ public class EncodingsHandler implements TextEncodingPanelApi {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final TextEncodingPanel textEncodingPanel = new TextEncodingPanel();
-                textEncodingPanel.setHandler(EncodingsHandler.this);
-                textEncodingPanel.setEncodingList(encodings);
+                textEncodingPanel.setPreferredSize(new Dimension(536, 358));
+                textEncodingPanel.setEncodingList(textEncodingService.getEncodings());
                 final OptionsControlPanel optionsControlPanel = new OptionsControlPanel();
                 JPanel dialogPanel = WindowUtils.createDialogPanel(textEncodingPanel, optionsControlPanel);
-                final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, null, "Manage Encodings", Dialog.ModalityType.APPLICATION_MODAL);
+                final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, parentComponent, "Manage Encodings", Dialog.ModalityType.APPLICATION_MODAL);
                 optionsControlPanel.setHandler((OptionsControlHandler.ControlActionType actionType) -> {
                     if (actionType != OptionsControlHandler.ControlActionType.CANCEL) {
-                        encodings = textEncodingPanel.getEncodingList();
+                        textEncodingService.setEncodings(textEncodingPanel.getEncodingList());
                         rebuildEncodings();
                         if (actionType == OptionsControlHandler.ControlActionType.SAVE) {
-                            preferences.getCodeAreaParameters().setEncodings(encodings);
+                            preferences.setEncodings(textEncodingPanel.getEncodingList());
                         }
                     }
 
                     dialog.close();
+                    dialog.dispose();
                 });
-                textEncodingPanel.setAddEncodingsOperation((List<String> usedEncodings) -> {
-                    final List<String> result = new ArrayList<>();
-                    final AddEncodingPanel addEncodingPanel = new AddEncodingPanel();
-                    addEncodingPanel.setUsedEncodings(usedEncodings);
-                    DefaultControlPanel encodingsControlPanel = new DefaultControlPanel(addEncodingPanel.getResourceBundle());
-                    JPanel encodingDialogPanel = WindowUtils.createDialogPanel(addEncodingPanel, encodingsControlPanel);
-                    final DialogWrapper addEncodingDialog = WindowUtils.createDialog(encodingDialogPanel, null, "Add Encodings", Dialog.ModalityType.APPLICATION_MODAL);
-                    encodingsControlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
-                        if (actionType == DefaultControlHandler.ControlActionType.OK) {
-                            result.addAll(addEncodingPanel.getEncodings());
-                        }
+                textEncodingPanel.setAddEncodingsOperation(new TextEncodingPanel.AddEncodingsOperation() {
+                	public void run(List<String> usedEncodings, AddEncodingsResultListener addEncodingsResultListener) {
+                        final List<String> result = new ArrayList<>();
+                        final AddEncodingPanel addEncodingPanel = new AddEncodingPanel();
+                        addEncodingPanel.setUsedEncodings(usedEncodings);
+                        DefaultControlPanel encodingsControlPanel = new DefaultControlPanel(addEncodingPanel.getResourceBundle());
+                        JPanel encodingDialogPanel = WindowUtils.createDialogPanel(addEncodingPanel, encodingsControlPanel);
+                        final DialogWrapper addEncodingDialog = WindowUtils.createDialog(encodingDialogPanel, parentComponent, "Add Encodings", Dialog.ModalityType.APPLICATION_MODAL);
+                        encodingsControlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
+                            if (actionType == DefaultControlHandler.ControlActionType.OK) {
+                                result.addAll(addEncodingPanel.getEncodings());
+                            }
 
-                        addEncodingDialog.close();
-                    });
-                    addEncodingDialog.show();
-                    return result;
+                            addEncodingsResultListener.result(result);
+                            addEncodingDialog.close();
+                            addEncodingDialog.dispose();
+                        });
+                        addEncodingDialog.showCentered(addEncodingPanel);
+                	}
                 });
-                dialog.show();
+                dialog.showCentered(parentComponent);
             }
         };
         ActionUtils.setupAction(manageEncodingsAction, resourceBundle, "manageEncodingsAction");
@@ -144,50 +148,30 @@ public class EncodingsHandler implements TextEncodingPanelApi {
         toolsEncodingMenu.add(manageEncodingsAction);
         toolsEncodingMenu.setText(resourceBundle.getString("toolsEncodingMenu.text"));
         toolsEncodingMenu.setToolTipText(resourceBundle.getString("toolsEncodingMenu.shortDescription"));
+        EncodingsHandler.this.rebuildEncodings();
     }
-
-    @Override
-    public List<String> getEncodings() {
-        return encodings;
-    }
-
-    @Override
-    public void setEncodings(List<String> encodings) {
-        this.encodings = encodings;
-    }
-
-    @Override
-    public String getSelectedEncoding() {
-        return selectedEncoding;
-    }
-
-    @Override
-    public void setSelectedEncoding(String encoding) {
-        if (encoding != null) {
-            selectedEncoding = encoding;
-            textEncodingStatus.setEncoding(encoding);
-        }
-    }
-
+    
     public void setTextEncodingStatus(TextEncodingStatusApi textEncodingStatus) {
-        this.textEncodingStatus = textEncodingStatus;
+        textEncodingService.setTextEncodingStatus(textEncodingStatus);
     }
 
+    @Nonnull
     public JMenu getToolsEncodingMenu() {
         return toolsEncodingMenu;
     }
 
     public void rebuildEncodings() {
-        for (int i = toolsEncodingMenu.getItemCount() - 2; i >= 0; i--) {
+        for (int i = toolsEncodingMenu.getItemCount() - 3; i >= 0; i--) {
             toolsEncodingMenu.remove(i);
         }
 
+        List<String> encodings = textEncodingService.getEncodings();
         if (encodings.isEmpty()) {
             toolsEncodingMenu.add(utfEncodingRadioButtonMenuItem, 0);
-            selectedEncoding = ENCODING_UTF8;
+            textEncodingService.setSelectedEncoding(TextEncodingPreferences.ENCODING_UTF8);
             utfEncodingRadioButtonMenuItem.setSelected(true);
         } else {
-            int selectedEncodingIndex = encodings.indexOf(getSelectedEncoding());
+            int selectedEncodingIndex = encodings.indexOf(textEncodingService.getSelectedEncoding());
             for (int index = 0; index < encodings.size(); index++) {
                 String encoding = encodings.get(index);
                 JRadioButtonMenuItem item = new JRadioButtonMenuItem(encoding, index == selectedEncodingIndex);
@@ -207,22 +191,21 @@ public class EncodingsHandler implements TextEncodingPanelApi {
         item.setSelected(true);
     }
 
-    public void loadFromPreferences(BinaryEditorPreferences preferences) {
+    public void loadFromPreferences(TextEncodingPreferences preferences) {
         this.preferences = preferences;
-        selectedEncoding = preferences.getCodeAreaParameters().getSelectedEncoding();
-        encodings.clear();
-        encodings.addAll(preferences.getCodeAreaParameters().getEncodings());
+        textEncodingService.loadFromPreferences(preferences);
         rebuildEncodings();
     }
 
     public void cycleEncodings() {
         int menuIndex = 0;
+        List<String> encodings = textEncodingService.getEncodings();
         if (!encodings.isEmpty()) {
-            int selectedEncodingIndex = encodings.indexOf(getSelectedEncoding());
+            int selectedEncodingIndex = encodings.indexOf(textEncodingService.getSelectedEncoding());
             if (selectedEncodingIndex < 0 || selectedEncodingIndex == encodings.size() - 1) {
-                setSelectedEncoding(encodings.get(0));
+                textEncodingService.setSelectedEncoding(encodings.get(0));
             } else {
-                setSelectedEncoding(encodings.get(selectedEncodingIndex + 1));
+                textEncodingService.setSelectedEncoding(encodings.get(selectedEncodingIndex + 1));
                 menuIndex = selectedEncodingIndex;
             }
         }
@@ -233,13 +216,15 @@ public class EncodingsHandler implements TextEncodingPanelApi {
     public void popupEncodingsMenu(MouseEvent mouseEvent) {
         JPopupMenu popupMenu = new JPopupMenu();
 
+        List<String> encodings = textEncodingService.getEncodings();
+        String selectedEncoding = textEncodingService.getSelectedEncoding();
         if (encodings.isEmpty()) {
-            JRadioButtonMenuItem utfEncoding = new JRadioButtonMenuItem(DEFAULT_ENCODING_TEXT, ENCODING_UTF8.equals(selectedEncoding));
-            utfEncoding.setToolTipText(ENCODING_TOOLTIP_PREFIX + ENCODING_UTF8);
+            JRadioButtonMenuItem utfEncoding = new JRadioButtonMenuItem(DEFAULT_ENCODING_TEXT, TextEncodingPreferences.ENCODING_UTF8.equals(selectedEncoding));
+            utfEncoding.setToolTipText(ENCODING_TOOLTIP_PREFIX + TextEncodingPreferences.ENCODING_UTF8);
             utfEncoding.addActionListener(utfEncodingActionListener);
             popupMenu.add(utfEncoding);
         } else {
-            int selectedEncodingIndex = encodings.indexOf(getSelectedEncoding());
+            int selectedEncodingIndex = encodings.indexOf(selectedEncoding);
             for (int index = 0; index < encodings.size(); index++) {
                 String encoding = encodings.get(index);
                 JRadioButtonMenuItem item = new JRadioButtonMenuItem(encoding, index == selectedEncodingIndex);
@@ -253,5 +238,13 @@ public class EncodingsHandler implements TextEncodingPanelApi {
         popupMenu.add(manageEncodingsAction);
 
         popupMenu.show((Component) mouseEvent.getSource(), mouseEvent.getX(), mouseEvent.getY());
+    }
+
+    public void setEncodings(List<String> encodings) {
+        textEncodingService.setEncodings(encodings);
+    }
+
+    public void setParentComponent(Component component) {
+        parentComponent = component;
     }
 }

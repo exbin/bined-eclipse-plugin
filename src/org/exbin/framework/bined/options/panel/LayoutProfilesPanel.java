@@ -32,7 +32,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import org.exbin.bined.swing.extended.layout.DefaultExtendedCodeAreaLayoutProfile;
-import org.exbin.framework.bined.preferences.LayoutParameters;
+import org.exbin.framework.bined.options.impl.CodeAreaLayoutOptionsImpl;
 import org.exbin.framework.gui.utils.LanguageUtils;
 import org.exbin.framework.gui.utils.WindowUtils;
 import org.exbin.framework.gui.utils.WindowUtils.DialogWrapper;
@@ -234,7 +234,7 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(profilesListScrollPane)
+                .addComponent(profilesListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 20, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(profilesControlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -294,7 +294,7 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         DefaultControlPanel controlPanel = new DefaultControlPanel();
         JPanel dialogPanel = WindowUtils.createDialogPanel(namedProfilePanel, controlPanel);
 
-        final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, null, "Add Layout Profile", Dialog.ModalityType.APPLICATION_MODAL);
+        final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, WindowUtils.getWindow(this), "Add Layout Profile", Dialog.ModalityType.APPLICATION_MODAL);
         controlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
             if (actionType != DefaultControlHandler.ControlActionType.CANCEL) {
                 if (!isValidProfileName(namedProfilePanel.getProfileName())) {
@@ -318,8 +318,7 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
             dialog.close();
             dialog.dispose();
         });
-        dialog.center();
-        dialog.show();
+        dialog.showCentered(this);
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
@@ -346,7 +345,7 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         DefaultControlPanel controlPanel = new DefaultControlPanel();
         JPanel dialogPanel = WindowUtils.createDialogPanel(namedProfilePanel, controlPanel);
 
-        final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, null, "Edit Layout Profile", Dialog.ModalityType.APPLICATION_MODAL);
+        final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, WindowUtils.getWindow(this), "Edit Layout Profile", Dialog.ModalityType.APPLICATION_MODAL);
         namedProfilePanel.setProfileName(profileRecord.profileName);
         layoutProfilePanel.setLayoutProfile(profileRecord.layoutProfile);
         controlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
@@ -366,8 +365,7 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
             dialog.close();
             dialog.dispose();
         });
-        dialog.center();
-        dialog.show();
+        dialog.showCentered(this);
     }//GEN-LAST:event_editButtonActionPerformed
 
     private void hideButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hideButtonActionPerformed
@@ -384,7 +382,7 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         DefaultControlPanel controlPanel = new DefaultControlPanel();
         JPanel dialogPanel = WindowUtils.createDialogPanel(namedProfilePanel, controlPanel);
 
-        final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, null, "Copy Layout Profile", Dialog.ModalityType.APPLICATION_MODAL);
+        final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, WindowUtils.getWindow(this), "Copy Layout Profile", Dialog.ModalityType.APPLICATION_MODAL);
         layoutProfilePanel.setLayoutProfile(profileRecord.layoutProfile);
         controlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
             if (actionType != DefaultControlHandler.ControlActionType.CANCEL) {
@@ -410,8 +408,7 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
             dialog.close();
             dialog.dispose();
         });
-        dialog.center();
-        dialog.show();
+        dialog.showCentered(this);
     }//GEN-LAST:event_copyButtonActionPerformed
 
     public boolean isModified() {
@@ -426,13 +423,15 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         return profileName != null && !"".equals(profileName.trim());
     }
 
-    public void loadFromParameters(LayoutParameters parameters) {
+    public void loadFromOptions(CodeAreaLayoutOptionsImpl options) {
+//        activeOptions = options;
+
         List<LayoutProfile> profiles = new ArrayList<>();
-        List<String> profileNames = parameters.getLayoutProfilesList();
+        List<String> profileNames = options.getProfileNames();
         for (int index = 0; index < profileNames.size(); index++) {
             LayoutProfile profile = new LayoutProfile();
             profile.profileName = profileNames.get(index);
-            profile.layoutProfile = parameters.getLayoutProfile(index);
+            profile.layoutProfile = options.getLayoutProfile(index);
             profiles.add(profile);
         }
 
@@ -440,21 +439,14 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         model.setProfiles(profiles);
     }
 
-    public void saveToParameters(LayoutParameters parameters) {
-        List<String> profileNames = parameters.getLayoutProfilesList();
-        for (int index = 0; index < profileNames.size(); index++) {
-            parameters.clearLayout(index);
-        }
-        profileNames.clear();
-
+    public void saveToOptions(CodeAreaLayoutOptionsImpl options) {
+        options.clearProfiles();
         ProfilesListModel model = getProfilesListModel();
         List<LayoutProfile> profiles = model.getProfiles();
         for (int index = 0; index < profiles.size(); index++) {
             LayoutProfile profile = profiles.get(index);
-            profileNames.add(profile.profileName);
-            parameters.setLayoutProfile(index, profile.layoutProfile);
+            options.addProfile(profile.profileName, profile.layoutProfile);
         }
-        parameters.setLayoutProfilesList(profileNames);
     }
 
     /**

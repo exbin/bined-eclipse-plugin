@@ -16,21 +16,15 @@
  */
 package org.exbin.framework.bined.panel;
 
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.text.ParseException;
 import java.util.ResourceBundle;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
-import javax.swing.text.JTextComponent;
+import javax.annotation.Nonnull;
 import org.exbin.framework.gui.utils.LanguageUtils;
 import org.exbin.framework.gui.utils.WindowUtils;
 
 /**
- * Go-to position panel for hexadecimal editor.
+ * Go-to position panel for binary editor.
  *
- * @version 0.2.0 2016/12/30
+ * @version 0.2.1 2019/07/30
  * @author ExBin Project (http://exbin.org)
  */
 public class GoToBinaryPanel extends javax.swing.JPanel {
@@ -39,25 +33,13 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
 
     private long cursorPosition;
     private long maxPosition;
-    private GoToMode goToMode = GoToMode.ABSOLUTE;
+    private GoToBinaryPositionMode goToMode = GoToBinaryPositionMode.FROM_START;
 
     public GoToBinaryPanel() {
         initComponents();
 
-        // Spinner selection workaround from http://forums.sun.com/thread.jspa?threadID=409748&forumID=57
-        ((JSpinner.DefaultEditor) positionSpinner.getEditor()).getTextField().addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (e.getSource() instanceof JTextComponent) {
-                    final JTextComponent textComponent = ((JTextComponent) e.getSource());
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            textComponent.selectAll();
-                        }
-                    });
-                }
-            }
+        baseSwitchableSpinnerPanel.addChangeListener((javax.swing.event.ChangeEvent evt) -> {
+            updateTargetPosition();
         });
     }
 
@@ -73,78 +55,84 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
         positionTypeButtonGroup = new javax.swing.ButtonGroup();
         currentPositionLabel = new javax.swing.JLabel();
         currentPositionTextField = new javax.swing.JTextField();
+        goToPanel = new javax.swing.JPanel();
+        fromStartRadioButton = new javax.swing.JRadioButton();
+        fromEndRadioButton = new javax.swing.JRadioButton();
+        fromCursorRadioButton = new javax.swing.JRadioButton();
+        positionLabel = new javax.swing.JLabel();
+        baseSwitchableSpinnerPanel = new org.exbin.framework.bined.panel.BaseSwitchableSpinnerPanel();
         targetPositionLabel = new javax.swing.JLabel();
         targetPositionTextField = new javax.swing.JTextField();
-        goToPanel = new javax.swing.JPanel();
-        absoluteRadioButton = new javax.swing.JRadioButton();
-        relativeRadioButton = new javax.swing.JRadioButton();
-        decimalPositionLabel = new javax.swing.JLabel();
-        positionSpinner = new javax.swing.JSpinner();
 
         currentPositionLabel.setText(resourceBundle.getString("currentPositionLabel.text")); // NOI18N
 
         currentPositionTextField.setEditable(false);
-
-        targetPositionLabel.setText(resourceBundle.getString("targetPositionLabel.text")); // NOI18N
-
-        targetPositionTextField.setEditable(false);
-        targetPositionTextField.setText("0");
+        currentPositionTextField.setText("0"); // NOI18N
 
         goToPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceBundle.getString("goToPanel.border.title"))); // NOI18N
 
-        positionTypeButtonGroup.add(absoluteRadioButton);
-        absoluteRadioButton.setSelected(true);
-        absoluteRadioButton.setText(resourceBundle.getString("absoluteRadioButton.text")); // NOI18N
-        absoluteRadioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                absoluteRadioButtonActionPerformed(evt);
+        positionTypeButtonGroup.add(fromStartRadioButton);
+        fromStartRadioButton.setSelected(true);
+        fromStartRadioButton.setText(resourceBundle.getString("fromStartRadioButton.text")); // NOI18N
+        fromStartRadioButton.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                fromStartRadioButtonItemStateChanged(evt);
             }
         });
 
-        positionTypeButtonGroup.add(relativeRadioButton);
-        relativeRadioButton.setText(resourceBundle.getString("relativeRadioButton.text")); // NOI18N
-        relativeRadioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                relativeRadioButtonActionPerformed(evt);
+        positionTypeButtonGroup.add(fromEndRadioButton);
+        fromEndRadioButton.setText(resourceBundle.getString("fromEndRadioButton.text")); // NOI18N
+        fromEndRadioButton.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                fromEndRadioButtonItemStateChanged(evt);
             }
         });
 
-        decimalPositionLabel.setText(resourceBundle.getString("jumpLineLabel.text")); // NOI18N
-
-        positionSpinner.setModel(new javax.swing.SpinnerNumberModel(Long.valueOf(0L), Long.valueOf(0L), Long.valueOf(0L), Long.valueOf(1L)));
-        positionSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                positionSpinnerStateChanged(evt);
+        positionTypeButtonGroup.add(fromCursorRadioButton);
+        fromCursorRadioButton.setText(resourceBundle.getString("fromCursorRadioButton.text")); // NOI18N
+        fromCursorRadioButton.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                fromCursorRadioButtonItemStateChanged(evt);
             }
         });
+
+        positionLabel.setText(resourceBundle.getString("positionLabel.text")); // NOI18N
 
         javax.swing.GroupLayout goToPanelLayout = new javax.swing.GroupLayout(goToPanel);
         goToPanel.setLayout(goToPanelLayout);
         goToPanelLayout.setHorizontalGroup(
             goToPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(fromStartRadioButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(fromCursorRadioButton, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
+            .addComponent(fromEndRadioButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(goToPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(goToPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(positionSpinner)
+                    .addComponent(baseSwitchableSpinnerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(goToPanelLayout.createSequentialGroup()
-                        .addComponent(decimalPositionLabel)
+                        .addComponent(positionLabel)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addComponent(absoluteRadioButton, javax.swing.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
-            .addComponent(relativeRadioButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         goToPanelLayout.setVerticalGroup(
             goToPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(goToPanelLayout.createSequentialGroup()
-                .addComponent(absoluteRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(relativeRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(decimalPositionLabel)
+                .addComponent(fromStartRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(positionSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(fromEndRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(fromCursorRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(positionLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(baseSwitchableSpinnerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        targetPositionLabel.setText(resourceBundle.getString("targetPositionLabel.text")); // NOI18N
+
+        targetPositionTextField.setEditable(false);
+        targetPositionTextField.setText("0"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -172,7 +160,7 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
                 .addComponent(currentPositionTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(goToPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(targetPositionLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(targetPositionTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -180,51 +168,77 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void absoluteRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_absoluteRadioButtonActionPerformed
-        if (goToMode == GoToMode.RELATIVE && absoluteRadioButton.isSelected()) {
-            goToMode = GoToMode.ABSOLUTE;
-            long currentValue = ((Long) positionSpinner.getValue());
-            positionSpinner.setValue(0l);
-            ((SpinnerNumberModel) positionSpinner.getModel()).setMinimum(0l);
-            ((SpinnerNumberModel) positionSpinner.getModel()).setMaximum(maxPosition);
-            positionSpinner.setValue(cursorPosition + currentValue);
-            positionSpinner.revalidate();
-            updateTargetPosition();
+    private void fromStartRadioButtonItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_fromStartRadioButtonItemStateChanged
+        if (fromStartRadioButton.isSelected()) {
+            switchGoToMode(GoToBinaryPositionMode.FROM_START);
         }
-    }//GEN-LAST:event_absoluteRadioButtonActionPerformed
+    }//GEN-LAST:event_fromStartRadioButtonItemStateChanged
 
-    private void relativeRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_relativeRadioButtonActionPerformed
-        if (goToMode == GoToMode.ABSOLUTE && relativeRadioButton.isSelected()) {
-            goToMode = GoToMode.RELATIVE;
-            long currentValue = ((Long) positionSpinner.getValue());
-            positionSpinner.setValue(0l);
-            ((SpinnerNumberModel) positionSpinner.getModel()).setMinimum(-cursorPosition);
-            ((SpinnerNumberModel) positionSpinner.getModel()).setMaximum(maxPosition - cursorPosition);
-            positionSpinner.setValue(currentValue - cursorPosition);
-            positionSpinner.revalidate();
-            updateTargetPosition();
+    private void fromEndRadioButtonItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_fromEndRadioButtonItemStateChanged
+        if (fromEndRadioButton.isSelected()) {
+            switchGoToMode(GoToBinaryPositionMode.FROM_END);
         }
-    }//GEN-LAST:event_relativeRadioButtonActionPerformed
+    }//GEN-LAST:event_fromEndRadioButtonItemStateChanged
 
-    private void positionSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_positionSpinnerStateChanged
-        updateTargetPosition();
-    }//GEN-LAST:event_positionSpinnerStateChanged
+    private void fromCursorRadioButtonItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_fromCursorRadioButtonItemStateChanged
+        if (fromCursorRadioButton.isSelected()) {
+            switchGoToMode(GoToBinaryPositionMode.FROM_CURSOR);
+        }
+    }//GEN-LAST:event_fromCursorRadioButtonItemStateChanged
 
     private void updateTargetPosition() {
-        targetPositionTextField.setText(String.valueOf(getGoToPosition()));
+        targetPositionTextField.setText(String.valueOf(getTargetPosition()));
     }
 
     public void initFocus() {
-        ((JSpinner.DefaultEditor) positionSpinner.getEditor()).getTextField().requestFocusInWindow();
+        baseSwitchableSpinnerPanel.initFocus();
     }
 
-    public long getGoToPosition() {
-        long value = (Long) positionSpinner.getValue();
-        if (goToMode == GoToMode.ABSOLUTE) {
-            return value;
-        } else {
-            return cursorPosition + value;
+    public long getTargetPosition() {
+        long absolutePosition;
+        long position = getPositionValue();
+        switch (goToMode) {
+            case FROM_START:
+                absolutePosition = position;
+                break;
+            case FROM_END:
+                absolutePosition = maxPosition - position;
+                break;
+            case FROM_CURSOR:
+                absolutePosition = cursorPosition + position;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected go to mode " + goToMode.name());
         }
+
+        if (absolutePosition < 0) {
+            absolutePosition = 0;
+        } else if (absolutePosition > maxPosition) {
+            absolutePosition = maxPosition;
+        }
+        return absolutePosition;
+    }
+
+    public void setTargetPosition(long absolutePosition) {
+        if (absolutePosition < 0) {
+            absolutePosition = 0;
+        } else if (absolutePosition > maxPosition) {
+            absolutePosition = maxPosition;
+        }
+        switch (goToMode) {
+            case FROM_START:
+                setPositionValue(absolutePosition);
+                break;
+            case FROM_END:
+                setPositionValue(maxPosition - absolutePosition);
+                break;
+            case FROM_CURSOR:
+                setPositionValue(absolutePosition - cursorPosition);
+                break;
+            default:
+                throw new IllegalStateException("Unexpected go to mode " + goToMode.name());
+        }
+        updateTargetPosition();
     }
 
     public long getCursorPosition() {
@@ -233,23 +247,69 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
 
     public void setCursorPosition(long cursorPosition) {
         this.cursorPosition = cursorPosition;
-        positionSpinner.setValue(cursorPosition);
+        setPositionValue(cursorPosition);
         currentPositionTextField.setText(String.valueOf(cursorPosition));
     }
 
     public void setMaxPosition(long maxPosition) {
         this.maxPosition = maxPosition;
-        ((SpinnerNumberModel) positionSpinner.getModel()).setMaximum(maxPosition);
-        positionSpinner.revalidate();
+        baseSwitchableSpinnerPanel.setMaximum(maxPosition);
         updateTargetPosition();
     }
 
     public void setSelected() {
-        positionSpinner.requestFocusInWindow();
+        baseSwitchableSpinnerPanel.requestFocusInWindow();
     }
 
+    @Nonnull
     public ResourceBundle getResourceBundle() {
         return resourceBundle;
+    }
+
+    private void switchGoToMode(GoToBinaryPositionMode goToMode) {
+        if (this.goToMode == goToMode) {
+            return;
+        }
+
+        long absolutePosition = getTargetPosition();
+        this.goToMode = goToMode;
+        switch (goToMode) {
+            case FROM_START: {
+                setPositionValue(0l);
+                baseSwitchableSpinnerPanel.setMinimum(0l);
+                baseSwitchableSpinnerPanel.setMaximum(maxPosition);
+                baseSwitchableSpinnerPanel.revalidateSpinner();
+                break;
+            }
+            case FROM_END: {
+                setPositionValue(0l);
+                baseSwitchableSpinnerPanel.setMinimum(0l);
+                baseSwitchableSpinnerPanel.setMaximum(maxPosition);
+                baseSwitchableSpinnerPanel.revalidateSpinner();
+                break;
+            }
+            case FROM_CURSOR: {
+                setPositionValue(0l);
+                baseSwitchableSpinnerPanel.setMinimum(-cursorPosition);
+                baseSwitchableSpinnerPanel.setMaximum(maxPosition - cursorPosition);
+                baseSwitchableSpinnerPanel.revalidateSpinner();
+                break;
+            }
+            default:
+                throw new IllegalStateException("Unexpected go to mode " + goToMode.name());
+        }
+        setTargetPosition(absolutePosition);
+    }
+
+    private long getPositionValue() {
+        return (Long) baseSwitchableSpinnerPanel.getValue();
+    }
+
+    private void setPositionValue(long value) {
+        baseSwitchableSpinnerPanel.setValue(value);
+        updateTargetPosition();
+//        positionSpinner.setValue(value);
+//        positionSpinner.firePropertyChange(SPINNER_PROPERTY, value, value);
     }
 
     /**
@@ -262,28 +322,21 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
     }
 
     public void acceptInput() {
-        try {
-            positionSpinner.commitEdit();
-        } catch (ParseException ex) {
-            // Ignore parse exception
-        }
+        baseSwitchableSpinnerPanel.acceptInput();
     }
 
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JRadioButton absoluteRadioButton;
+    private org.exbin.framework.bined.panel.BaseSwitchableSpinnerPanel baseSwitchableSpinnerPanel;
     private javax.swing.JLabel currentPositionLabel;
     private javax.swing.JTextField currentPositionTextField;
-    private javax.swing.JLabel decimalPositionLabel;
+    private javax.swing.JRadioButton fromCursorRadioButton;
+    private javax.swing.JRadioButton fromEndRadioButton;
+    private javax.swing.JRadioButton fromStartRadioButton;
     private javax.swing.JPanel goToPanel;
-    private javax.swing.JSpinner positionSpinner;
+    private javax.swing.JLabel positionLabel;
     private javax.swing.ButtonGroup positionTypeButtonGroup;
-    private javax.swing.JRadioButton relativeRadioButton;
     private javax.swing.JLabel targetPositionLabel;
     private javax.swing.JTextField targetPositionTextField;
     // End of variables declaration//GEN-END:variables
 
-    public enum GoToMode {
-        ABSOLUTE, RELATIVE
-    }
 }

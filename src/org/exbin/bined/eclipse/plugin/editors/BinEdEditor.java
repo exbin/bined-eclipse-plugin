@@ -117,7 +117,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public boolean isDirty() {
-		return editor.isModified();
+		return editor != null && editor.isModified();
 	}
 
 	@Override
@@ -127,7 +127,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public void createPartControl(Composite parent) {
-		editor = new BinEdEditorSwing();
+		editor = new BinEdEditorSwing(parent);
 
 		Composite wrapper = new Composite(parent, SWT.EMBEDDED);
 		wrapper.addTraverseListener(new TraverseListener() {

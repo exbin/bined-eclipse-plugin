@@ -20,13 +20,13 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="currentPositionTextField" alignment="0" max="32767" attributes="0"/>
                   <Component id="goToPanel" alignment="0" max="32767" attributes="0"/>
                   <Component id="targetPositionTextField" alignment="0" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="currentPositionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="targetPositionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -47,7 +47,7 @@
               <Component id="currentPositionTextField" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="goToPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="targetPositionLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="targetPositionTextField" min="-2" max="-2" attributes="0"/>
@@ -67,19 +67,7 @@
     <Component class="javax.swing.JTextField" name="currentPositionTextField">
       <Properties>
         <Property name="editable" type="boolean" value="false"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="targetPositionLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/exbin/framework/bined/panel/resources/GoToBinaryPanel.properties" key="targetPositionLabel.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JTextField" name="targetPositionTextField">
-      <Properties>
-        <Property name="editable" type="boolean" value="false"/>
-        <Property name="text" type="java.lang.String" value="0"/>
+        <Property name="text" type="java.lang.String" value="0" noResource="true"/>
       </Properties>
     </Component>
     <Container class="javax.swing.JPanel" name="goToPanel">
@@ -96,82 +84,103 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
+              <Component id="fromStartRadioButton" alignment="0" max="32767" attributes="0"/>
+              <Component id="fromCursorRadioButton" alignment="0" pref="412" max="32767" attributes="0"/>
+              <Component id="fromEndRadioButton" alignment="0" max="32767" attributes="0"/>
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="positionSpinner" alignment="0" max="32767" attributes="0"/>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="decimalPositionLabel" min="-2" max="-2" attributes="0"/>
+                      <Component id="baseSwitchableSpinnerPanel" max="32767" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <Component id="positionLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
-              <Component id="absoluteRadioButton" alignment="0" pref="327" max="32767" attributes="0"/>
-              <Component id="relativeRadioButton" alignment="0" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <Component id="absoluteRadioButton" min="-2" pref="22" max="-2" attributes="0"/>
-                  <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
-                  <Component id="relativeRadioButton" min="-2" pref="20" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="decimalPositionLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="fromStartRadioButton" min="-2" pref="22" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="positionSpinner" min="-2" max="-2" attributes="0"/>
+                  <Component id="fromEndRadioButton" min="-2" pref="22" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="fromCursorRadioButton" min="-2" pref="20" max="-2" attributes="0"/>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="positionLabel" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="baseSwitchableSpinnerPanel" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JRadioButton" name="absoluteRadioButton">
+        <Component class="javax.swing.JRadioButton" name="fromStartRadioButton">
           <Properties>
             <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
               <ComponentRef name="positionTypeButtonGroup"/>
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/exbin/framework/bined/panel/resources/GoToBinaryPanel.properties" key="absoluteRadioButton.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/exbin/framework/bined/panel/resources/GoToBinaryPanel.properties" key="fromStartRadioButton.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="absoluteRadioButtonActionPerformed"/>
+            <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="fromStartRadioButtonItemStateChanged"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JRadioButton" name="relativeRadioButton">
+        <Component class="javax.swing.JRadioButton" name="fromEndRadioButton">
           <Properties>
             <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
               <ComponentRef name="positionTypeButtonGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/exbin/framework/bined/panel/resources/GoToBinaryPanel.properties" key="relativeRadioButton.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/exbin/framework/bined/panel/resources/GoToBinaryPanel.properties" key="fromEndRadioButton.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="relativeRadioButtonActionPerformed"/>
+            <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="fromEndRadioButtonItemStateChanged"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JLabel" name="decimalPositionLabel">
+        <Component class="javax.swing.JRadioButton" name="fromCursorRadioButton">
+          <Properties>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="positionTypeButtonGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/exbin/framework/bined/panel/resources/GoToBinaryPanel.properties" key="fromCursorRadioButton.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="fromCursorRadioButtonItemStateChanged"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JLabel" name="positionLabel">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/exbin/framework/bined/panel/resources/GoToBinaryPanel.properties" key="jumpLineLabel.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
+              <ResourceString bundle="org/exbin/framework/bined/panel/resources/GoToBinaryPanel.properties" key="positionLabel.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
-        <Component class="javax.swing.JSpinner" name="positionSpinner">
-          <Properties>
-            <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-              <SpinnerModel initial="0" maximum="0" minimum="0" numberType="java.lang.Long" stepSize="1" type="number"/>
-            </Property>
-          </Properties>
-          <Events>
-            <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="positionSpinnerStateChanged"/>
-          </Events>
+        <Component class="org.exbin.framework.bined.panel.BaseSwitchableSpinnerPanel" name="baseSwitchableSpinnerPanel">
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JLabel" name="targetPositionLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/exbin/framework/bined/panel/resources/GoToBinaryPanel.properties" key="targetPositionLabel.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="targetPositionTextField">
+      <Properties>
+        <Property name="editable" type="boolean" value="false"/>
+        <Property name="text" type="java.lang.String" value="0" noResource="true"/>
+      </Properties>
+    </Component>
   </SubComponents>
 </Form>
