@@ -51,7 +51,6 @@ import org.exbin.framework.bined.preferences.BinaryEditorPreferences;
 import org.exbin.framework.editor.text.options.impl.TextEncodingOptionsImpl;
 import org.exbin.framework.editor.text.options.panel.TextEncodingOptionsPanel;
 import org.exbin.framework.editor.text.options.panel.TextEncodingPanel;
-import org.exbin.framework.editor.text.options.panel.TextEncodingPanel.AddEncodingsResultListener;
 import org.exbin.framework.editor.text.panel.AddEncodingPanel;
 import org.exbin.framework.gui.utils.LanguageUtils;
 import org.exbin.framework.gui.utils.WindowUtils;
@@ -126,7 +125,7 @@ public class BinEdOptionsPanel extends javax.swing.JPanel implements BinEdApplyO
         categoriesList.setSelectedIndex(0);
 
         encodingOptionsPanel.setAddEncodingsOperation(new TextEncodingPanel.AddEncodingsOperation() {
-        	public void run(List<String> usedEncodings, AddEncodingsResultListener addEncodingsResultListener) {
+        	public void run(List<String> usedEncodings, TextEncodingPanel.AddEncodingsResultListener addEncodingsResultListener) {
                 final List<String> result = new ArrayList<>();
                 final AddEncodingPanel addEncodingPanel = new AddEncodingPanel();
                 addEncodingPanel.setUsedEncodings(usedEncodings);

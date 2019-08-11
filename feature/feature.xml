@@ -2,7 +2,7 @@
 <feature
       id="org.exbin.bined.eclipse.feature"
       label="BinEd Binary/Hexadecimal Editor"
-      version="0.2.0.snapshot"
+      version="0.2.0"
       provider-name="ExBin Project"
       plugin="org.exbin.bined.eclipse">
 
@@ -10,7 +10,6 @@
       Binary/hexadecimal editor based on BinEd library. Use &quot;Open With/BinEd
 Binary/Hexadecimal Editor&quot; action in project explorer context
 menu.
-
 Features
 - Visualize data as numerical (hexadecimal) codes and text representation
 - Codes can be also binary, octal or decimal
@@ -19,6 +18,8 @@ Features
 - Searching for text / hexadecimal code with matching highlighting
 - Support for undo/redo
 - Support for files with size up to exabytes
+Sources
+https://github.com/exbin/bined-eclipse-plugin
    </description>
 
    <license url="http://www.apache.org/licenses/LICENSE-2.0">
@@ -227,7 +228,6 @@ Features
 
    <url>
       <update label="BinEd Binary/Hexadecimal Editor" url="https://bined.exbin.org/eclipse-plugin/update/"/>
-      <discovery label="Sources" url="https://github.com/exbin/bined-eclipse-plugin"/>
    </url>
 
    <plugin

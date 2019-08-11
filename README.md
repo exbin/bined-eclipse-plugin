@@ -5,7 +5,7 @@ Hexadecimal viewer/editor plugin module for Eclipse platform.
 
 Homepage: https://bined.exbin.org/eclipse-plugin/  
 
-Not yet published
+Published as: https://marketplace.eclipse.org/content/bined-binaryhexadecimal-editor  
 
 Screenshot
 ----------
