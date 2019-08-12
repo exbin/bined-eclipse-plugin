@@ -2,7 +2,7 @@
 <feature
       id="org.exbin.bined.eclipse.feature"
       label="BinEd Binary/Hexadecimal Editor"
-      version="0.2.0"
+      version="0.2.1.snapshot"
       provider-name="ExBin Project"
       plugin="org.exbin.bined.eclipse">
 
