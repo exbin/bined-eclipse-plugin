@@ -37,7 +37,6 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import org.exbin.framework.editor.text.panel.AddEncodingPanel;
 import org.exbin.framework.editor.text.options.panel.TextEncodingPanel;
-import org.exbin.framework.editor.text.options.panel.TextEncodingPanel.AddEncodingsResultListener;
 import org.exbin.framework.editor.text.preferences.TextEncodingPreferences;
 import org.exbin.framework.gui.utils.ActionUtils;
 import org.exbin.framework.gui.utils.LanguageUtils;
@@ -116,41 +115,38 @@ public class EncodingsHandler {
                     dialog.close();
                     dialog.dispose();
                 });
-                textEncodingPanel.setAddEncodingsOperation(new TextEncodingPanel.AddEncodingsOperation() {
-                	public void run(List<String> usedEncodings, AddEncodingsResultListener addEncodingsResultListener) {
-                        final List<String> result = new ArrayList<>();
-                        final AddEncodingPanel addEncodingPanel = new AddEncodingPanel();
-                        addEncodingPanel.setUsedEncodings(usedEncodings);
-                        DefaultControlPanel encodingsControlPanel = new DefaultControlPanel(addEncodingPanel.getResourceBundle());
-                        JPanel encodingDialogPanel = WindowUtils.createDialogPanel(addEncodingPanel, encodingsControlPanel);
-                        final DialogWrapper addEncodingDialog = WindowUtils.createDialog(encodingDialogPanel, parentComponent, "Add Encodings", Dialog.ModalityType.APPLICATION_MODAL);
-                        encodingsControlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
-                            if (actionType == DefaultControlHandler.ControlActionType.OK) {
-                                result.addAll(addEncodingPanel.getEncodings());
-                            }
+                textEncodingPanel.setAddEncodingsOperation((List<String> usedEncodings) -> {
+                    final List<String> result = new ArrayList<>();
+                    final AddEncodingPanel addEncodingPanel = new AddEncodingPanel();
+                    addEncodingPanel.setUsedEncodings(usedEncodings);
+                    DefaultControlPanel encodingsControlPanel = new DefaultControlPanel(addEncodingPanel.getResourceBundle());
+                    JPanel encodingDialogPanel = WindowUtils.createDialogPanel(addEncodingPanel, encodingsControlPanel);
+                    final DialogWrapper addEncodingDialog = WindowUtils.createDialog(encodingDialogPanel, parentComponent, "Add Encodings", Dialog.ModalityType.APPLICATION_MODAL);
+                    encodingsControlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
+                        if (actionType == DefaultControlHandler.ControlActionType.OK) {
+                            result.addAll(addEncodingPanel.getEncodings());
+                        }
 
-                            addEncodingsResultListener.result(result);
-                            addEncodingDialog.close();
-                            addEncodingDialog.dispose();
-                        });
-                        addEncodingDialog.showCentered(addEncodingPanel);
-                	}
+                        addEncodingDialog.close();
+                        addEncodingDialog.dispose();
+                    });
+                    addEncodingDialog.showCentered(addEncodingPanel);
+                    return result;
                 });
                 dialog.showCentered(parentComponent);
             }
         };
         ActionUtils.setupAction(manageEncodingsAction, resourceBundle, "manageEncodingsAction");
         manageEncodingsAction.putValue(ActionUtils.ACTION_DIALOG_MODE, true);
-        manageEncodingsAction.putValue(Action.NAME, manageEncodingsAction.getValue(Action.NAME) + ActionUtils.DIALOG_MENUITEM_EXT);
 
         toolsEncodingMenu = new JMenu();
         toolsEncodingMenu.addSeparator();
-        toolsEncodingMenu.add(manageEncodingsAction);
+        toolsEncodingMenu.add(ActionUtils.actionToMenuItem(manageEncodingsAction));
         toolsEncodingMenu.setText(resourceBundle.getString("toolsEncodingMenu.text"));
         toolsEncodingMenu.setToolTipText(resourceBundle.getString("toolsEncodingMenu.shortDescription"));
         EncodingsHandler.this.rebuildEncodings();
     }
-    
+
     public void setTextEncodingStatus(TextEncodingStatusApi textEncodingStatus) {
         textEncodingService.setTextEncodingStatus(textEncodingStatus);
     }
@@ -235,7 +231,7 @@ public class EncodingsHandler {
         }
 
         popupMenu.add(new JSeparator());
-        popupMenu.add(manageEncodingsAction);
+        popupMenu.add(ActionUtils.actionToMenuItem(manageEncodingsAction));
 
         popupMenu.show((Component) mouseEvent.getSource(), mouseEvent.getX(), mouseEvent.getY());
     }

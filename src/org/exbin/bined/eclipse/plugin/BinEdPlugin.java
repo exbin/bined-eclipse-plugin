@@ -36,9 +36,6 @@ public class BinEdPlugin extends AbstractUIPlugin {
 	// The shared instance
 	private static BinEdPlugin plugin;
 
-	/**
-	 * The constructor
-	 */
 	public BinEdPlugin() {
 	}
 
@@ -75,7 +72,7 @@ public class BinEdPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns the shared instance
+	 * Returns the shared instance.
 	 *
 	 * @return the shared instance
 	 */
@@ -85,7 +82,7 @@ public class BinEdPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns an image descriptor for the image file at the given plug-in relative
-	 * path
+	 * path.
 	 *
 	 * @param path the path
 	 * @return the image descriptor

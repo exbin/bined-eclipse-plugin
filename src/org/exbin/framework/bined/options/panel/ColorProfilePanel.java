@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -34,7 +35,7 @@ import org.exbin.bined.swing.extended.ExtCodeArea;
 import org.exbin.bined.swing.extended.color.ExtendedCodeAreaColorProfile;
 import org.exbin.framework.gui.utils.LanguageUtils;
 import org.exbin.framework.gui.utils.WindowUtils;
-import org.exbin.utils.binary_data.ByteArrayEditableData;
+import org.exbin.auxiliary.paged_data.ByteArrayEditableData;
 
 /**
  * Color profile panel.
@@ -64,6 +65,11 @@ public class ColorProfilePanel extends javax.swing.JPanel {
         colorsTable.setDefaultEditor(Color.class, new ColorCellTableEditor());
 
         colorTableModel.setColorProfile((ExtendedCodeAreaColorProfile) codeArea.getColorsProfile());
+    }
+
+    @Nonnull
+    public ResourceBundle getResourceBundle() {
+        return resourceBundle;
     }
 
     private void initPreviewCodeArea() {

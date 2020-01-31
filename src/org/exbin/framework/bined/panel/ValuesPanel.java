@@ -25,6 +25,8 @@ import java.util.InputMismatchException;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import org.exbin.bined.CaretMovedListener;
@@ -33,7 +35,7 @@ import org.exbin.bined.DataChangedListener;
 import org.exbin.bined.capability.EditationModeCapable;
 import org.exbin.bined.operation.BinaryDataCommand;
 import org.exbin.bined.operation.BinaryDataOperationException;
-import org.exbin.bined.operation.swing.command.HexCompoundCommand;
+import org.exbin.bined.operation.swing.command.BinaryCompoundCommand;
 import org.exbin.bined.operation.swing.command.InsertDataCommand;
 import org.exbin.bined.operation.swing.command.ModifyDataCommand;
 import org.exbin.bined.operation.undo.BinaryDataUndoHandler;
@@ -41,16 +43,17 @@ import org.exbin.bined.operation.undo.BinaryDataUndoUpdateListener;
 import org.exbin.bined.swing.extended.ExtCodeArea;
 import org.exbin.framework.gui.utils.LanguageUtils;
 import org.exbin.framework.gui.utils.WindowUtils;
-import org.exbin.utils.binary_data.BinaryData;
-import org.exbin.utils.binary_data.ByteArrayEditableData;
-import org.exbin.utils.binary_data.EditableBinaryData;
+import org.exbin.auxiliary.paged_data.BinaryData;
+import org.exbin.auxiliary.paged_data.ByteArrayEditableData;
+import org.exbin.auxiliary.paged_data.EditableBinaryData;
 
 /**
  * Values side panel.
  *
- * @version 0.2.1 2019/07/16
+ * @version 0.2.1 2019/08/31
  * @author ExBin Project (http://exbin.org)
  */
+@ParametersAreNonnullByDefault
 public class ValuesPanel extends javax.swing.JPanel {
 
     public static final int UBYTE_MAX_VALUE = 255;
@@ -712,7 +715,7 @@ public class ValuesPanel extends javax.swing.JPanel {
     private javax.swing.JTextField wordTextField;
     // End of variables declaration//GEN-END:variables
 
-    public void setCodeArea(ExtCodeArea codeArea, BinaryDataUndoHandler undoHandler) {
+    public void setCodeArea(ExtCodeArea codeArea, @Nullable BinaryDataUndoHandler undoHandler) {
         this.codeArea = codeArea;
         this.undoHandler = undoHandler;
     }
@@ -738,7 +741,9 @@ public class ValuesPanel extends javax.swing.JPanel {
                 updateValues();
             }
         };
-        undoHandler.addUndoUpdateListener(undoUpdateListener);
+        if (undoHandler != null) {
+            undoHandler.addUndoUpdateListener(undoUpdateListener);
+        }
         updateEditationMode();
         updateValues();
     }
@@ -746,7 +751,9 @@ public class ValuesPanel extends javax.swing.JPanel {
     public void disableUpdate() {
         codeArea.removeDataChangedListener(dataChangedListener);
         codeArea.removeCaretMovedListener(caretMovedListener);
-        undoHandler.addUndoUpdateListener(undoUpdateListener);
+        if (undoHandler != null) {
+            undoHandler.addUndoUpdateListener(undoUpdateListener);
+        }
     }
 
     public void updateEditationMode() {
@@ -791,10 +798,12 @@ public class ValuesPanel extends javax.swing.JPanel {
         long oldDataPosition = dataPosition;
         if (dataPosition == codeArea.getDataSize()) {
             InsertDataCommand insertCommand = new InsertDataCommand(codeArea, dataPosition, byteArrayData);
-            try {
-                undoHandler.execute(insertCommand);
-            } catch (BinaryDataOperationException ex) {
-                Logger.getLogger(ValuesPanel.class.getName()).log(Level.SEVERE, null, ex);
+            if (undoHandler != null) {
+                try {
+                    undoHandler.execute(insertCommand);
+                } catch (BinaryDataOperationException ex) {
+                    Logger.getLogger(ValuesPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         } else {
             BinaryDataCommand command;
@@ -802,17 +811,19 @@ public class ValuesPanel extends javax.swing.JPanel {
                 long modifiedDataSize = codeArea.getDataSize() - dataPosition;
                 EditableBinaryData modifiedData = (EditableBinaryData) byteArrayData.copy(0, modifiedDataSize);
                 EditableBinaryData insertedData = (EditableBinaryData) byteArrayData.copy(modifiedDataSize, byteArrayData.getDataSize() - modifiedDataSize);
-                command = new HexCompoundCommand(codeArea);
-                ((HexCompoundCommand) command).appendCommand(new ModifyDataCommand(codeArea, dataPosition, modifiedData));
-                ((HexCompoundCommand) command).appendCommand(new InsertDataCommand(codeArea, dataPosition + modifiedDataSize, insertedData));
+                command = new BinaryCompoundCommand(codeArea);
+                ((BinaryCompoundCommand) command).appendCommand(new ModifyDataCommand(codeArea, dataPosition, modifiedData));
+                ((BinaryCompoundCommand) command).appendCommand(new InsertDataCommand(codeArea, dataPosition + modifiedDataSize, insertedData));
             } else {
                 command = new ModifyDataCommand(codeArea, dataPosition, byteArrayData);
             }
 
-            try {
-                undoHandler.execute(command);
-            } catch (BinaryDataOperationException ex) {
-                Logger.getLogger(ValuesPanel.class.getName()).log(Level.SEVERE, null, ex);
+            if (undoHandler != null) {
+                try {
+                    undoHandler.execute(command);
+                } catch (BinaryDataOperationException ex) {
+                    Logger.getLogger(ValuesPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
         codeArea.setCaretPosition(oldDataPosition);
@@ -854,6 +865,7 @@ public class ValuesPanel extends javax.swing.JPanel {
         STRING
     }
 
+    @ParametersAreNonnullByDefault
     private class ValuesUpdater {
 
         private boolean updateInProgress = false;
@@ -893,6 +905,9 @@ public class ValuesPanel extends javax.swing.JPanel {
                 byteOrder = getByteOrder();
                 signed = isSigned();
                 values = valuesCache;
+                if (clearFields) {
+                    values[0] = 0;
+                }
                 updateStarted();
             }
 

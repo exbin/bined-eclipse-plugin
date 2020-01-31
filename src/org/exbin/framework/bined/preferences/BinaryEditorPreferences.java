@@ -28,6 +28,7 @@ import org.exbin.bined.swing.extended.layout.ExtendedCodeAreaDecorations;
 import org.exbin.bined.swing.extended.theme.ExtendedCodeAreaThemeProfile;
 import org.exbin.framework.bined.FileHandlingMode;
 import org.exbin.framework.editor.text.preferences.TextEncodingPreferences;
+import org.exbin.framework.editor.text.preferences.TextFontPreferences;
 
 /**
  * Binary editor preferences.
@@ -47,6 +48,7 @@ public class BinaryEditorPreferences {
     private final StatusPreferences statusPreferences;
     private final CodeAreaPreferences codeAreaPreferences;
     private final TextEncodingPreferences encodingPreferences;
+    private final TextFontPreferences fontPreferences;
     private final CodeAreaLayoutPreferences layoutPreferences;
     private final CodeAreaThemePreferences themePreferences;
     private final CodeAreaColorPreferences colorPreferences;
@@ -58,6 +60,7 @@ public class BinaryEditorPreferences {
         statusPreferences = new StatusPreferences(preferences);
         codeAreaPreferences = new CodeAreaPreferences(preferences);
         encodingPreferences = new TextEncodingPreferences(preferences);
+        fontPreferences = new TextFontPreferences(preferences);
         layoutPreferences = new CodeAreaLayoutPreferences(preferences);
         themePreferences = new CodeAreaThemePreferences(preferences);
         colorPreferences = new CodeAreaColorPreferences(preferences);
@@ -100,6 +103,11 @@ public class BinaryEditorPreferences {
     }
 
     @Nonnull
+    public TextFontPreferences getFontPreferences() {
+        return fontPreferences;
+    }
+
+    @Nonnull
     public CodeAreaLayoutPreferences getLayoutPreferences() {
         return layoutPreferences;
     }
@@ -116,8 +124,6 @@ public class BinaryEditorPreferences {
 
     private void importLegacyPreferences() {
         LegacyPreferences legacyPreferences = new LegacyPreferences(preferences);
-        codeAreaPreferences.setUseDefaultFont(legacyPreferences.isUseDefaultFont());
-        codeAreaPreferences.setCodeFont(legacyPreferences.getCodeFont(CodeAreaPreferences.DEFAULT_FONT));
         codeAreaPreferences.setCodeType(legacyPreferences.getCodeType());
         codeAreaPreferences.setRowWrappingMode(legacyPreferences.isLineWrapping() ? RowWrappingCapable.RowWrappingMode.WRAPPING : RowWrappingCapable.RowWrappingMode.NO_WRAPPING);
         codeAreaPreferences.setShowUnprintables(legacyPreferences.isShowNonprintables());
@@ -160,6 +166,8 @@ public class BinaryEditorPreferences {
             encodings.add(TextEncodingPreferences.ENCODING_UTF8);
         }
         encodingPreferences.setEncodings(encodings);
+        fontPreferences.setUseDefaultFont(legacyPreferences.isUseDefaultFont());
+        fontPreferences.setFont(legacyPreferences.getCodeFont(CodeAreaPreferences.DEFAULT_FONT));
 
         preferences.flush();
     }

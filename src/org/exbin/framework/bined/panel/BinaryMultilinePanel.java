@@ -23,11 +23,12 @@ import java.util.ResourceBundle;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JViewport;
 import org.exbin.bined.swing.extended.ExtCodeArea;
 import org.exbin.framework.bined.handler.CodeAreaPopupMenuHandler;
 import org.exbin.framework.gui.utils.LanguageUtils;
 import org.exbin.framework.gui.utils.WindowUtils;
-import org.exbin.utils.binary_data.EditableBinaryData;
+import org.exbin.auxiliary.paged_data.EditableBinaryData;
 
 /**
  * Multiline search condition editor panel.
@@ -109,7 +110,13 @@ public class BinaryMultilinePanel extends javax.swing.JPanel {
                 codeArea.setComponentPopupMenu(new JPopupMenu() {
                     @Override
                     public void show(Component invoker, int x, int y) {
-                        JPopupMenu popupMenu = codeAreaPopupMenuHandler.createPopupMenu(codeArea, POPUP_MENU_POSTFIX, x, y);
+                        int clickedX = x;
+                        int clickedY = y;
+                        if (invoker instanceof JViewport) {
+                            clickedX += ((JViewport) invoker).getParent().getX();
+                            clickedY += ((JViewport) invoker).getParent().getY();
+                        }
+                        JPopupMenu popupMenu = codeAreaPopupMenuHandler.createPopupMenu(codeArea, POPUP_MENU_POSTFIX, clickedX, clickedY);
                         popupMenu.show(invoker, x, y);
                     }
                 });

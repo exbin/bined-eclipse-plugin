@@ -47,6 +47,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.part.EditorPart;
 import org.exbin.bined.DataChangedListener;
+import org.exbin.bined.eclipse.BinEdFile;
 import org.exbin.bined.operation.BinaryDataOperationException;
 import org.exbin.bined.operation.swing.CodeAreaUndoHandler;
 import org.exbin.bined.swing.extended.ExtCodeArea;
@@ -60,9 +61,14 @@ import org.exbin.bined.swing.extended.ExtCodeArea;
 public final class BinEdEditor extends EditorPart implements ISelectionProvider {
 
 	private List<ISelectionChangedListener> selectionChangedListeners = new ArrayList<>();
-	private BinEdEditorSwing editor;
+	private BinEdFile editorFile;
 
-	public BinEdEditor() {
+    private boolean opened = false;
+    private boolean modified = false;
+    protected String displayName;
+    private ActionsStateListener actionsStateListener;
+
+    public BinEdEditor() {
 		super();
 	}
 
@@ -76,7 +82,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		return new ISelection() {
 			@Override
 			public boolean isEmpty() {
-				return editor == null || editor.getCodeArea() == null || !editor.getCodeArea().hasSelection();
+				return editorFile == null || editorFile.hasSelection();
 			}
 		};
 	}
@@ -94,13 +100,8 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		try {
-			editor.save();
-			notifyChanged();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		editorFile.saveDocument();
+		notifyChanged();
 	}
 
 	@Override
@@ -124,13 +125,8 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 				return;
 	    }
 	
-		try {
-			editor.saveAsFile(file);
-			notifyChanged();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		editorFile.saveFile(file);
+		notifyChanged();
 	}
 
 	@Override
@@ -149,7 +145,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public boolean isDirty() {
-		return editor != null && editor.isModified();
+		return editorFile != null && editorFile.isModified();
 	}
 
 	@Override
@@ -159,12 +155,9 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public void createPartControl(Composite parent) {
-		editor = new BinEdEditorSwing(parent);
-		editor.registerActionsStateListener(new BinEdEditorSwing.ActionsStateListener() {
-			@Override
-			public void changed() {
-				notifyChanged();
-			}
+		editorFile = new BinEdFile();
+		editorFile.setModifiedChangeListener(() -> {
+			notifyChanged();
 		});
 
 		Composite wrapper = new Composite(parent, SWT.EMBEDDED);
@@ -180,17 +173,9 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
 		frame.setLayout(new BorderLayout());
 
-		frame.add(editor.getCodeAreaPanel(), java.awt.BorderLayout.CENTER);
-		frame.add(editor.getStatusPanel(), BorderLayout.SOUTH);
+		frame.add(editorFile.getPanel(), java.awt.BorderLayout.CENTER);
 
-		editor.getCodeArea().addDataChangedListener(new DataChangedListener() {
-
-			@Override
-			public void dataChanged() {
-				notifyChanged();
-			}
-		});
-		editor.openDataObject(getEditorInput());
+		editorFile.openFile(getEditorInput());
 		registerActionBars();
 	}
 
@@ -199,7 +184,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		bars.setGlobalActionHandler(ActionFactory.UNDO.getId(), new Action() {
 			@Override
 			public void run() {
-				CodeAreaUndoHandler undoHandler = editor.getUndoHandler();
+				CodeAreaUndoHandler undoHandler = editorFile.getUndoHandler();
 				if (!undoHandler.canUndo())
 					return;
 
@@ -214,7 +199,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		bars.setGlobalActionHandler(ActionFactory.REDO.getId(), new Action() {
 			@Override
 			public void run() {
-				CodeAreaUndoHandler undoHandler = editor.getUndoHandler();
+				CodeAreaUndoHandler undoHandler = editorFile.getUndoHandler();
 				if (!undoHandler.canRedo())
 					return;
 
@@ -229,31 +214,31 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		bars.setGlobalActionHandler(ActionFactory.CUT.getId(), new Action() {
 			@Override
 			public void run() {
-				editor.getCodeArea().cut();
+				editorFile.cut();
 			}
 		});
 		bars.setGlobalActionHandler(ActionFactory.COPY.getId(), new Action() {
 			@Override
 			public void run() {
-				editor.getCodeArea().copy();
+				editorFile.copy();
 			}
 		});
 		bars.setGlobalActionHandler(ActionFactory.PASTE.getId(), new Action() {
 			@Override
 			public void run() {
-				editor.getCodeArea().paste();
+				editorFile.paste();
 			}
 		});
 		bars.setGlobalActionHandler(ActionFactory.DELETE.getId(), new Action() {
 			@Override
 			public void run() {
-				editor.getCodeArea().delete();
+				editorFile.delete();
 			}
 		});
 		bars.setGlobalActionHandler(ActionFactory.SELECT_ALL.getId(), new Action() {
 			@Override
 			public void run() {
-				editor.getCodeArea().selectAll();
+				editorFile.selectAll();
 			}
 		});
 		updateActionBars();
@@ -263,38 +248,34 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		IActionBars bars = getEditorSite().getActionBars();
 		IAction undoAction = bars.getGlobalActionHandler(ActionFactory.UNDO.getId());
 		if (undoAction != null) {
-			CodeAreaUndoHandler undoHandler = editor.getUndoHandler();
+			CodeAreaUndoHandler undoHandler = editorFile.getUndoHandler();
 			undoAction.setEnabled(undoHandler.canUndo());
 		}
 
 		IAction redoAction = bars.getGlobalActionHandler(ActionFactory.REDO.getId());
 		if (redoAction != null) {
-			CodeAreaUndoHandler undoHandler = editor.getUndoHandler();
+			CodeAreaUndoHandler undoHandler = editorFile.getUndoHandler();
 			redoAction.setEnabled(undoHandler.canRedo());
 		}
 
 		IAction cutAction = bars.getGlobalActionHandler(ActionFactory.CUT.getId());
 		if (cutAction != null) {
-			ExtCodeArea codeArea = editor.getCodeArea();
-			cutAction.setEnabled(codeArea.hasSelection());
+			cutAction.setEnabled(editorFile.hasSelection());
 		}
 
 		IAction copyAction = bars.getGlobalActionHandler(ActionFactory.COPY.getId());
 		if (copyAction != null) {
-			ExtCodeArea codeArea = editor.getCodeArea();
-			copyAction.setEnabled(codeArea.hasSelection());
+			copyAction.setEnabled(editorFile.hasSelection());
 		}
 
 		IAction pasteAction = bars.getGlobalActionHandler(ActionFactory.PASTE.getId());
 		if (pasteAction != null) {
-			ExtCodeArea codeArea = editor.getCodeArea();
-			pasteAction.setEnabled(codeArea.canPaste());
+			pasteAction.setEnabled(editorFile.canPaste());
 		}
 
 		IAction deleteAction = bars.getGlobalActionHandler(ActionFactory.DELETE.getId());
 		if (deleteAction != null) {
-			ExtCodeArea codeArea = editor.getCodeArea();
-			deleteAction.setEnabled(codeArea.hasSelection());
+			deleteAction.setEnabled(editorFile.hasSelection());
 		}
 
 		IAction selectAllAction = bars.getGlobalActionHandler(ActionFactory.SELECT_ALL.getId());
@@ -312,7 +293,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public void setFocus() {
-		editor.requestFocus();
+		editorFile.requestFocus();
 	}
 
 	@Override
@@ -329,4 +310,8 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 			}
 		});
 	}
+
+    public static interface ActionsStateListener {
+    	void changed();
+    }
 }

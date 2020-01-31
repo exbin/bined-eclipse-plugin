@@ -26,6 +26,7 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
@@ -36,6 +37,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -49,9 +51,11 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.text.JTextComponent;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -346,13 +350,6 @@ public class WindowUtils {
      */
     public static void assignGlobalKeyListener(Component component, final JButton closeButton) {
         assignGlobalKeyListener(component, closeButton, closeButton);
-        if (component instanceof LazyComponentsIssuable) {
-            RecursiveLazyComponentListener listener = new RecursiveLazyComponentListener((Component childComponent) -> {
-                assignGlobalKeyListener(childComponent, closeButton, closeButton);
-            });
-
-            ((LazyComponentsIssuable) component).addChildComponentListener(listener);
-        }
     }
 
     /**
@@ -383,60 +380,116 @@ public class WindowUtils {
      * @param listener ok and cancel event listener
      */
     public static void assignGlobalKeyListener(Component component, @Nullable final OkCancelListener listener) {
-        KeyListener keyListener = new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
-
-            @Override
-            public void keyPressed(KeyEvent evt) {
-                if (listener == null) {
-                    return;
+        JRootPane rootPane = SwingUtilities.getRootPane(component);
+        if (rootPane != null) {
+	        final String ESC_CANCEL = "esc-cancel";
+	        final String ENTER_OK = "enter-ok";
+	        rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), ESC_CANCEL);
+	        rootPane.getActionMap().put(ESC_CANCEL, new AbstractAction() {
+	            @Override
+	            public void actionPerformed(ActionEvent event) {
+	                if (listener == null) {
+	                    return;
+	                }
+	
+	                boolean performCancelAction = true;
+	
+	                Window window = SwingUtilities.getWindowAncestor(event.getSource() instanceof JRootPane ? (JRootPane) event.getSource() : rootPane);
+	                if (window != null) {
+	                    Component focusOwner = window.getFocusOwner();
+	                    if (focusOwner instanceof JComboBox) {
+	                        performCancelAction = !((JComboBox) focusOwner).isPopupVisible();
+	                    } else if (focusOwner instanceof JRootPane) {
+	                        // Ignore in popup menus
+	                        // performCancelAction = false;
+	                    }
+	                }
+	
+	                if (performCancelAction) {
+	                    listener.cancelEvent();
+	                }
+	            }
+	        });
+	
+	        rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), ENTER_OK);
+	        rootPane.getActionMap().put(ENTER_OK, new AbstractAction() {
+	            @Override
+	            public void actionPerformed(ActionEvent event) {
+	                if (listener == null) {
+	                    return;
+	                }
+	
+	                boolean performOkAction = true;
+	
+	                Window window = SwingUtilities.getWindowAncestor(event.getSource() instanceof JRootPane ? (JRootPane) event.getSource() : rootPane);
+	                if (window != null) {
+	                    Component focusOwner = window.getFocusOwner();
+	                    if (focusOwner instanceof JTextArea || focusOwner instanceof JEditorPane) {
+	                        performOkAction = !((JTextComponent) focusOwner).isEditable();
+	                    }
+	                }
+	
+	                if (performOkAction) {
+	                    listener.okEvent();
+	                }
+	            }
+	        });
+        } else {
+            KeyListener keyListener = new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
                 }
 
-                if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-                    boolean performOkAction = true;
-
-                    if (evt.getSource() instanceof JButton) {
-                        ((JButton) evt.getSource()).doClick(BUTTON_CLICK_TIME);
-                        performOkAction = false;
-                    } else if (evt.getSource() instanceof JTextArea) {
-                        performOkAction = !((JTextArea) evt.getSource()).isEditable();
-                    } else if (evt.getSource() instanceof JTextPane) {
-                        performOkAction = !((JTextPane) evt.getSource()).isEditable();
-                    } else if (evt.getSource() instanceof JEditorPane) {
-                        performOkAction = !((JEditorPane) evt.getSource()).isEditable();
+                @Override
+                public void keyPressed(KeyEvent evt) {
+                    if (listener == null) {
+                        return;
                     }
 
-                    if (performOkAction) {
-                        listener.okEvent();
-                    }
-                } else if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    boolean performCancelAction = true;
-                    if (evt.getSource() instanceof JComboBox) {
-                        performCancelAction = !((JComboBox) evt.getSource()).isPopupVisible();
-                    } else if (evt.getSource() instanceof JRootPane) {
-                        // Ignore in popup menus
-                        performCancelAction = false;
-                    }
+                    if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+                        boolean performOkAction = true;
 
-                    if (performCancelAction) {
-                        listener.cancelEvent();
+                        if (evt.getSource() instanceof JButton) {
+                            ((JButton) evt.getSource()).doClick(BUTTON_CLICK_TIME);
+                            performOkAction = false;
+                        } else if (evt.getSource() instanceof JTextArea) {
+                            performOkAction = !((JTextArea) evt.getSource()).isEditable();
+                        } else if (evt.getSource() instanceof JTextPane) {
+                            performOkAction = !((JTextPane) evt.getSource()).isEditable();
+                        } else if (evt.getSource() instanceof JEditorPane) {
+                            performOkAction = !((JEditorPane) evt.getSource()).isEditable();
+                        }
+
+                        if (performOkAction) {
+                            listener.okEvent();
+                        }
+                    } else if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        boolean performCancelAction = true;
+                        if (evt.getSource() instanceof JComboBox) {
+                            performCancelAction = !((JComboBox) evt.getSource()).isPopupVisible();
+                        } else if (evt.getSource() instanceof JRootPane) {
+                            // Ignore in popup menus
+                            performCancelAction = false;
+                        }
+
+                        if (performCancelAction) {
+                            listener.cancelEvent();
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-            }
-        };
+                @Override
+                public void keyReleased(KeyEvent e) {
+                }
+            };
 
-        RecursiveLazyComponentListener componentListener = new RecursiveLazyComponentListener((Component childComponent) -> {
-            if (childComponent.isFocusable()) {
-                childComponent.addKeyListener(keyListener);
-            }
-        });
-        componentListener.fireListener(component);
+            RecursiveLazyComponentListener componentListener = new RecursiveLazyComponentListener((Component childComponent) -> {
+                if (childComponent.isFocusable()) {
+                    childComponent.addKeyListener(keyListener);
+                }
+            });
+            componentListener.fireListener(component);
+      	}
     }
 
     /**

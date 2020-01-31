@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.exbin.bined.eclipse.plugin.editors;
+package org.exbin.bined.eclipse.panel;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.annotation.Nonnull;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -44,38 +39,25 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.part.FileEditorInput;
+import org.exbin.auxiliary.paged_data.BinaryData;
 import org.exbin.bined.BasicCodeAreaZone;
 import org.exbin.bined.CodeAreaCaretPosition;
 import org.exbin.bined.EditationMode;
 import org.exbin.bined.EditationOperation;
 import org.exbin.bined.PositionCodeType;
-import org.exbin.bined.SelectionChangedListener;
-import org.exbin.bined.SelectionRange;
 import org.exbin.bined.capability.CharsetCapable;
-import org.exbin.bined.delta.DeltaDocument;
-import org.exbin.bined.delta.FileDataSource;
-import org.exbin.bined.delta.SegmentsRepository;
+import org.exbin.bined.extended.layout.ExtendedCodeAreaLayoutProfile;
+import org.exbin.bined.highlight.swing.extended.ExtendedHighlightNonAsciiCodeAreaPainter;
 import org.exbin.bined.eclipse.BinEdApplyOptions;
 import org.exbin.bined.eclipse.GoToPositionAction;
 import org.exbin.bined.eclipse.SearchAction;
-import org.exbin.bined.eclipse.panel.BinEdOptionsPanel;
-import org.exbin.bined.eclipse.panel.BinEdOptionsPanelBorder;
-import org.exbin.bined.eclipse.panel.BinEdToolbarPanel;
-import org.exbin.bined.eclipse.panel.BinarySearchPanel;
 import org.exbin.bined.eclipse.plugin.BinEdPlugin;
-import org.exbin.bined.extended.layout.ExtendedCodeAreaLayoutProfile;
-import org.exbin.bined.highlight.swing.extended.ExtendedHighlightNonAsciiCodeAreaPainter;
 import org.exbin.bined.operation.BinaryDataCommand;
 import org.exbin.bined.operation.swing.CodeAreaOperationCommandHandler;
-import org.exbin.bined.operation.swing.CodeAreaUndoHandler;
+import org.exbin.bined.operation.undo.BinaryDataUndoHandler;
 import org.exbin.bined.operation.undo.BinaryDataUndoUpdateListener;
 import org.exbin.bined.swing.basic.color.CodeAreaColorsProfile;
+import org.exbin.bined.swing.capability.FontCapable;
 import org.exbin.bined.swing.extended.ExtCodeArea;
 import org.exbin.bined.swing.extended.theme.ExtendedCodeAreaThemeProfile;
 import org.exbin.framework.bined.BinaryStatusApi;
@@ -93,107 +75,69 @@ import org.exbin.framework.bined.preferences.BinaryEditorPreferences;
 import org.exbin.framework.editor.text.EncodingsHandler;
 import org.exbin.framework.editor.text.TextEncodingStatusApi;
 import org.exbin.framework.editor.text.options.TextEncodingOptions;
+import org.exbin.framework.editor.text.options.TextFontOptions;
+import org.exbin.framework.editor.text.service.TextFontService;
 import org.exbin.framework.gui.about.panel.AboutPanel;
 import org.exbin.framework.gui.utils.ActionUtils;
 import org.exbin.framework.gui.utils.WindowUtils;
-import org.exbin.framework.gui.utils.WindowUtils.DialogWrapper;
 import org.exbin.framework.gui.utils.handler.OptionsControlHandler;
 import org.exbin.framework.gui.utils.panel.CloseControlPanel;
 import org.exbin.framework.gui.utils.panel.OptionsControlPanel;
 import org.exbin.framework.preferences.PreferencesWrapper;
-import org.exbin.utils.binary_data.BinaryData;
-import org.exbin.utils.binary_data.ByteArrayData;
-import org.exbin.utils.binary_data.ByteArrayEditableData;
-import org.exbin.utils.binary_data.EditableBinaryData;
-import org.exbin.utils.binary_data.PagedData;
 
 /**
- * Binary editor editor component.
+ * Binary editor component panel.
  *
- * @version 0.2.1 2019/08/07
+ * @version 0.2.1 2020/01/31
  * @author ExBin Project (http://exbin.org)
  */
-public final class BinEdEditorSwing {
+public class BinEdComponentPanel extends javax.swing.JPanel {
 
     private static final FileHandlingMode DEFAULT_FILE_HANDLING_MODE = FileHandlingMode.DELTA;
 
+    private BinEdComponentFileApi fileApi = null;
     private final BinaryEditorPreferences preferences;
-    private static SegmentsRepository segmentsRepository = null;
     private final ExtCodeArea codeArea;
-    private final CodeAreaUndoHandler undoHandler;
+    private BinaryDataUndoHandler undoHandler;
     private final ExtendedCodeAreaLayoutProfile defaultLayoutProfile;
     private final ExtendedCodeAreaThemeProfile defaultThemeProfile;
     private final CodeAreaColorsProfile defaultColorProfile;
 
-    private BinEdToolbarPanel toolbarPanel;
-    private BinaryStatusPanel statusPanel;
+    private final BinEdToolbarPanel toolbarPanel;
+    private final BinaryStatusPanel statusPanel;
     private BinaryStatusApi binaryStatus;
     private TextEncodingStatusApi encodingStatus;
     private CharsetChangeListener charsetChangeListener = null;
-    private GoToPositionAction goToRowAction;
-    private javax.swing.AbstractAction showHeaderAction;
-    private javax.swing.AbstractAction showRowNumbersAction;
+    private ModifiedStateListener modifiedChangeListener = null;
+    private final GoToPositionAction goToRowAction;
+    private final AbstractAction showHeaderAction;
+    private final AbstractAction showRowNumbersAction;
+    private final SearchAction searchAction;
     private EncodingsHandler encodingsHandler;
     private ValuesPanel valuesPanel = null;
     private JScrollPane valuesPanelScrollPane = null;
     private boolean valuesPanelVisible = false;
-    private final SearchAction searchAction;
 
-    private boolean opened = false;
-    private boolean modified = false;
     private FileHandlingMode fileHandlingMode = DEFAULT_FILE_HANDLING_MODE;
-    protected String displayName;
+    private final Font defaultFont;
     private long documentOriginalSize;
-    private IEditorInput dataObject;
-    private ActionsStateListener actionsStateListener;
 
-    public BinEdEditorSwing(Composite parent) {
+    public BinEdComponentPanel() {
+        initComponents();
 
-		initComponents();
-
-		preferences = new BinaryEditorPreferences(new PreferencesWrapper(BinEdPlugin.getDefault().getPreferenceStore()));
+        preferences = new BinaryEditorPreferences(new PreferencesWrapper(BinEdPlugin.getDefault().getPreferenceStore()));
 
         codeArea = new ExtCodeArea();
         codeArea.setPainter(new ExtendedHighlightNonAsciiCodeAreaPainter(codeArea));
-        codeArea.setCodeFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        defaultFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+        codeArea.setCodeFont(defaultFont);
         codeArea.getCaret().setBlinkRate(300);
         defaultLayoutProfile = codeArea.getLayoutProfile();
         defaultThemeProfile = codeArea.getThemeProfile();
         defaultColorProfile = codeArea.getColorsProfile();
-
-        undoHandler = new CodeAreaUndoHandler(codeArea);
-        toolbarPanel = new BinEdToolbarPanel(preferences, codeArea, undoHandler);
-        toolbarPanel.setSaveAction(this::saveFileButtonActionPerformed);
+        toolbarPanel = new BinEdToolbarPanel(preferences, codeArea, createOptionsAction());
         statusPanel = new BinaryStatusPanel();
-        codeAreaPanel.add(toolbarPanel, BorderLayout.NORTH);
-        registerEncodingStatus(statusPanel);
-        encodingsHandler = new EncodingsHandler();
-        encodingsHandler.setParentComponent(codeAreaPanel);
-        encodingsHandler.init();
-        encodingsHandler.setTextEncodingStatus(new TextEncodingStatusApi() {
-            @Override
-            public String getEncoding() {
-                return encodingStatus.getEncoding();
-            }
 
-            @Override
-            public void setEncoding(String encodingName) {
-                codeArea.setCharset(Charset.forName(encodingName));
-                encodingStatus.setEncoding(encodingName);
-                preferences.getEncodingPreferences().setSelectedEncoding(encodingName);
-                charsetChangeListener.charsetChanged();
-            }
-        });
-
-        getSegmentsRepository();
-        setNewData();
-        CodeAreaOperationCommandHandler commandHandler = new CodeAreaOperationCommandHandler(codeArea, undoHandler);
-        codeArea.setCommandHandler(commandHandler);
-        registerBinaryStatus(statusPanel);
-
-        initialLoadFromPreferences();
-
-        codeAreaPanel.add(codeArea, BorderLayout.CENTER);
         goToRowAction = new GoToPositionAction(codeArea);
         showHeaderAction = new AbstractAction() {
             @Override
@@ -219,41 +163,53 @@ public final class BinEdEditorSwing {
                 codeArea.setLayoutProfile(layoutProfile);
             }
         };
+        searchAction = new SearchAction(codeArea, codeAreaPanel);
+
+        init();
+    }
+
+    private void init() {
+        this.add(toolbarPanel, BorderLayout.NORTH);
+        registerEncodingStatus(statusPanel);
+        encodingsHandler = new EncodingsHandler();
+        encodingsHandler.setParentComponent(this);
+        encodingsHandler.init();
+        encodingsHandler.setTextEncodingStatus(new TextEncodingStatusApi() {
+            @Override
+            public String getEncoding() {
+                return encodingStatus.getEncoding();
+            }
+
+            @Override
+            public void setEncoding(String encodingName) {
+                codeArea.setCharset(Charset.forName(encodingName));
+                encodingStatus.setEncoding(encodingName);
+                preferences.getEncodingPreferences().setSelectedEncoding(encodingName);
+                charsetChangeListener.charsetChanged();
+            }
+        });
+
+        registerBinaryStatus(statusPanel);
+
+        initialLoadFromPreferences();
+
+        this.add(statusPanel, BorderLayout.SOUTH);
+        codeAreaPanel.add(codeArea, BorderLayout.CENTER);
 
         codeArea.setComponentPopupMenu(new JPopupMenu() {
             @Override
             public void show(Component invoker, int x, int y) {
-            	int clickedX = x;
-            	int clickedY = y;
-            	if (invoker instanceof JViewport) {
-            		// Workaround for different behavior of emulated Swing
-            		clickedX += ((JViewport) invoker).getParent().getX();
-            		clickedY += ((JViewport) invoker).getParent().getY();
-            	}
+                int clickedX = x;
+                int clickedY = y;
+                if (invoker instanceof JViewport) {
+                    clickedX += ((JViewport) invoker).getParent().getX();
+                    clickedY += ((JViewport) invoker).getParent().getY();
+                }
                 JPopupMenu popupMenu = createContextMenu(clickedX, clickedY);
                 popupMenu.show(invoker, x, y);
             }
         });
 
-        undoHandler.addUndoUpdateListener(new BinaryDataUndoUpdateListener() {
-            @Override
-            public void undoCommandPositionChanged() {
-                codeArea.repaint();
-                toolbarPanel.updateUndoState();
-                updateCurrentDocumentSize();
-                updateModified();
-            }
-
-            @Override
-            public void undoCommandAdded(final BinaryDataCommand command) {
-                toolbarPanel.updateUndoState();
-                updateCurrentDocumentSize();
-                updateModified();
-            }
-        });
-        toolbarPanel.updateUndoState();
-
-        searchAction = new SearchAction(codeArea, codeAreaPanel);
         codeArea.addDataChangedListener(() -> {
             searchAction.codeAreaDataChanged();
             updateCurrentDocumentSize();
@@ -282,20 +238,13 @@ public final class BinEdEditorSwing {
         });
     }
 
-    public JPanel getCodeAreaPanel()
-    {
-    	return codeAreaPanel;
-    }
-    
-    public BinaryStatusPanel getStatusPanel()
-    {
-    	return statusPanel;
-    }
-    
     public void registerBinaryStatus(BinaryStatusApi binaryStatusApi) {
         this.binaryStatus = binaryStatusApi;
         codeArea.addCaretMovedListener((CodeAreaCaretPosition caretPosition) -> {
             binaryStatus.setCursorPosition(caretPosition);
+        });
+        codeArea.addSelectionChangedListener(selectionRange -> {
+            binaryStatus.setSelectionRange(selectionRange);
         });
 
         codeArea.addEditationModeChangedListener(binaryStatus::setEditationMode);
@@ -309,7 +258,7 @@ public final class BinEdEditorSwing {
 
             @Override
             public void changeCursorPosition() {
-                goToRowAction.actionPerformed(new ActionEvent(codeAreaPanel, 0, ""));
+                goToRowAction.actionPerformed(new ActionEvent(BinEdComponentPanel.this, 0, ""));
             }
 
             @Override
@@ -330,11 +279,28 @@ public final class BinEdEditorSwing {
             public void changeMemoryMode(BinaryStatusApi.MemoryMode memoryMode) {
                 FileHandlingMode newHandlingMode = memoryMode == BinaryStatusApi.MemoryMode.DELTA_MODE ? FileHandlingMode.DELTA : FileHandlingMode.MEMORY;
                 if (newHandlingMode != fileHandlingMode) {
-                    switchFileHandlingMode(newHandlingMode);
+                    fileApi.switchFileHandlingMode(newHandlingMode);
                     preferences.getEditorPreferences().setFileHandlingMode(newHandlingMode);
                 }
             }
         });
+    }
+
+    public BinEdComponentFileApi getFileApi() {
+        return fileApi;
+    }
+
+    public void setFileApi(BinEdComponentFileApi fileApi) {
+        this.fileApi = fileApi;
+
+        if (fileApi.isSaveSupported()) {
+            toolbarPanel.setSaveAction(new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    saveDocument();
+                }
+            });
+        }
     }
 
     private void switchShowValuesPanel(boolean showValuesPanel) {
@@ -342,46 +308,6 @@ public final class BinEdEditorSwing {
             showValuesPanel();
         } else {
             hideValuesPanel();
-        }
-    }
-
-    private void switchFileHandlingMode(FileHandlingMode newHandlingMode) {
-        if (newHandlingMode != fileHandlingMode) {
-            // Switch memory mode
-            if (dataObject != null) {
-                // If document is connected to file, attempt to release first if modified and then simply reload
-                if (isModified()) {
-                    if (releaseFile()) {
-                        fileHandlingMode = newHandlingMode;
-                        openDataObject(dataObject);
-                        codeArea.clearSelection();
-                        codeArea.setCaretPosition(0);
-                    }
-                } else {
-                    fileHandlingMode = newHandlingMode;
-                    openDataObject(dataObject);
-                }
-            } else {
-                // If document unsaved in memory, switch data in code area
-                if (codeArea.getContentData() instanceof DeltaDocument) {
-                    BinaryData oldData = codeArea.getContentData();
-                    PagedData data = new PagedData();
-                    data.insert(0, codeArea.getContentData());
-                    codeArea.setContentData(data);
-                    oldData.dispose();
-                } else {
-                    BinaryData oldData = codeArea.getContentData();
-                    DeltaDocument document = segmentsRepository.createDocument();
-                    document.insert(0, oldData);
-                    codeArea.setContentData(document);
-                    oldData.dispose();
-                }
-                undoHandler.clear();
-                codeArea.notifyDataChanged();
-                updateCurrentMemoryMode();
-                fileHandlingMode = newHandlingMode;
-            }
-            fileHandlingMode = newHandlingMode;
         }
     }
 
@@ -397,66 +323,12 @@ public final class BinEdEditorSwing {
         this.charsetChangeListener = charsetChangeListener;
     }
 
+    public void setModifiedChangeListener(ModifiedStateListener modifiedChangeListener) {
+        this.modifiedChangeListener = modifiedChangeListener;
+    }
+
     public boolean isModified() {
-        return undoHandler.getCommandPosition() != undoHandler.getSyncPoint();
-    }
-
-    void setModified(boolean modified) {
-        this.modified = modified;
-        toolbarPanel.updateUndoState();
-        toolbarPanel.updateModified(modified);
-        actionsStateListener.changed();
-//        final String htmlDisplayName;
-//        if (modified && opened) {
-//            savable.activate();
-//            content.add(savable);
-//            htmlDisplayName = "<html><b>" + displayName + "</b></html>";
-//        } else {
-//            savable.deactivate();
-//            content.remove(savable);
-//            htmlDisplayName = displayName;
-//        }
-//
-//        if (SwingUtilities.isEventDispatchThread()) {
-//            setHtmlDisplayName(htmlDisplayName);
-//        } else {
-//            try {
-//                SwingUtilities.invokeAndWait(() -> {
-//                    setHtmlDisplayName(htmlDisplayName);
-//                });
-//            } catch (InterruptedException | InvocationTargetException ex) {
-//                Exceptions.printStackTrace(ex);
-//            }
-//        }
-    }
-
-    private void setNewData() {
-        if (fileHandlingMode == FileHandlingMode.DELTA) {
-            codeArea.setContentData(segmentsRepository.createDocument());
-        } else {
-            codeArea.setContentData(new PagedData());
-        }
-    }
-    
-    public void registerActionsStateListener(ActionsStateListener listener) {
-    	actionsStateListener = listener;
-    	undoHandler.addUndoUpdateListener(new BinaryDataUndoUpdateListener() {
-			@Override
-			public void undoCommandPositionChanged() {
-				actionsStateListener.changed();
-			}
-			
-			@Override
-			public void undoCommandAdded(BinaryDataCommand arg0) {
-				actionsStateListener.changed();
-			}
-		});
-    	codeArea.addSelectionChangedListener(new SelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionRange arg0) {
-				actionsStateListener.changed();
-			}
-		});
+        return undoHandler != null && undoHandler.getCommandPosition() != undoHandler.getSyncPoint();
     }
 
     /**
@@ -464,11 +336,9 @@ public final class BinEdEditorSwing {
      *
      * @return true if successful
      */
-    private boolean releaseFile() {
-
-        if (dataObject == null) {
+    public boolean releaseFile() {
+        if (fileApi == null)
             return true;
-        }
 
         while (isModified()) {
             Object[] options = {
@@ -476,7 +346,7 @@ public final class BinEdEditorSwing {
                 "Discard",
                 "Cancel"
             };
-            int result = JOptionPane.showOptionDialog(codeArea,
+            int result = JOptionPane.showOptionDialog(this,
                     "Document was modified! Do you wish to save it?",
                     "Save File?",
                     JOptionPane.YES_NO_CANCEL_OPTION,
@@ -489,101 +359,39 @@ public final class BinEdEditorSwing {
                 return false;
             }
 
-            try {
-                saveDataObject(dataObject);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            saveDocument();
         }
 
         return true;
     }
 
-    public void openDataObject(IEditorInput dataObject) {
-        this.dataObject = dataObject;
-		if (dataObject instanceof FileEditorInput) {
-			IFile file = ((FileEditorInput) dataObject).getFile();
-			IPath path = file.getLocation();
-			try {
-				openFileInt(path.toFile());
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-//	        displayName = dataObject.getPrimaryFile().getNameExt();
-//	        setHtmlDisplayName(displayName);
-//	        node.openFile(dataObject);
-//	        savable.setDataObject(dataObject);
-	        opened = true;
-	        documentOriginalSize = codeArea.getDataSize();
-	        updateCurrentDocumentSize();
-	        updateCurrentMemoryMode();
+    public void setContentData(BinaryData data) {
+        codeArea.setContentData(data);
 
-//	        final Charset charset = Charset.forName(FileEncodingQuery.getEncoding(dataObject.getPrimaryFile()).name());
-//	        if (charsetChangeListener != null) {
-//	            charsetChangeListener.charsetChanged();
-	//	        }
-//	        codeArea.setCharset(charset);
-		}
+        documentOriginalSize = codeArea.getDataSize();
+        updateCurrentDocumentSize();
+        updateCurrentMemoryMode();
+
+        // Autodetect encoding using IDE mechanism
+//        final Charset charset = Charset.forName(FileEncodingQuery.getEncoding(dataObject.getPrimaryFile()).name());
+//        if (charsetChangeListener != null) {
+//            charsetChangeListener.charsetChanged();
+//        }
+//        codeArea.setCharset(charset);
     }
 
-    public void saveDataObject(IEditorInput dataObject) throws IOException {
-		if (dataObject instanceof FileEditorInput) {
-			IFile file = ((FileEditorInput) dataObject).getFile();
-			IPath path = file.getLocation();
-			try {
-				saveFileInt(path.toFile());
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
+    private void saveDocument() {
+        fileApi.saveDocument();
+
         undoHandler.setSyncPoint();
-        setModified(false);
-        documentOriginalSize = codeArea.getDataSize();
-        updateCurrentDocumentSize();
-        updateCurrentMemoryMode();
-    }
-    
-    public void save() throws IOException {
-    	saveDataObject(dataObject);
-    }
-
-	public void saveAsFile(File file) throws IOException {
-		saveFileInt(file);		
-	}
-
-	private void openFileInt(File file) throws IOException {
-        boolean editable = file.canWrite();
-        BinaryData oldData = codeArea.getContentData();
-        if (fileHandlingMode == FileHandlingMode.MEMORY) {
-            EditableBinaryData data = new ByteArrayEditableData();
-            data.loadFromStream(new FileInputStream(file));
-            codeArea.setContentData(data);
-            oldData.dispose();
-        } else {
-            FileDataSource fileSource = segmentsRepository.openFileSource(file, editable ? FileDataSource.EditationMode.READ_WRITE : FileDataSource.EditationMode.READ_ONLY);
-            DeltaDocument document = segmentsRepository.createDocument(fileSource);
-            codeArea.setContentData(document);
-            oldData.dispose();
-        }
-        codeArea.setEditationMode(editable ? EditationMode.EXPANDING : EditationMode.READ_ONLY);
-        opened = true;
+        notifyModified();
         documentOriginalSize = codeArea.getDataSize();
         updateCurrentDocumentSize();
         updateCurrentMemoryMode();
     }
 
-    private void saveFileInt(File file) throws IOException {
-        BinaryData data = codeArea.getContentData();
-        if (fileHandlingMode == FileHandlingMode.MEMORY) {
-            data.saveToStream(new FileOutputStream(file));
-        } else {
-            DeltaDocument document = (DeltaDocument) data;
-            document.save();
-        }
-    }
-
-    private void updateCurrentDocumentSize() {
-        long dataSize = codeArea.getContentData().getDataSize();
+    public void updateCurrentDocumentSize() {
+        long dataSize = codeArea.getDataSize();
         binaryStatus.setCurrentDocumentSize(dataSize, documentOriginalSize);
     }
 
@@ -594,13 +402,14 @@ public final class BinEdEditorSwing {
 
     public void setFileHandlingMode(FileHandlingMode fileHandlingMode) {
         this.fileHandlingMode = fileHandlingMode;
+        updateCurrentMemoryMode();
     }
 
     private void updateCurrentMemoryMode() {
         BinaryStatusApi.MemoryMode memoryMode = BinaryStatusApi.MemoryMode.RAM_MEMORY;
         if (codeArea.getEditationMode() == EditationMode.READ_ONLY) {
             memoryMode = BinaryStatusApi.MemoryMode.READ_ONLY;
-        } else if (codeArea.getContentData() instanceof DeltaDocument) {
+        } else if (fileHandlingMode == FileHandlingMode.DELTA) {
             memoryMode = BinaryStatusApi.MemoryMode.DELTA_MODE;
         }
 
@@ -609,8 +418,12 @@ public final class BinEdEditorSwing {
         }
     }
 
-    private void updateModified() {
-        setModified(undoHandler.getSyncPoint() != undoHandler.getCommandPosition());
+    private void notifyModified() {
+        if (modifiedChangeListener != null) {
+            modifiedChangeListener.modifiedChanged();
+        }
+        
+        toolbarPanel.updateModified(isModified());
     }
 
     /**
@@ -618,42 +431,31 @@ public final class BinEdEditorSwing {
      * WARNING: Do NOT modify this code. The content of this method is always
      * regenerated by the Form Editor.
      */
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         codeAreaPanel = new javax.swing.JPanel();
+
+        setLayout(new java.awt.BorderLayout());
+
         codeAreaPanel.setLayout(new java.awt.BorderLayout());
-    }// </editor-fold>                        
+        add(codeAreaPanel, java.awt.BorderLayout.CENTER);
+    }// </editor-fold>//GEN-END:initComponents
 
-    // Variables declaration - do not modify                     
+    /**
+     * Test method for this panel.
+     *
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        WindowUtils.invokeDialog(new BinEdComponentPanel());
+    }
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel codeAreaPanel;
-    // End of variables declaration                   
-
-    private void closeData() {
-        BinaryData data = codeArea.getContentData();
-        codeArea.setContentData(new ByteArrayData());
-        if (data instanceof DeltaDocument) {
-            FileDataSource fileSource = ((DeltaDocument) data).getFileSource();
-            data.dispose();
-            segmentsRepository.detachFileSource(fileSource);
-            segmentsRepository.closeFileSource(fileSource);
-        } else {
-            if (data != null) {
-                data.dispose();
-            }
-        }
-    }
-
-    public static synchronized SegmentsRepository getSegmentsRepository() {
-        if (segmentsRepository == null) {
-            segmentsRepository = new SegmentsRepository();
-        }
-
-        return segmentsRepository;
-    }
-
-    public CodeAreaUndoHandler getUndoHandler() {
-    	return undoHandler;
-    }
+    // End of variables declaration//GEN-END:variables
 
     @Nonnull
     private JPopupMenu createContextMenu(int x, int y) {
@@ -678,6 +480,7 @@ public final class BinEdEditorSwing {
             }
             default: {
                 final JMenuItem cutMenuItem = new JMenuItem("Cut");
+                cutMenuItem.setIcon(new ImageIcon(getClass().getResource("/org/exbin/framework/gui/menu/resources/icons/tango-icon-theme/16x16/actions/edit-cut.png")));
                 cutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionUtils.getMetaMask()));
                 cutMenuItem.setEnabled(codeArea.hasSelection() && codeArea.isEditable());
                 cutMenuItem.addActionListener((ActionEvent e) -> {
@@ -687,6 +490,7 @@ public final class BinEdEditorSwing {
                 result.add(cutMenuItem);
 
                 final JMenuItem copyMenuItem = new JMenuItem("Copy");
+                copyMenuItem.setIcon(new ImageIcon(getClass().getResource("/org/exbin/framework/gui/menu/resources/icons/tango-icon-theme/16x16/actions/edit-copy.png")));
                 copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionUtils.getMetaMask()));
                 copyMenuItem.setEnabled(codeArea.hasSelection());
                 copyMenuItem.addActionListener((ActionEvent e) -> {
@@ -704,6 +508,7 @@ public final class BinEdEditorSwing {
                 result.add(copyAsCodeMenuItem);
 
                 final JMenuItem pasteMenuItem = new JMenuItem("Paste");
+                pasteMenuItem.setIcon(new ImageIcon(getClass().getResource("/org/exbin/framework/gui/menu/resources/icons/tango-icon-theme/16x16/actions/edit-paste.png")));
                 pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionUtils.getMetaMask()));
                 pasteMenuItem.setEnabled(codeArea.canPaste() && codeArea.isEditable());
                 pasteMenuItem.addActionListener((ActionEvent e) -> {
@@ -725,6 +530,7 @@ public final class BinEdEditorSwing {
                 result.add(pasteFromCodeMenuItem);
 
                 final JMenuItem deleteMenuItem = new JMenuItem("Delete");
+                deleteMenuItem.setIcon(new ImageIcon(getClass().getResource("/org/exbin/framework/gui/menu/resources/icons/tango-icon-theme/16x16/actions/edit-delete.png")));
                 deleteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
                 deleteMenuItem.setEnabled(codeArea.hasSelection() && codeArea.isEditable());
                 deleteMenuItem.addActionListener((ActionEvent e) -> {
@@ -735,6 +541,7 @@ public final class BinEdEditorSwing {
                 result.addSeparator();
 
                 final JMenuItem selectAllMenuItem = new JMenuItem("Select All");
+                selectAllMenuItem.setIcon(new ImageIcon(getClass().getResource("/org/exbin/framework/gui/menu/resources/icons/tango-icon-theme/16x16/actions/edit-select-all.png")));
                 selectAllMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionUtils.getMetaMask()));
                 selectAllMenuItem.addActionListener((ActionEvent e) -> {
                     codeArea.selectAll();
@@ -747,6 +554,7 @@ public final class BinEdEditorSwing {
                 result.add(goToMenuItem);
 
                 final JMenuItem findMenuItem = new JMenuItem("Find...");
+                findMenuItem.setIcon(new ImageIcon(getClass().getResource("/org/exbin/framework/bined/resources/icons/tango-icon-theme/16x16/actions/edit-find.png")));
                 findMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionUtils.getMetaMask()));
                 findMenuItem.addActionListener((ActionEvent e) -> {
                     searchAction.actionPerformed(e);
@@ -755,6 +563,7 @@ public final class BinEdEditorSwing {
                 result.add(findMenuItem);
 
                 final JMenuItem replaceMenuItem = new JMenuItem("Replace...");
+                replaceMenuItem.setIcon(new ImageIcon(getClass().getResource("/org/exbin/framework/bined/resources/icons/tango-icon-theme/16x16/actions/edit-find-replace.png")));
                 replaceMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionUtils.getMetaMask()));
                 replaceMenuItem.setEnabled(codeArea.isEditable());
                 replaceMenuItem.addActionListener((ActionEvent e) -> {
@@ -775,40 +584,15 @@ public final class BinEdEditorSwing {
             }
             default: {
                 JMenu showMenu = new JMenu("Show");
-                JMenuItem showHeader = createShowHeaderMenuItem();
-                showMenu.add(showHeader);
-                JMenuItem showRowPosition = createShowRowPositionMenuItem();
-                showMenu.add(showRowPosition);
+                showMenu.add(createShowHeaderMenuItem());
+                showMenu.add(createShowRowPositionMenuItem());
                 result.add(showMenu);
             }
         }
 
         final JMenuItem optionsMenuItem = new JMenuItem("Options...");
-        optionsMenuItem.addActionListener((ActionEvent e) -> {
-            final BinEdOptionsPanelBorder optionsPanelWrapper = new BinEdOptionsPanelBorder();
-            BinEdOptionsPanel optionsPanel = optionsPanelWrapper.getOptionsPanel();
-            optionsPanel.setPreferences(preferences);
-            optionsPanel.loadFromPreferences();
-            updateApplyOptions(optionsPanel);
-            OptionsControlPanel optionsControlPanel = new OptionsControlPanel();
-            JPanel dialogPanel = WindowUtils.createDialogPanel(optionsPanelWrapper, optionsControlPanel);
-            DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, (Component) e.getSource(), "Options", Dialog.ModalityType.APPLICATION_MODAL);
-            optionsControlPanel.setHandler((OptionsControlHandler.ControlActionType actionType) -> {
-                if (actionType != OptionsControlHandler.ControlActionType.CANCEL) {
-                    optionsPanel.applyToOptions();
-                    if (actionType == OptionsControlHandler.ControlActionType.SAVE) {
-                        optionsPanel.saveToPreferences();
-                    }
-                    applyOptions(optionsPanel);
-                    codeArea.repaint();
-                }
-
-                dialog.close();
-                dialog.dispose();
-            });
-            dialog.getWindow().setSize(650, 460);
-            dialog.showCentered((Component) e.getSource());
-        });
+        optionsMenuItem.setIcon(new ImageIcon(getClass().getResource("/org/exbin/framework/gui/options/resources/icons/Preferences16.gif")));
+        optionsMenuItem.addActionListener(createOptionsAction());
         result.add(optionsMenuItem);
 
         switch (positionZone) {
@@ -825,10 +609,9 @@ public final class BinEdEditorSwing {
                     aboutPanel.setupFields();
                     CloseControlPanel closeControlPanel = new CloseControlPanel();
                     JPanel dialogPanel = WindowUtils.createDialogPanel(aboutPanel, closeControlPanel);
-                    DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, (Component) e.getSource(), "About Plugin", Dialog.ModalityType.APPLICATION_MODAL);
+                    WindowUtils.DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, (Component) e.getSource(), "About Plugin", Dialog.ModalityType.APPLICATION_MODAL);
                     closeControlPanel.setHandler(() -> {
                         dialog.close();
-                        dialog.dispose();
                     });
                     //            dialog.setSize(650, 460);
                     dialog.showCentered((Component) e.getSource());
@@ -838,6 +621,56 @@ public final class BinEdEditorSwing {
         }
 
         return result;
+    }
+
+    @Nonnull
+    private AbstractAction createOptionsAction() {
+        return new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final BinEdOptionsPanelBorder optionsPanelWrapper = new BinEdOptionsPanelBorder();
+                optionsPanelWrapper.setPreferredSize(new Dimension(700, 460));
+                BinEdOptionsPanel optionsPanel = optionsPanelWrapper.getOptionsPanel();
+                optionsPanel.setPreferences(preferences);
+                optionsPanel.setTextFontService(new TextFontService() {
+                    @Override
+                    public Font getCurrentFont() {
+                        return codeArea.getCodeFont();
+                    }
+
+                    @Override
+                    public Font getDefaultFont() {
+                        return defaultFont;
+                    }
+
+                    @Override
+                    public void setCurrentFont(Font font) {
+                        codeArea.setCodeFont(font);
+                    }
+                });
+                optionsPanel.loadFromPreferences();
+                updateApplyOptions(optionsPanel);
+                OptionsControlPanel optionsControlPanel = new OptionsControlPanel();
+                JPanel dialogPanel = WindowUtils.createDialogPanel(optionsPanelWrapper, optionsControlPanel);
+                WindowUtils.DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, (Component) e.getSource(), "Options", Dialog.ModalityType.APPLICATION_MODAL);
+                optionsControlPanel.setHandler((OptionsControlHandler.ControlActionType actionType) -> {
+                    if (actionType != OptionsControlHandler.ControlActionType.CANCEL) {
+                        optionsPanel.applyToOptions();
+                        if (actionType == OptionsControlHandler.ControlActionType.SAVE) {
+                            optionsPanel.saveToPreferences();
+                        }
+                        applyOptions(optionsPanel);
+                        fileApi.switchFileHandlingMode(optionsPanel.getEditorOptions().getFileHandlingMode());
+                        codeArea.repaint();
+                    }
+
+                    dialog.close();
+                    dialog.dispose();
+                });
+                dialog.getWindow().setSize(650, 460);
+                dialog.showCentered((Component) e.getSource());
+            }
+        };
     }
 
     @Nonnull
@@ -912,7 +745,9 @@ public final class BinEdEditorSwing {
         EditorOptions editorOptions = applyOptions.getEditorOptions();
         editorOptions.setShowValuesPanel(valuesPanelVisible);
         editorOptions.setFileHandlingMode(fileHandlingMode);
-        editorOptions.setEnterKeyHandlingMode(((CodeAreaOperationCommandHandler) codeArea.getCommandHandler()).getEnterKeyHandlingMode());
+        if (codeArea.getCommandHandler() instanceof CodeAreaOperationCommandHandler) {
+            editorOptions.setEnterKeyHandlingMode(((CodeAreaOperationCommandHandler) codeArea.getCommandHandler()).getEnterKeyHandlingMode());
+        }
 
         // TODO applyOptions.getStatusOptions().loadFromPreferences(preferences.getStatusPreferences());
     }
@@ -922,11 +757,13 @@ public final class BinEdEditorSwing {
 
         ((CharsetCapable) codeArea).setCharset(Charset.forName(applyOptions.getEncodingOptions().getSelectedEncoding()));
         encodingsHandler.setEncodings(applyOptions.getEncodingOptions().getEncodings());
+        ((FontCapable) codeArea).setCodeFont(applyOptions.getFontOptions().isUseDefaultFont() ? defaultFont : applyOptions.getFontOptions().getFont(defaultFont));
 
         EditorOptions editorOptions = applyOptions.getEditorOptions();
         switchShowValuesPanel(editorOptions.isShowValuesPanel());
-        ((CodeAreaOperationCommandHandler) codeArea.getCommandHandler()).setEnterKeyHandlingMode(editorOptions.getEnterKeyHandlingMode());
-        switchFileHandlingMode(editorOptions.getFileHandlingMode());
+        if (codeArea.getCommandHandler() instanceof CodeAreaOperationCommandHandler) {
+            ((CodeAreaOperationCommandHandler) codeArea.getCommandHandler()).setEnterKeyHandlingMode(editorOptions.getEnterKeyHandlingMode());
+        }
 
         StatusOptions statusOptions = applyOptions.getStatusOptions();
         statusPanel.setStatusOptions(statusOptions);
@@ -966,10 +803,10 @@ public final class BinEdEditorSwing {
                 valuesPanelScrollPane = new JScrollPane(valuesPanel);
                 valuesPanelScrollPane.setBorder(null);
             }
-            codeAreaPanel.add(valuesPanelScrollPane, BorderLayout.EAST);
+            this.add(valuesPanelScrollPane, BorderLayout.EAST);
             valuesPanel.enableUpdate();
             valuesPanel.updateValues();
-            codeAreaPanel.revalidate();
+            this.revalidate();
             revalidate();
         }
     }
@@ -978,8 +815,8 @@ public final class BinEdEditorSwing {
         if (valuesPanelVisible) {
             valuesPanelVisible = false;
             valuesPanel.disableUpdate();
-            codeAreaPanel.remove(valuesPanelScrollPane);
-            codeAreaPanel.revalidate();
+            this.remove(valuesPanelScrollPane);
+            this.revalidate();
             revalidate();
         }
     }
@@ -988,46 +825,51 @@ public final class BinEdEditorSwing {
         return codeArea;
     }
 
-    private void saveFileButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        try {
-            save();
-        } catch (IOException ex) {
-            Logger.getLogger(BinEdEditorSwing.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     private void initialLoadFromPreferences() {
         applyOptions(new BinEdApplyOptions() {
+            @Nonnull
             @Override
             public CodeAreaOptions getCodeAreaOptions() {
                 return preferences.getCodeAreaPreferences();
             }
 
+            @Nonnull
             @Override
             public TextEncodingOptions getEncodingOptions() {
                 return preferences.getEncodingPreferences();
             }
 
+            @Nonnull
+            @Override
+            public TextFontOptions getFontOptions() {
+                return preferences.getFontPreferences();
+            }
+
+            @Nonnull
             @Override
             public EditorOptions getEditorOptions() {
                 return preferences.getEditorPreferences();
             }
 
+            @Nonnull
             @Override
             public StatusOptions getStatusOptions() {
                 return preferences.getStatusPreferences();
             }
 
+            @Nonnull
             @Override
             public CodeAreaLayoutOptions getLayoutOptions() {
                 return preferences.getLayoutPreferences();
             }
 
+            @Nonnull
             @Override
             public CodeAreaColorOptions getColorOptions() {
                 return preferences.getColorPreferences();
             }
 
+            @Nonnull
             @Override
             public CodeAreaThemeOptions getThemeOptions() {
                 return preferences.getThemePreferences();
@@ -1039,22 +881,49 @@ public final class BinEdEditorSwing {
         toolbarPanel.loadFromPreferences();
 
         fileHandlingMode = preferences.getEditorPreferences().getFileHandlingMode();
+        updateCurrentMemoryMode();
     }
 
-    private void revalidate() {
-    	// TODO repaint
+    public BinaryDataUndoHandler getUndoHandler() {
+        return undoHandler;
     }
-    
-    public static interface CharsetChangeListener {
+
+    public void setUndoHandler(BinaryDataUndoHandler undoHandler) {
+        this.undoHandler = undoHandler;
+        CodeAreaOperationCommandHandler commandHandler = new CodeAreaOperationCommandHandler(codeArea, undoHandler);
+        codeArea.setCommandHandler(commandHandler);
+        if (valuesPanel != null) {
+            valuesPanel.setCodeArea(codeArea, undoHandler);
+        }
+        // TODO set ENTER KEY mode in apply options
+
+        toolbarPanel.setUndoHandler(undoHandler);
+        undoHandler.addUndoUpdateListener(new BinaryDataUndoUpdateListener() {
+            @Override
+            public void undoCommandPositionChanged() {
+                toolbarPanel.updateUndoState();
+                codeArea.repaint();
+                updateCurrentDocumentSize();
+                notifyModified();
+            }
+
+            @Override
+            public void undoCommandAdded(@Nonnull final BinaryDataCommand command) {
+                toolbarPanel.updateUndoState();
+                updateCurrentDocumentSize();
+                notifyModified();
+            }
+        });
+        toolbarPanel.updateUndoState();
+    }
+
+    public interface CharsetChangeListener {
 
         void charsetChanged();
     }
-    
-    public static interface ActionsStateListener {
-    	void changed();
-    }
 
-	public void requestFocus() {
-		codeArea.requestFocus();
-	}
+    public interface ModifiedStateListener {
+
+        void modifiedChanged();
+    }
 }

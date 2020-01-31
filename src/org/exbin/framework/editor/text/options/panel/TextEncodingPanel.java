@@ -190,8 +190,10 @@ public class TextEncodingPanel extends javax.swing.JPanel implements OptionsCapa
         );
         encodingsControlPanelLayout.setVerticalGroup(
             encodingsControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(encodingsControlPanelLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, encodingsControlPanelLayout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(addButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(upButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(downButton)
@@ -199,8 +201,6 @@ public class TextEncodingPanel extends javax.swing.JPanel implements OptionsCapa
                 .addComponent(selectAllButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(removeButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(addButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -226,18 +226,12 @@ public class TextEncodingPanel extends javax.swing.JPanel implements OptionsCapa
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         if (addEncodingsOperation != null) {
-            addEncodingsOperation.run(((EncodingsListModel) encodingsList.getModel()).getCharsets(), new AddEncodingsResultListener() {
-
-				@Override
-				public void result(List<String> encodings) {
-		            if (encodings != null) {
-		                ((EncodingsListModel) encodingsList.getModel()).addAll(encodings, encodingsList.getSelectedIndex());
-		                encodingsList.clearSelection();
-		                wasModified();
-		            }
-				}
-            	
-            });
+            List<String> encodings = addEncodingsOperation.run(((EncodingsListModel) encodingsList.getModel()).getCharsets());
+            if (encodings != null) {
+                ((EncodingsListModel) encodingsList.getModel()).addAll(encodings, encodingsList.getSelectedIndex());
+                encodingsList.clearSelection();
+                wasModified();
+            }
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -341,11 +335,7 @@ public class TextEncodingPanel extends javax.swing.JPanel implements OptionsCapa
 
     public static interface AddEncodingsOperation {
 
-        void run(List<String> usedEncodings, AddEncodingsResultListener addEncodingsResultListener);
-    }
-    
-    public static interface AddEncodingsResultListener {
-    	void result(List<String> result);
+        List<String> run(List<String> usedEncodings);
     }
 
     @ParametersAreNonnullByDefault

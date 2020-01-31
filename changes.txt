@@ -1,4 +1,6 @@
 0.2.1
+- Minor GUI improvements
+- Display the number of bytes selected
 
 0.2.0 (2019-08-11)
 - First release
