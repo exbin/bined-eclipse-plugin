@@ -34,6 +34,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -58,7 +59,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.text.JTextComponent;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTException;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
@@ -147,11 +147,24 @@ public class WindowUtils {
     }
 
     @Nonnull
-    public static DialogWrapper createDialog(final JComponent component, Component parent, String dialogTitle, Dialog.ModalityType modalityType) {
+    public static DialogWrapper createDialog(final JComponent component, @Nullable final Object parentComponent, String dialogTitle, Dialog.ModalityType modalityType) {
+    	Display parentDisplay = null;
+    	if (parentComponent instanceof Composite) {
+    		parentDisplay = ((Composite)parentComponent).getDisplay();
+    	} else if (parentComponent instanceof Component) {
+//			parentDisplay = Display.getDefault();
+//    		Window window = WindowUtils.getWindow((Component) parentComponent);
+//    		if (window instanceof XEmbeddedFrame) {
+//	    		Container parentContainer = window.getParent();
+//	    		parentContainer.getComponent(0);
+//    			parentDisplay = Display.getDefault();
+//    		}
+    	}
+		final Display finalParentDisplay = parentDisplay; 
 		final DialogWrapperHolder holder = new DialogWrapperHolder();
 		Display.getDefault().syncExec(new Runnable() {
 			public void run() {
-				Window window = WindowUtils.getWindow(parent);
+//				Window window = WindowUtils.getWindow(parent);
 				Display currentDisplay = Display.getCurrent();
 				if (currentDisplay == null)
 					currentDisplay = Display.getDefault();
@@ -196,7 +209,7 @@ public class WindowUtils {
 
 //				Label label = new Label(shell, SWT.NO_FOCUS);
 //				label.setText("TEST");
-
+				
 				holder.dialogWrapper = new DialogWrapper() {
 
 					@Override
@@ -206,8 +219,23 @@ public class WindowUtils {
 								shell.open();
 								shell.layout();
 
+								if (finalParentDisplay != null) {
+									while (!shell.isDisposed()) {
+				                	if (!finalParentDisplay.readAndDispatch())
+				                		finalParentDisplay.sleep();
+									}
+								}
 							}
 						});
+
+//						display.syncExec(new Runnable() {
+//							public void run() {
+//								while (!shell.isDisposed()) {
+//				                	if (!display.readAndDispatch())
+//				                		display.sleep();
+//									}
+//							}
+//						});
 
 						// TODO: Wait for dialog to be closed
 //						try {

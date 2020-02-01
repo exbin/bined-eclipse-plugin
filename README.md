@@ -33,7 +33,9 @@ Java Development Kit (JDK) version 8 or later is required to build this project.
 
 Eclipse platform is necessary for build of this plugin. See. http://eclipse.org
 
-Create Run/Run configuration new Eclipse Application run target to execute.
+Install Eclipse Project SDK via Help/Install New Software.
+
+Use Eclipse Application run configuration to run/execute.
 
 License
 -------
