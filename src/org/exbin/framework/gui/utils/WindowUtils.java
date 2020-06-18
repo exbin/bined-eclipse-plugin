@@ -69,8 +69,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.exbin.framework.gui.utils.gui.WindowHeaderPanel;
 import org.exbin.framework.gui.utils.handler.OkCancelService;
-import org.exbin.framework.gui.utils.panel.WindowHeaderPanel;
 
 /**
  * Utility static methods usable for windows and dialogs.

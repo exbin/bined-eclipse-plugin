@@ -32,8 +32,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 
 import org.exbin.bined.DefaultCodeAreaCaretPosition;
-import org.exbin.bined.eclipse.panel.BinarySearchPanel;
-import org.exbin.bined.eclipse.panel.BinarySearchPanelApi;
+import org.exbin.bined.eclipse.gui.BinarySearchPanel;
+import org.exbin.bined.eclipse.gui.BinarySearchPanelApi;
 import org.exbin.bined.highlight.swing.extended.ExtendedHighlightCodeAreaPainter;
 import org.exbin.bined.swing.extended.ExtCodeArea;
 import org.exbin.framework.bined.ReplaceParameters;

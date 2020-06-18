@@ -15,6 +15,9 @@
  */
 package org.exbin.framework.preferences;
 
+import java.util.Optional;
+
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -41,11 +44,11 @@ public class PreferencesWrapper implements Preferences {
         return preferences.contains(key);
     }
 
-    @Nullable
+    @Nonnull
     @Override
-    public String get(String key) {
+    public Optional<String> get(String key) {
         String value = preferences.getString(key);
-        return "".equals(value) ? null : value;
+        return "".equals(value) ? Optional.empty() : Optional.of(value);
     }
 
     @Override

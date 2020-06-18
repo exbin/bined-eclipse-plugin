@@ -35,8 +35,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
-import org.exbin.framework.editor.text.panel.AddEncodingPanel;
-import org.exbin.framework.editor.text.options.panel.TextEncodingPanel;
+import org.exbin.framework.editor.text.gui.AddEncodingPanel;
+import org.exbin.framework.editor.text.options.gui.TextEncodingPanel;
 import org.exbin.framework.editor.text.preferences.TextEncodingPreferences;
 import org.exbin.framework.gui.utils.ActionUtils;
 import org.exbin.framework.gui.utils.LanguageUtils;
@@ -44,8 +44,8 @@ import org.exbin.framework.gui.utils.WindowUtils;
 import org.exbin.framework.gui.utils.WindowUtils.DialogWrapper;
 import org.exbin.framework.gui.utils.handler.DefaultControlHandler;
 import org.exbin.framework.gui.utils.handler.OptionsControlHandler;
-import org.exbin.framework.gui.utils.panel.DefaultControlPanel;
-import org.exbin.framework.gui.utils.panel.OptionsControlPanel;
+import org.exbin.framework.gui.utils.gui.DefaultControlPanel;
+import org.exbin.framework.gui.utils.gui.OptionsControlPanel;
 import org.exbin.framework.editor.text.service.TextEncodingService;
 import org.exbin.framework.editor.text.service.impl.TextEncodingServiceImpl;
 
@@ -158,6 +158,7 @@ public class EncodingsHandler {
 
     public void rebuildEncodings() {
         for (int i = toolsEncodingMenu.getItemCount() - 3; i >= 0; i--) {
+            encodingButtonGroup.remove(toolsEncodingMenu.getItem(i));
             toolsEncodingMenu.remove(i);
         }
 
@@ -170,11 +171,14 @@ public class EncodingsHandler {
             int selectedEncodingIndex = encodings.indexOf(textEncodingService.getSelectedEncoding());
             for (int index = 0; index < encodings.size(); index++) {
                 String encoding = encodings.get(index);
-                JRadioButtonMenuItem item = new JRadioButtonMenuItem(encoding, index == selectedEncodingIndex);
+                JRadioButtonMenuItem item = new JRadioButtonMenuItem(encoding);
                 item.addActionListener(encodingActionListener);
                 item.setToolTipText(ENCODING_TOOLTIP_PREFIX + encoding);
                 toolsEncodingMenu.add(item, index);
                 encodingButtonGroup.add(item);
+                if (index == selectedEncodingIndex) {
+                    item.setSelected(true);
+                }
             }
         }
     }

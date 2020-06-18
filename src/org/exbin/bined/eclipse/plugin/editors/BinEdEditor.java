@@ -17,7 +17,6 @@ package org.exbin.bined.eclipse.plugin.editors;
 
 import java.awt.BorderLayout;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,11 +45,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.part.EditorPart;
-import org.exbin.bined.DataChangedListener;
 import org.exbin.bined.eclipse.BinEdFile;
 import org.exbin.bined.operation.BinaryDataOperationException;
 import org.exbin.bined.operation.swing.CodeAreaUndoHandler;
-import org.exbin.bined.swing.extended.ExtCodeArea;
 
 /**
  * Implementation of the binary/hexadecimal editor.
