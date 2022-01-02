@@ -1,43 +1,36 @@
 /*
  * Copyright (C) ExBin Project
  *
- * This application or library is free software: you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the License,
- * or (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This application or library is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU Lesser General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along this application.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.exbin.framework.gui.utils;
-
-import java.awt.AWTEvent;
-import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * Some simple static methods usable for actions, menus and toolbars.
  *
- * @version 0.2.1 2020/01/31
+ * @version 0.2.1 2019/08/17
  * @author ExBin Project (http://exbin.org)
  */
 @ParametersAreNonnullByDefault
@@ -109,8 +102,29 @@ public class ActionUtils {
         }
     }
 
+    /**
+     * Returns platform specific down mask filter.
+     *
+     * @return down mask for meta keys
+     */
+    @SuppressWarnings("deprecation")
     public static int getMetaMask() {
-        return java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        try {
+            switch (java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) {
+                case java.awt.Event.CTRL_MASK:
+                    return KeyEvent.CTRL_DOWN_MASK;
+                case java.awt.Event.META_MASK:
+                    return KeyEvent.META_DOWN_MASK;
+                case java.awt.Event.SHIFT_MASK:
+                    return KeyEvent.SHIFT_DOWN_MASK;
+                case java.awt.Event.ALT_MASK:
+                    return KeyEvent.ALT_DOWN_MASK;
+                default:
+                    return KeyEvent.CTRL_DOWN_MASK;
+            }
+        } catch (java.awt.HeadlessException ex) {
+            return KeyEvent.CTRL_DOWN_MASK;
+        }
     }
 
     /**
@@ -178,7 +192,7 @@ public class ActionUtils {
         int modifiers = 0;
         AWTEvent currentEvent = EventQueue.getCurrentEvent();
         if (currentEvent instanceof InputEvent) {
-            modifiers = ((InputEvent) currentEvent).getModifiers();
+            modifiers = ((InputEvent) currentEvent).getModifiersEx();
         } else if (currentEvent instanceof ActionEvent) {
             modifiers = ((ActionEvent) currentEvent).getModifiers();
         }

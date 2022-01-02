@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-
+import org.exbin.bined.basic.CodeAreaViewMode;
 import org.exbin.bined.RowWrappingMode;
 import org.exbin.bined.swing.extended.layout.DefaultExtendedCodeAreaLayoutProfile;
 import org.exbin.bined.swing.extended.layout.ExtendedCodeAreaDecorations;
@@ -29,6 +29,7 @@ import org.exbin.bined.swing.extended.theme.ExtendedCodeAreaThemeProfile;
 import org.exbin.framework.bined.FileHandlingMode;
 import org.exbin.framework.editor.text.preferences.TextEncodingPreferences;
 import org.exbin.framework.editor.text.preferences.TextFontPreferences;
+import org.exbin.xbup.core.util.StringUtils;
 
 /**
  * Binary editor preferences.
@@ -40,7 +41,7 @@ import org.exbin.framework.editor.text.preferences.TextFontPreferences;
 public class BinaryEditorPreferences {
 
     private final static String PREFERENCES_VERSION = "version";
-    private final static String PREFERENCES_VERSION_VALUE = "0.2.0";
+    private final static String PREFERENCES_VERSION_VALUE = "0.2.1";
 
     private final Preferences preferences;
 
@@ -67,7 +68,9 @@ public class BinaryEditorPreferences {
 
         final String legacyDef = "LEGACY";
         String storedVersion = preferences.get(PREFERENCES_VERSION, legacyDef);
-        if (legacyDef.equals(storedVersion)) {
+        if ("0.2.0".equals(storedVersion)) {
+            convertPreferences_0_2_0();
+        } else if (legacyDef.equals(storedVersion)) {
             try {
                 importLegacyPreferences();
             } finally {
@@ -162,13 +165,23 @@ public class BinaryEditorPreferences {
         encodingPreferences.setEncodings(new ArrayList<>(legacyPreferences.getEncodings()));
         Collection<String> legacyEncodings = legacyPreferences.getEncodings();
         List<String> encodings = new ArrayList<>(legacyEncodings);
-        if (!encodings.isEmpty() && !encodings.contains(TextEncodingPreferences.ENCODING_UTF8)) {
-            encodings.add(TextEncodingPreferences.ENCODING_UTF8);
+        if (!encodings.isEmpty() && !encodings.contains(StringUtils.ENCODING_UTF8)) {
+            encodings.add(StringUtils.ENCODING_UTF8);
         }
         encodingPreferences.setEncodings(encodings);
         fontPreferences.setUseDefaultFont(legacyPreferences.isUseDefaultFont());
         fontPreferences.setFont(legacyPreferences.getCodeFont(CodeAreaPreferences.DEFAULT_FONT));
 
+        preferences.flush();
+    }
+
+    private void convertPreferences_0_2_0() {
+        String codeType = preferences.get(CodeAreaPreferences.PREFERENCES_VIEW_MODE, "DUAL");
+        if ("HEXADECIMAL".equals(codeType)) {
+            codeAreaPreferences.setViewMode(CodeAreaViewMode.CODE_MATRIX);
+        } else if ("PREVIEW".equals(codeType)) {
+            codeAreaPreferences.setViewMode(CodeAreaViewMode.TEXT_PREVIEW);
+        }
         preferences.flush();
     }
 }

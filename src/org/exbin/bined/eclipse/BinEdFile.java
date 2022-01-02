@@ -40,7 +40,7 @@ import org.exbin.auxiliary.paged_data.PagedData;
 import org.exbin.auxiliary.paged_data.delta.DeltaDocument;
 import org.exbin.auxiliary.paged_data.delta.FileDataSource;
 import org.exbin.auxiliary.paged_data.delta.SegmentsRepository;
-import org.exbin.bined.EditationMode;
+import org.exbin.bined.EditMode;
 import org.exbin.bined.eclipse.gui.BinEdComponentFileApi;
 import org.exbin.bined.eclipse.gui.BinEdComponentPanel;
 import org.exbin.bined.operation.swing.CodeAreaUndoHandler;
@@ -157,7 +157,7 @@ public class BinEdFile implements BinEdComponentFileApi {
 
         BinaryData oldData = codeArea.getContentData();
         if (fileHandlingMode == FileHandlingMode.DELTA) {
-            FileDataSource fileSource = segmentsRepository.openFileSource(file, editable ? FileDataSource.EditationMode.READ_WRITE : FileDataSource.EditationMode.READ_ONLY);
+            FileDataSource fileSource = segmentsRepository.openFileSource(file, editable ? FileDataSource.EditMode.READ_WRITE : FileDataSource.EditMode.READ_ONLY);
             DeltaDocument document = segmentsRepository.createDocument(fileSource);
             componentPanel.setContentData(document);
             if (oldData != null) {
@@ -176,7 +176,7 @@ public class BinEdFile implements BinEdComponentFileApi {
                 componentPanel.setContentData(data);
             }
         }
-        codeArea.setEditationMode(editable ? EditationMode.EXPANDING : EditationMode.READ_ONLY);
+        codeArea.setEditMode(editable ? EditMode.EXPANDING : EditMode.READ_ONLY);
     }
 
     public void openDocument(InputStream stream, boolean editable) throws IOException {
@@ -184,7 +184,7 @@ public class BinEdFile implements BinEdComponentFileApi {
         setNewData();
         EditableBinaryData data = Objects.requireNonNull((EditableBinaryData) codeArea.getContentData());
         data.loadFromStream(stream);
-        codeArea.setEditationMode(editable ? EditationMode.EXPANDING : EditationMode.READ_ONLY);
+        codeArea.setEditMode(editable ? EditMode.EXPANDING : EditMode.READ_ONLY);
         componentPanel.setContentData(data);
     }
 
