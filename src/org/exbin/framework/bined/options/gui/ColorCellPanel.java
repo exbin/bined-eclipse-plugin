@@ -22,13 +22,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.border.EtchedBorder;
-import org.exbin.framework.gui.utils.LanguageUtils;
-import org.exbin.framework.gui.utils.WindowUtils;
+import org.exbin.framework.utils.LanguageUtils;
+import org.exbin.framework.utils.WindowUtils;
 
 /**
  * Color cell panel for color profile panel.
  *
- * @version 0.2.1 2019/07/17
+ * @version 0.2.1 2021/09/23
  * @author ExBin Project (http://exbin.org)
  */
 @ParametersAreNonnullByDefault
@@ -104,8 +104,10 @@ public class ColorCellPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void colorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorButtonActionPerformed
-        final JColorChooser colorChooser = new javax.swing.JColorChooser();
-        JDialog dialog = JColorChooser.createDialog(this, "Select Color", true, colorChooser, (ActionEvent e) -> {
+        Color origColor = colorHandler.getColor();
+        final JColorChooser colorChooser = origColor != null ? new javax.swing.JColorChooser(origColor) : new javax.swing.JColorChooser();
+
+        JDialog dialog = JColorChooser.createDialog(this, resourceBundle.getString("selectColor.title"), true, colorChooser, (ActionEvent e) -> {
             Color color = colorChooser.getColor();
             setColor(color);
             colorHandler.setColor(color);

@@ -18,8 +18,9 @@ package org.exbin.framework.bined.gui;
 import java.util.ResourceBundle;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import org.exbin.framework.gui.utils.LanguageUtils;
-import org.exbin.framework.gui.utils.WindowUtils;
+import org.exbin.bined.CodeAreaUtils;
+import org.exbin.framework.utils.LanguageUtils;
+import org.exbin.framework.utils.WindowUtils;
 
 /**
  * Go-to position panel for binary editor.
@@ -34,12 +35,12 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
 
     private long cursorPosition;
     private long maxPosition;
-    private GoToBinaryPositionMode goToMode = GoToBinaryPositionMode.FROM_START;
+    private RelativePositionMode goToMode = RelativePositionMode.FROM_START;
 
     public GoToBinaryPanel() {
         initComponents();
 
-        baseSwitchableSpinnerPanel.setMinimum(0l);
+        baseSwitchableSpinnerPanel.setMinimum(0L);
         baseSwitchableSpinnerPanel.addChangeListener((javax.swing.event.ChangeEvent evt) -> {
             updateTargetPosition();
         });
@@ -172,19 +173,19 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
 
     private void fromStartRadioButtonItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_fromStartRadioButtonItemStateChanged
         if (fromStartRadioButton.isSelected()) {
-            switchGoToMode(GoToBinaryPositionMode.FROM_START);
+            switchGoToMode(RelativePositionMode.FROM_START);
         }
     }//GEN-LAST:event_fromStartRadioButtonItemStateChanged
 
     private void fromEndRadioButtonItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_fromEndRadioButtonItemStateChanged
         if (fromEndRadioButton.isSelected()) {
-            switchGoToMode(GoToBinaryPositionMode.FROM_END);
+            switchGoToMode(RelativePositionMode.FROM_END);
         }
     }//GEN-LAST:event_fromEndRadioButtonItemStateChanged
 
     private void fromCursorRadioButtonItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_fromCursorRadioButtonItemStateChanged
         if (fromCursorRadioButton.isSelected()) {
-            switchGoToMode(GoToBinaryPositionMode.FROM_CURSOR);
+            switchGoToMode(RelativePositionMode.FROM_CURSOR);
         }
     }//GEN-LAST:event_fromCursorRadioButtonItemStateChanged
 
@@ -210,7 +211,7 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
                 absolutePosition = cursorPosition + position;
                 break;
             default:
-                throw new IllegalStateException("Unexpected go to mode " + goToMode.name());
+                throw CodeAreaUtils.getInvalidTypeException(goToMode);
         }
 
         if (absolutePosition < 0) {
@@ -238,7 +239,7 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
                 setPositionValue(absolutePosition - cursorPosition);
                 break;
             default:
-                throw new IllegalStateException("Unexpected go to mode " + goToMode.name());
+                throw CodeAreaUtils.getInvalidTypeException(goToMode);
         }
         updateTargetPosition();
     }
@@ -268,7 +269,7 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
         return resourceBundle;
     }
 
-    private void switchGoToMode(GoToBinaryPositionMode goToMode) {
+    private void switchGoToMode(RelativePositionMode goToMode) {
         if (this.goToMode == goToMode) {
             return;
         }
@@ -276,42 +277,34 @@ public class GoToBinaryPanel extends javax.swing.JPanel {
         long absolutePosition = getTargetPosition();
         this.goToMode = goToMode;
         switch (goToMode) {
-            case FROM_START: {
-                setPositionValue(0l);
-                baseSwitchableSpinnerPanel.setMinimum(0l);
-                baseSwitchableSpinnerPanel.setMaximum(maxPosition);
-                baseSwitchableSpinnerPanel.revalidateSpinner();
-                break;
-            }
+            case FROM_START:
             case FROM_END: {
-                setPositionValue(0l);
-                baseSwitchableSpinnerPanel.setMinimum(0l);
+                setPositionValue(0L);
+                baseSwitchableSpinnerPanel.setMinimum(0L);
                 baseSwitchableSpinnerPanel.setMaximum(maxPosition);
                 baseSwitchableSpinnerPanel.revalidateSpinner();
                 break;
             }
             case FROM_CURSOR: {
-                setPositionValue(0l);
+                setPositionValue(0L);
                 baseSwitchableSpinnerPanel.setMinimum(-cursorPosition);
                 baseSwitchableSpinnerPanel.setMaximum(maxPosition - cursorPosition);
                 baseSwitchableSpinnerPanel.revalidateSpinner();
                 break;
             }
             default:
-                throw new IllegalStateException("Unexpected go to mode " + goToMode.name());
+                throw CodeAreaUtils.getInvalidTypeException(goToMode);
         }
         setTargetPosition(absolutePosition);
     }
 
     private long getPositionValue() {
-        return (Long) baseSwitchableSpinnerPanel.getValue();
+        return baseSwitchableSpinnerPanel.getValue();
     }
 
     private void setPositionValue(long value) {
         baseSwitchableSpinnerPanel.setValue(value);
         updateTargetPosition();
-//        positionSpinner.setValue(value);
-//        positionSpinner.firePropertyChange(SPINNER_PROPERTY, value, value);
     }
 
     /**

@@ -27,7 +27,7 @@ import org.exbin.bined.SelectionRange;
 /**
  * Binary editor status interface.
  *
- * @version 0.2.1 2020/01/24
+ * @version 0.2.1 2021/08/13
  * @author ExBin Project (http://exbin.org)
  */
 @ParametersAreNonnullByDefault
@@ -41,7 +41,7 @@ public interface BinaryStatusApi {
     void setCursorPosition(CodeAreaCaretPosition cursorPosition);
 
     /**
-     * Reports cursor position.
+     * Sets current selection.
      *
      * @param selectionRange current selection
      */
@@ -54,13 +54,6 @@ public interface BinaryStatusApi {
      * @param operation edit operation
      */
     void setEditMode(EditMode mode, EditOperation operation);
-
-    /**
-     * Sets control handler for status operations.
-     *
-     * @param statusControlHandler status control handler
-     */
-    void setControlHandler(StatusControlHandler statusControlHandler);
 
     /**
      * Sets current document size.
@@ -78,46 +71,12 @@ public interface BinaryStatusApi {
     void setMemoryMode(MemoryMode memoryMode);
 
     @ParametersAreNonnullByDefault
-    public static interface StatusControlHandler {
-
-        /**
-         * Requests change of edit mode from given mode.
-         *
-         * @param operation edit operation
-         */
-        void changeEditOperation(EditOperation operation);
-
-        /**
-         * Requests change of cursor position using go-to dialog.
-         */
-        void changeCursorPosition();
-
-        /**
-         * Switches to next encoding in defined list.
-         */
-        void cycleEncodings();
-
-        /**
-         * Handles encodings popup menu.
-         *
-         * @param mouseEvent mouse event
-         */
-        void encodingsPopupEncodingsMenu(MouseEvent mouseEvent);
-
-        /**
-         * Requests change of memory mode.
-         *
-         * @param memoryMode memory mode
-         */
-        void changeMemoryMode(MemoryMode memoryMode);
-    }
-
-    @ParametersAreNonnullByDefault
     public enum MemoryMode {
 
         READ_ONLY("R", "read_only"),
         RAM_MEMORY("M", "ram"),
-        DELTA_MODE("\u0394", "delta");
+        DELTA_MODE("\u0394", "delta"),
+        NATIVE("N", "native");
 
         private final String displayChar;
         private final String value;

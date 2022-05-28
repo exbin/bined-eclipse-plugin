@@ -31,8 +31,8 @@ import org.exbin.bined.EditOperation;
 import org.exbin.bined.PositionCodeType;
 import org.exbin.bined.SelectionRange;
 import org.exbin.framework.editor.text.TextEncodingStatusApi;
-import org.exbin.framework.gui.utils.LanguageUtils;
-import org.exbin.framework.gui.utils.WindowUtils;
+import org.exbin.framework.utils.LanguageUtils;
+import org.exbin.framework.utils.WindowUtils;
 import org.exbin.framework.bined.BinaryStatusApi;
 import org.exbin.framework.bined.options.StatusOptions;
 import org.exbin.framework.bined.options.impl.StatusOptionsImpl;
@@ -56,10 +56,12 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
     public static final String DECIMAL_CODE_TYPE_LABEL = "DEC";
     public static final String HEXADECIMAL_CODE_TYPE_LABEL = "HEX";
 
+    private static final String BR_TAG = "<br>";
+
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(BinaryStatusPanel.class);
 
     private StatusPreferences statusParameters;
-    private StatusControlHandler statusControlHandler;
+    private StatusControlHandler controller;
 
     private StatusCursorPositionFormat cursorPositionFormat = new StatusCursorPositionFormat();
     private StatusDocumentSizeFormat documentSizeFormat = new StatusDocumentSizeFormat();
@@ -109,7 +111,7 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
                 break;
             }
             default:
-                throw new IllegalStateException("Unexpected code type " + cursorPositionFormat.getCodeType());
+                throw CodeAreaUtils.getInvalidTypeException(cursorPositionFormat.getCodeType());
         }
         cursorPositionShowOffsetCheckBoxMenuItem.setSelected(cursorPositionFormat.isShowOffset());
 
@@ -127,7 +129,7 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
                 break;
             }
             default:
-                throw new IllegalStateException("Unexpected code type " + documentSizeFormat.getCodeType());
+                throw CodeAreaUtils.getInvalidTypeException(documentSizeFormat.getCodeType());
         }
         documentSizeShowRelativeCheckBoxMenuItem.setSelected(documentSizeFormat.isShowRelative());
     }
@@ -240,8 +242,6 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
             }
         });
         positionPopupMenu.add(cursorPositionShowOffsetCheckBoxMenuItem);
-
-        jSeparator2.setName("jSeparator2"); // NOI18N
         positionPopupMenu.add(jSeparator2);
 
         positionCopyMenuItem.setText(resourceBundle.getString("positionCopyMenuItem.text")); // NOI18N
@@ -278,7 +278,8 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         documentSizeCodeTypeMenu.add(octalDocumentSizeModeRadioButtonMenuItem);
 
         documentSizeModeButtonGroup.add(decimalDocumentSizeModeRadioButtonMenuItem);
-        decimalDocumentSizeModeRadioButtonMenuItem.setText(resourceBundle.getString("decDocumentSizeModeRadioButtonMenuItem1.text")); // NOI18N
+        decimalDocumentSizeModeRadioButtonMenuItem.setSelected(true);
+        decimalDocumentSizeModeRadioButtonMenuItem.setText(resourceBundle.getString("decDocumentSizeModeRadioButtonMenuItem.text")); // NOI18N
         decimalDocumentSizeModeRadioButtonMenuItem.setName("decimalDocumentSizeModeRadioButtonMenuItem"); // NOI18N
         decimalDocumentSizeModeRadioButtonMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -288,7 +289,7 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         documentSizeCodeTypeMenu.add(decimalDocumentSizeModeRadioButtonMenuItem);
 
         documentSizeModeButtonGroup.add(hexadecimalDocumentSizeModeRadioButtonMenuItem);
-        hexadecimalDocumentSizeModeRadioButtonMenuItem.setText(resourceBundle.getString("hexDocumentSizeModeRadioButtonMenuItem1.text")); // NOI18N
+        hexadecimalDocumentSizeModeRadioButtonMenuItem.setText(resourceBundle.getString("hexadecimalDocumentSizeModeRadioButtonMenuItem.text")); // NOI18N
         hexadecimalDocumentSizeModeRadioButtonMenuItem.setName("hexadecimalDocumentSizeModeRadioButtonMenuItem"); // NOI18N
         hexadecimalDocumentSizeModeRadioButtonMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -308,8 +309,6 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
             }
         });
         documentSizePopupMenu.add(documentSizeShowRelativeCheckBoxMenuItem);
-
-        jSeparator1.setName("jSeparator1"); // NOI18N
         documentSizePopupMenu.add(jSeparator1);
 
         documentSizeCopyMenuItem.setText(resourceBundle.getString("documentSizeCopyMenuItem.text")); // NOI18N
@@ -351,21 +350,18 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         memoryModeLabel.setToolTipText(resourceBundle.getString("memoryModeLabel.toolTipText")); // NOI18N
         memoryModeLabel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         memoryModeLabel.setComponentPopupMenu(memoryModePopupMenu);
-        memoryModeLabel.setName("memoryModeLabel"); // NOI18N
 
         documentSizeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         documentSizeLabel.setText("0 (0)");
         documentSizeLabel.setToolTipText(resourceBundle.getString("documentSizeLabel.toolTipText")); // NOI18N
         documentSizeLabel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         documentSizeLabel.setComponentPopupMenu(documentSizePopupMenu);
-        documentSizeLabel.setName("documentSizeLabel"); // NOI18N
 
         cursorPositionLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         cursorPositionLabel.setText("0:0");
         cursorPositionLabel.setToolTipText(resourceBundle.getString("cursorPositionLabel.toolTipText")); // NOI18N
         cursorPositionLabel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         cursorPositionLabel.setComponentPopupMenu(positionPopupMenu);
-        cursorPositionLabel.setName("cursorPositionLabel"); // NOI18N
         cursorPositionLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 cursorPositionLabelMouseClicked(evt);
@@ -376,7 +372,6 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         editModeLabel.setText("OVR");
         editModeLabel.setToolTipText(resourceBundle.getString("editModeLabel.toolTipText")); // NOI18N
         editModeLabel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        editModeLabel.setName("editModeLabel"); // NOI18N
         editModeLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 editModeLabelMouseClicked(evt);
@@ -387,7 +382,6 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         encodingLabel.setText(resourceBundle.getString("encodingLabel.text")); // NOI18N
         encodingLabel.setToolTipText(resourceBundle.getString("encodingLabel.toolTipText")); // NOI18N
         encodingLabel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        encodingLabel.setName("encodingLabel"); // NOI18N
         encodingLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 encodingLabelMousePressed(evt);
@@ -427,23 +421,23 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
     }// </editor-fold>//GEN-END:initComponents
 
     private void editModeLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editModeLabelMouseClicked
-        if (statusControlHandler != null && evt.getButton() == MouseEvent.BUTTON1) {
+        if (controller != null && evt.getButton() == MouseEvent.BUTTON1) {
             if (editOperation == EditOperation.INSERT) {
-                statusControlHandler.changeEditOperation(EditOperation.OVERWRITE);
+                controller.changeEditOperation(EditOperation.OVERWRITE);
             } else if (editOperation == EditOperation.OVERWRITE) {
-                statusControlHandler.changeEditOperation(EditOperation.INSERT);
+                controller.changeEditOperation(EditOperation.INSERT);
             }
         }
     }//GEN-LAST:event_editModeLabelMouseClicked
 
     private void cursorPositionLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cursorPositionLabelMouseClicked
         if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() > 1) {
-            statusControlHandler.changeCursorPosition();
+            controller.changeCursorPosition();
         }
     }//GEN-LAST:event_cursorPositionLabelMouseClicked
 
     private void positionGoToMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_positionGoToMenuItemActionPerformed
-        statusControlHandler.changeCursorPosition();
+        controller.changeCursorPosition();
     }//GEN-LAST:event_positionGoToMenuItemActionPerformed
 
     private void positionCopyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_positionCopyMenuItemActionPerformed
@@ -466,7 +460,7 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
 
     private void encodingLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_encodingLabelMouseClicked
         if (evt.getButton() == MouseEvent.BUTTON1) {
-            statusControlHandler.cycleEncodings();
+            controller.cycleEncodings();
         } else {
             handleEncodingPopup(evt);
         }
@@ -481,11 +475,11 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
     }//GEN-LAST:event_encodingLabelMouseReleased
 
     private void deltaMemoryModeRadioButtonMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deltaMemoryModeRadioButtonMenuItemActionPerformed
-        statusControlHandler.changeMemoryMode(MemoryMode.DELTA_MODE);
+        controller.changeMemoryMode(MemoryMode.DELTA_MODE);
     }//GEN-LAST:event_deltaMemoryModeRadioButtonMenuItemActionPerformed
 
     private void ramMemoryModeRadioButtonMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ramMemoryModeRadioButtonMenuItemActionPerformed
-        statusControlHandler.changeMemoryMode(MemoryMode.RAM_MEMORY);
+        controller.changeMemoryMode(MemoryMode.RAM_MEMORY);
     }//GEN-LAST:event_ramMemoryModeRadioButtonMenuItemActionPerformed
 
     private void cursorPositionShowOffsetCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cursorPositionShowOffsetCheckBoxMenuItemActionPerformed
@@ -539,7 +533,7 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
 
     private void handleEncodingPopup(java.awt.event.MouseEvent evt) {
         if (evt.isPopupTrigger()) {
-            statusControlHandler.encodingsPopupEncodingsMenu(evt);
+            controller.encodingsPopupEncodingsMenu(evt);
         }
     }
 
@@ -638,7 +632,7 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
                         break;
                     }
                     default:
-                        throw new IllegalStateException("Unexpected edit operation " + editOperation.name());
+                        throw CodeAreaUtils.getInvalidTypeException(editOperation);
                 }
                 break;
             }
@@ -647,13 +641,12 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
                 break;
             }
             default:
-                throw new IllegalStateException("Unexpected edit mode " + editMode.name());
+                throw CodeAreaUtils.getInvalidTypeException(editMode);
         }
     }
 
-    @Override
     public void setControlHandler(StatusControlHandler statusControlHandler) {
-        this.statusControlHandler = statusControlHandler;
+        this.controller = statusControlHandler;
     }
 
     @Override
@@ -662,10 +655,10 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         boolean enabled = memoryMode != MemoryMode.READ_ONLY;
         deltaMemoryModeRadioButtonMenuItem.setEnabled(enabled);
         ramMemoryModeRadioButtonMenuItem.setEnabled(enabled);
-        if (memoryMode == MemoryMode.RAM_MEMORY) {
-            ramMemoryModeRadioButtonMenuItem.setSelected(true);
-        } else {
+        if (memoryMode == MemoryMode.DELTA_MODE) {
             deltaMemoryModeRadioButtonMenuItem.setSelected(true);
+        } else {
+            ramMemoryModeRadioButtonMenuItem.setSelected(true);
         }
     }
 
@@ -700,20 +693,20 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
             if (selectionRange != null && !selectionRange.isEmpty()) {
                 long first = selectionRange.getFirst();
                 long last = selectionRange.getLast();
-                builder.append(resourceBundle.getString("selectionFromLabel.toolTipText")).append("<br>");
-                builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.OCTAL)).append("<br>");
-                builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.DECIMAL)).append("<br>");
-                builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.HEXADECIMAL)).append("<br>");
-                builder.append("<br>");
-                builder.append(resourceBundle.getString("selectionToLabel.toolTipText")).append("<br>");
-                builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(last, PositionCodeType.OCTAL)).append("<br>");
-                builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(last, PositionCodeType.DECIMAL)).append("<br>");
-                builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.HEXADECIMAL)).append("<br>");
+                builder.append(resourceBundle.getString("selectionFromLabel.toolTipText")).append(BR_TAG);
+                builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.OCTAL)).append(BR_TAG);
+                builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.DECIMAL)).append(BR_TAG);
+                builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.HEXADECIMAL)).append(BR_TAG);
+                builder.append(BR_TAG);
+                builder.append(resourceBundle.getString("selectionToLabel.toolTipText")).append(BR_TAG);
+                builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(last, PositionCodeType.OCTAL)).append(BR_TAG);
+                builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(last, PositionCodeType.DECIMAL)).append(BR_TAG);
+                builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.HEXADECIMAL)).append(BR_TAG);
             } else {
                 long dataPosition = caretPosition.getDataPosition();
-                builder.append(resourceBundle.getString("cursorPositionLabel.toolTipText")).append("<br>");
-                builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(dataPosition, PositionCodeType.OCTAL)).append("<br>");
-                builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(dataPosition, PositionCodeType.DECIMAL)).append("<br>");
+                builder.append(resourceBundle.getString("cursorPositionLabel.toolTipText")).append(BR_TAG);
+                builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(dataPosition, PositionCodeType.OCTAL)).append(BR_TAG);
+                builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(dataPosition, PositionCodeType.DECIMAL)).append(BR_TAG);
                 builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(dataPosition, PositionCodeType.HEXADECIMAL));
                 builder.append("</html>");
             }
@@ -751,16 +744,16 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         builder.append("<html>");
         if (selectionRange != null && !selectionRange.isEmpty()) {
             long length = selectionRange.getLength();
-            builder.append(resourceBundle.getString("selectionLengthLabel.toolTipText")).append("<br>");
-            builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(length, PositionCodeType.OCTAL)).append("<br>");
-            builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(length, PositionCodeType.DECIMAL)).append("<br>");
-            builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(length, PositionCodeType.HEXADECIMAL)).append("<br>");
-            builder.append("<br>");
+            builder.append(resourceBundle.getString("selectionLengthLabel.toolTipText")).append(BR_TAG);
+            builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(length, PositionCodeType.OCTAL)).append(BR_TAG);
+            builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(length, PositionCodeType.DECIMAL)).append(BR_TAG);
+            builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(length, PositionCodeType.HEXADECIMAL)).append(BR_TAG);
+            builder.append(BR_TAG);
         }
 
-        builder.append(resourceBundle.getString("documentSizeLabel.toolTipText")).append("<br>");
-        builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(documentSize, PositionCodeType.OCTAL)).append("<br>");
-        builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(documentSize, PositionCodeType.DECIMAL)).append("<br>");
+        builder.append(resourceBundle.getString("documentSizeLabel.toolTipText")).append(BR_TAG);
+        builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(documentSize, PositionCodeType.OCTAL)).append(BR_TAG);
+        builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(documentSize, PositionCodeType.DECIMAL)).append(BR_TAG);
         builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(documentSize, PositionCodeType.HEXADECIMAL));
         builder.append("</html>");
         documentSizeLabel.setToolTipText(builder.toString());
@@ -787,7 +780,7 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
                 break;
             }
             default:
-                throw new IllegalStateException("Unexpected code type " + codeType.name());
+                throw CodeAreaUtils.getInvalidTypeException(codeType);
         }
 
         long remainder = value > 0 ? value : -value;
@@ -813,5 +806,40 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
             builder.insert(0, "-");
         }
         return builder.toString();
+    }
+
+    @ParametersAreNonnullByDefault
+    public static interface StatusControlHandler {
+
+        /**
+         * Requests change of edit operation from given operation.
+         *
+         * @param operation edit operation
+         */
+        void changeEditOperation(EditOperation operation);
+
+        /**
+         * Requests change of cursor position using go-to dialog.
+         */
+        void changeCursorPosition();
+
+        /**
+         * Switches to next encoding in defined list.
+         */
+        void cycleEncodings();
+
+        /**
+         * Handles encodings popup menu.
+         *
+         * @param mouseEvent mouse event
+         */
+        void encodingsPopupEncodingsMenu(MouseEvent mouseEvent);
+
+        /**
+         * Requests change of memory mode.
+         *
+         * @param memoryMode memory mode
+         */
+        void changeMemoryMode(MemoryMode memoryMode);
     }
 }

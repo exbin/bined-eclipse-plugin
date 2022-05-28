@@ -30,8 +30,8 @@ import org.exbin.bined.CodeType;
 import org.exbin.bined.operation.undo.BinaryDataUndoHandler;
 import org.exbin.bined.swing.extended.ExtCodeArea;
 import org.exbin.framework.bined.preferences.BinaryEditorPreferences;
-import org.exbin.framework.gui.action.gui.DropDownButton;
-import org.exbin.framework.gui.utils.LanguageUtils;
+import org.exbin.framework.action.gui.DropDownButton;
+import org.exbin.framework.utils.LanguageUtils;
 
 /**
  * Binary editor toolbar panel.
@@ -50,6 +50,7 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
     private ActionListener saveAction = null;
 
     private final AbstractAction optionsAction;
+    private final AbstractAction onlineHelpAction;
 
     private final AbstractAction cycleCodeTypesAction;
     private final JRadioButtonMenuItem binaryCodeTypeAction;
@@ -60,10 +61,11 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
     private DropDownButton codeTypeDropDown;
 
 //    private JSplitButton codeTypeButton;
-    public BinEdToolbarPanel(BinaryEditorPreferences preferences, ExtCodeArea codeArea, AbstractAction optionsAction) {
+    public BinEdToolbarPanel(BinaryEditorPreferences preferences, ExtCodeArea codeArea, AbstractAction optionsAction, AbstractAction onlineHelpAction) {
         this.preferences = preferences;
         this.codeArea = codeArea;
         this.optionsAction = optionsAction;
+        this.onlineHelpAction = onlineHelpAction;
 
         codeTypeButtonGroup = new ButtonGroup();
         binaryCodeTypeAction = new JRadioButtonMenuItem(new AbstractAction("Binary") {
@@ -139,6 +141,12 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
         optionsButton.setAction(optionsAction);
         optionsButton.setIcon(new ImageIcon(getClass().getResource("/org/exbin/framework/gui/options/resources/icons/Preferences16.gif")));
         controlToolBar.add(optionsButton);
+
+        JButton onlineHelpToolbarButton = new JButton();
+        onlineHelpToolbarButton.setToolTipText("Online Help");
+        onlineHelpToolbarButton.setAction(onlineHelpAction);
+        onlineHelpToolbarButton.setIcon(new ImageIcon(getClass().getResource("/org/exbin/framework/bined/resources/icons/open_icon_library/icons/png/16x16/actions/help.png")));
+        controlToolBar.add(onlineHelpToolbarButton);
 }
 
     private void updateCycleButtonState() {

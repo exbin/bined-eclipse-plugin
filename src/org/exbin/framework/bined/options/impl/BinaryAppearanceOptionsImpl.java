@@ -18,7 +18,7 @@ package org.exbin.framework.bined.options.impl;
 import org.exbin.framework.bined.options.BinaryAppearanceOptions;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.exbin.framework.bined.preferences.BinaryAppearancePreferences;
-import org.exbin.framework.gui.options.api.OptionsData;
+import org.exbin.framework.options.api.OptionsData;
 
 /**
  * Binary component appearance options.
@@ -30,8 +30,8 @@ import org.exbin.framework.gui.options.api.OptionsData;
 public class BinaryAppearanceOptionsImpl implements OptionsData, BinaryAppearanceOptions {
 
     private boolean lineWrapping;
-    private boolean showValuesPanel;
-    private boolean multiTabMode;
+    private boolean showParsingPanel;
+    private boolean multiFileMode;
 
     @Override
     public boolean isLineWrapping() {
@@ -44,34 +44,34 @@ public class BinaryAppearanceOptionsImpl implements OptionsData, BinaryAppearanc
     }
 
     @Override
-    public boolean isShowValuesPanel() {
-        return showValuesPanel;
+    public boolean isShowParsingPanel() {
+        return showParsingPanel;
     }
 
     @Override
-    public void setShowValuesPanel(boolean showValuesPanel) {
-        this.showValuesPanel = showValuesPanel;
+    public void setShowParsingPanel(boolean showParsingPanel) {
+        this.showParsingPanel = showParsingPanel;
     }
 
     @Override
-    public boolean isMultiTabMode() {
-        return multiTabMode;
+    public boolean isMultiFileMode() {
+        return multiFileMode;
     }
 
     @Override
-    public void setMultiTabMode(boolean multiTabMode) {
-        this.multiTabMode = multiTabMode;
+    public void setMultiFileMode(boolean multiFileMode) {
+        this.multiFileMode = multiFileMode;
     }
 
     public void loadFromPreferences(BinaryAppearancePreferences preferences) {
         lineWrapping = preferences.isLineWrapping();
-        showValuesPanel = preferences.isShowValuesPanel();
-        multiTabMode = preferences.isMultiTabMode();
+        showParsingPanel = preferences.isShowParsingPanel();
+        multiFileMode = preferences.isMultiFileMode();
     }
 
     public void saveToPreferences(BinaryAppearancePreferences preferences) {
         preferences.setLineWrapping(lineWrapping);
-        preferences.setShowValuesPanel(showValuesPanel);
-        preferences.setMultiTabMode(multiTabMode);
+        preferences.setShowParsingPanel(showParsingPanel);
+        preferences.setMultiFileMode(multiFileMode);
     }
 }

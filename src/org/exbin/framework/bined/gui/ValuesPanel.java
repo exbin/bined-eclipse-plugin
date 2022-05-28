@@ -31,7 +31,6 @@ import javax.swing.SwingUtilities;
 import org.exbin.bined.CaretMovedListener;
 import org.exbin.bined.CodeAreaCaretPosition;
 import org.exbin.bined.DataChangedListener;
-import org.exbin.bined.capability.EditModeCapable;
 import org.exbin.bined.operation.BinaryDataCommand;
 import org.exbin.bined.operation.BinaryDataOperationException;
 import org.exbin.bined.operation.swing.command.BinaryCompoundCommand;
@@ -40,11 +39,12 @@ import org.exbin.bined.operation.swing.command.ModifyDataCommand;
 import org.exbin.bined.operation.undo.BinaryDataUndoHandler;
 import org.exbin.bined.operation.undo.BinaryDataUndoUpdateListener;
 import org.exbin.bined.swing.extended.ExtCodeArea;
-import org.exbin.framework.gui.utils.LanguageUtils;
-import org.exbin.framework.gui.utils.WindowUtils;
+import org.exbin.framework.utils.LanguageUtils;
+import org.exbin.framework.utils.WindowUtils;
 import org.exbin.auxiliary.paged_data.BinaryData;
 import org.exbin.auxiliary.paged_data.ByteArrayEditableData;
 import org.exbin.auxiliary.paged_data.EditableBinaryData;
+import org.exbin.bined.capability.EditModeCapable;
 
 /**
  * Values side panel.
@@ -651,7 +651,7 @@ public class ValuesPanel extends javax.swing.JPanel {
         if (evt.getKeyCode() == KeyEvent.VK_ENTER && isEditable()) {
             try {
                 String characterText = characterTextField.getText();
-                if (characterText.length() == 0) {
+                if (characterText.isEmpty()) {
                     throw new InputMismatchException("Empty value not valid");
                 }
 
@@ -674,7 +674,7 @@ public class ValuesPanel extends javax.swing.JPanel {
         if (evt.getKeyCode() == KeyEvent.VK_ENTER && isEditable()) {
             try {
                 String characterText = stringTextField.getText();
-                if (characterText.length() == 0) {
+                if (characterText.isEmpty()) {
                     throw new InputMismatchException("Empty value not valid");
                 }
 

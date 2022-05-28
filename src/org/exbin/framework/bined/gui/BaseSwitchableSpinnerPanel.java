@@ -28,6 +28,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -41,12 +42,12 @@ import javax.swing.text.JTextComponent;
 import org.exbin.bined.CodeAreaUtils;
 import org.exbin.bined.CodeCharactersCase;
 import org.exbin.bined.PositionCodeType;
-import org.exbin.framework.gui.utils.WindowUtils;
+import org.exbin.framework.utils.WindowUtils;
 
 /**
  * Spinner supporting multiple bases.
  *
- * @version 0.2.1 2019/07/30
+ * @version 0.2.1 2020/12/06
  * @author ExBin Project (http://exbin.org)
  */
 @ParametersAreNonnullByDefault
@@ -96,6 +97,7 @@ public class BaseSwitchableSpinnerPanel extends javax.swing.JPanel {
         spinner = new javax.swing.JSpinner();
 
         octalMenuItem.setText("OCT");
+        octalMenuItem.setToolTipText("Octal");
         octalMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 octalMenuItemActionPerformed(evt);
@@ -104,6 +106,7 @@ public class BaseSwitchableSpinnerPanel extends javax.swing.JPanel {
         baseSwitchPopupMenu.add(octalMenuItem);
 
         decimalMenuItem.setText("DEC");
+        decimalMenuItem.setToolTipText("Decimal");
         decimalMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 decimalMenuItemActionPerformed(evt);
@@ -112,6 +115,7 @@ public class BaseSwitchableSpinnerPanel extends javax.swing.JPanel {
         baseSwitchPopupMenu.add(decimalMenuItem);
 
         hexadecimalMenuItem.setText("HEX");
+        hexadecimalMenuItem.setToolTipText("Hexadecimal");
         hexadecimalMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 hexadecimalMenuItemActionPerformed(evt);
@@ -122,6 +126,7 @@ public class BaseSwitchableSpinnerPanel extends javax.swing.JPanel {
         setPreferredSize(new java.awt.Dimension(400, 300));
 
         baseSwitchButton.setText("DEC");
+        baseSwitchButton.setToolTipText("Decimal");
         baseSwitchButton.setComponentPopupMenu(baseSwitchPopupMenu);
         baseSwitchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -138,7 +143,7 @@ public class BaseSwitchableSpinnerPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(baseSwitchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(spinner, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addComponent(spinner, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -163,7 +168,7 @@ public class BaseSwitchableSpinnerPanel extends javax.swing.JPanel {
                 break;
             }
             default:
-                throw new IllegalStateException("Unexpected position type " + positionCodeType.name());
+                throw CodeAreaUtils.getInvalidTypeException(positionCodeType);
         }
     }//GEN-LAST:event_baseSwitchButtonActionPerformed
 
@@ -200,7 +205,9 @@ public class BaseSwitchableSpinnerPanel extends javax.swing.JPanel {
     private void switchNumBase(PositionCodeType codeType) {
         adjusting = true;
         long value = getValue();
+        int position = codeType.ordinal();
         baseSwitchButton.setText(codeType.name().substring(0, 3));
+        baseSwitchButton.setToolTipText(((JMenuItem) baseSwitchPopupMenu.getComponent(position)).getToolTipText());
         spinnerEditor.setPositionCodeType(codeType);
         setValue(value);
         adjusting = false;
@@ -427,13 +434,13 @@ public class BaseSwitchableSpinnerPanel extends javax.swing.JPanel {
         @Nonnull
         private String getPositionAsString(long position) {
             if (position < 0) {
-                return "-" + getNonNegativePostionAsString(-position);
+                return "-" + getNonNegativePositionAsString(-position);
             }
-            return getNonNegativePostionAsString(position);
+            return getNonNegativePositionAsString(position);
         }
 
         @Nonnull
-        private String getNonNegativePostionAsString(long position) {
+        private String getNonNegativePositionAsString(long position) {
             Arrays.fill(cache, ' ');
             CodeAreaUtils.longToBaseCode(cache, 0, position, positionCodeType.getBase(), LENGTH_LIMIT, false, CodeCharactersCase.LOWER);
             return new String(cache).trim();

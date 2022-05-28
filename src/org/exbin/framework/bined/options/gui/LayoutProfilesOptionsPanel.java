@@ -20,15 +20,15 @@ import java.util.ResourceBundle;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.exbin.framework.bined.options.impl.CodeAreaLayoutOptionsImpl;
-import org.exbin.framework.gui.utils.LanguageUtils;
-import org.exbin.framework.gui.utils.WindowUtils;
-import org.exbin.framework.gui.options.api.OptionsCapable;
-import org.exbin.framework.gui.options.api.OptionsModifiedListener;
+import org.exbin.framework.utils.LanguageUtils;
+import org.exbin.framework.utils.WindowUtils;
+import org.exbin.framework.options.api.OptionsCapable;
+import org.exbin.framework.options.api.OptionsModifiedListener;
 
 /**
  * Layout profiles options panel.
  *
- * @version 0.2.1 2019/08/20
+ * @version 0.2.1 2021/09/21
  * @author ExBin Project (http://exbin.org)
  */
 @ParametersAreNonnullByDefault
@@ -67,6 +67,10 @@ public class LayoutProfilesOptionsPanel extends javax.swing.JPanel implements Op
 
     public void setCopyProfileOperation(LayoutProfilesPanel.CopyProfileOperation copyProfileOperation) {
         profilesPanel.setCopyProfileOperation(copyProfileOperation);
+    }
+
+    public void setTemplateProfileOperation(LayoutProfilesPanel.TemplateProfileOperation templateProfileOperation) {
+        profilesPanel.setTemplateProfileOperation(templateProfileOperation);
     }
 
     @Override
