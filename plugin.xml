@@ -22,4 +22,53 @@
             priority="low">
       </content-type>
    </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="org.exbin.bined.eclipse.plugin.popup.actions.VariablesViewAsBinary">
+         <menu
+               icon="resources/org/exbin/bined/eclipse/resources/icons/icon.png"
+               label="View as Binary">
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            id="org.exbin.bined.eclipse.contribution1"
+            objectClass="org.eclipse.core.resources.IFile">
+         <menu
+               id="org.exbin.bined.eclipse.menu1"
+               label="New Submenu"
+               path="debug">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               class="org.exbin.bined.eclipse.plugin.popup.actions.VariablesViewAsBinary"
+               enablesFor="1"
+               icon="resources/org/exbin/bined/eclipse/resources/icons/icon.png"
+               id="org.exbin.bined.eclipse.VariablesViewAsBinary"
+               label="View as Binary"
+               menubarPath="org.eclipse.debug.ui.launchActionSet/debug">
+         </action>
+         <menu
+               id="org.exbin.bined.eclipse.menu2"
+               label="New Submenu"
+               path="variables">
+            <separator
+                  name="group2">
+            </separator>
+         </menu>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="org.exbin.bined.eclipse.plugin.command1"
+            name="View as Binary">
+      </command>
+   </extension>
 </plugin>

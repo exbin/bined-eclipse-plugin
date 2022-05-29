@@ -1,5 +1,10 @@
 0.2.1
 - Minor GUI improvements
+- Added action for online help/manual
+- Added edit selection action
+- Added templates for profiles
+- Added insert data dialog
+- Added files compare dialog
 - Display the number of bytes selected
 
 0.2.0 (2019-08-11)

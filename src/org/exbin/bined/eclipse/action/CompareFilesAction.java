@@ -29,8 +29,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -70,35 +71,28 @@ public class CompareFilesAction implements ActionListener {
             @Nullable
             @Override
             public CompareFilesPanel.FileRecord openFile() {
-/*                Project project = ProjectManager.getInstance().getDefaultProject();
+                final File[] result = new File[1];
 
-                FileChooserDescriptor chooserDescriptor = new FileChooserDescriptor(true, false, true, false, false, false);
-                VirtualFile virtualFile = FileChooser.chooseFile(chooserDescriptor, project, null);
-                boolean isValid = virtualFile != null && virtualFile.isValid();
-                if (isValid && virtualFile.isDirectory()) {
-                    isValid = false;
-                    if (virtualFile.getFileType() instanceof ArchiveFileType) {
-                        if (virtualFile.getFileSystem() instanceof JarFileSystem) {
-                            virtualFile = ((JarFileSystem) virtualFile.getFileSystem()).getVirtualFileForJar(virtualFile);
-                            isValid = virtualFile != null && virtualFile.isValid();
-                        } else {
-                            virtualFile = ((ArchiveFileSystem) virtualFile.getFileSystem()).getLocalByEntry(virtualFile);
-                            isValid = virtualFile != null && virtualFile.isValid();
-                        }
-                    }
-                }
-                if (isValid) {
-                    try (InputStream stream = virtualFile.getInputStream()) {
-                        PagedData pagedData = new PagedData();
-                        pagedData.loadFromStream(stream);
-                        return new CompareFilesPanel.FileRecord(virtualFile.getName(), pagedData);
-                    } catch (IOException ex) {
-                        Logger.getLogger(CompareFilesAction.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                JFileChooser fileChooser = new JFileChooser();
+                int dialogResult = fileChooser.showOpenDialog((Component) event.getSource());
+                if (dialogResult == JFileChooser.APPROVE_OPTION) {
+                    result[0] = fileChooser.getSelectedFile();
                 } else {
-                    JOptionPane.showMessageDialog(null,  "File reported as invalid", "Unable to open file", JOptionPane.ERROR_MESSAGE);
+                    return null;
                 }
-*/
+
+                if (result[0] == null) {
+                    return null;
+                }
+
+                try (FileInputStream stream = new FileInputStream(result[0])) {
+                    PagedData pagedData = new PagedData();
+                    pagedData.loadFromStream(stream);
+                    return new CompareFilesPanel.FileRecord(result[0].getAbsolutePath(), pagedData);
+                } catch (IOException ex) {
+                    Logger.getLogger(CompareFilesAction.class.getName()).log(Level.SEVERE, null, ex);
+
+                }
                 return null;
             }
 
