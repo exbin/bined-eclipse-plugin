@@ -16,6 +16,9 @@
 package org.exbin.bined.eclipse.plugin.handlers;
 
 import java.awt.Dialog;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -24,16 +27,23 @@ import javax.swing.JPanel;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.IValue;
+import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.handlers.HandlerUtil;
+import org.exbin.bined.eclipse.debug.DebugViewDataProvider;
 import org.exbin.bined.eclipse.debug.gui.DebugViewPanel;
+import org.exbin.bined.eclipse.debug.value.ValueNodeConverter;
 import org.exbin.framework.utils.WindowUtils;
 import org.exbin.framework.utils.WindowUtils.DialogWrapper;
-import org.exbin.framework.utils.gui.DefaultControlPanel;
-import org.exbin.framework.utils.handler.DefaultControlHandler;
+import org.exbin.framework.utils.gui.CloseControlPanel;
+import org.exbin.framework.utils.handler.CloseControlHandler;
 
 /**
  * Views variable as binary data.
  *
- * @version 0.2.1 2022/05/30
+ * @version 0.2.1 2022/05/31
  * @author ExBin Project (http://exbin.org)
  */
 @ParametersAreNonnullByDefault
@@ -42,19 +52,30 @@ public class ViewAsBinaryVariableHandler extends AbstractHandler {
 	@Nullable
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		IStructuredSelection selection = (IStructuredSelection) HandlerUtil.getCurrentSelection(event);
+		IVariable variable = (IVariable) selection.getFirstElement();
+		try {
+			IValue value = variable.getValue();
+			ValueNodeConverter converter = new ValueNodeConverter();
+			List<DebugViewDataProvider> providers = converter.identifyAvailableProviders(value);
 
-		DebugViewPanel debugViewPanel = new DebugViewPanel();
-		DefaultControlPanel controlPanel = new DefaultControlPanel();
-		JPanel dialogPanel = WindowUtils.createDialogPanel(debugViewPanel, controlPanel);
-		final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, null, "View as Binary",
-				Dialog.ModalityType.APPLICATION_MODAL);
+			DebugViewPanel debugViewPanel = new DebugViewPanel();
+			for (DebugViewDataProvider provider : providers) {
+				debugViewPanel.addProvider(provider);
+			}
+			CloseControlPanel controlPanel = new CloseControlPanel();
+			JPanel dialogPanel = WindowUtils.createDialogPanel(debugViewPanel, controlPanel);
+			final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, null, "View as Binary", Dialog.ModalityType.APPLICATION_MODAL);
 
-//        debugViewPanel.initFocus();
-		controlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
-			dialog.close();
-			dialog.dispose();
-		});
-		dialog.showCentered(null);
+//	        debugViewPanel.initFocus();
+			controlPanel.setHandler(() -> {
+				dialog.close();
+				dialog.dispose();
+			});
+			dialog.showCentered(null);
+		} catch (DebugException ex) {
+            Logger.getLogger(ViewAsBinaryVariableHandler.class.getName()).log(Level.SEVERE, null, ex);
+		}
 
 		return null;
 	}

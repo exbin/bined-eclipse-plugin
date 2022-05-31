@@ -54,41 +54,11 @@
             locationURI="popup:org.eclipse.debug.ui.VariableView">
          <command
                commandId="org.exbin.bined.eclipse.plugin.variablesViewAsBinary"
+               icon="resources/org/exbin/bined/eclipse/resources/icons/icon.png"
                label="View as Binary"
                style="push">
          </command>
       </menuContribution>
-   </extension>
-   <extension
-         point="org.eclipse.ui.popupMenus">
-      <objectContribution
-            id="org.exbin.bined.eclipse.contribution1"
-            objectClass="org.eclipse.core.resources.IFile">
-         <menu
-               id="org.exbin.bined.eclipse.menu1"
-               label="New Submenu"
-               path="debug">
-            <separator
-                  name="group1">
-            </separator>
-         </menu>
-         <action
-               class="org.exbin.bined.eclipse.plugin.popup.actions.VariablesViewAsBinary"
-               enablesFor="1"
-               icon="resources/org/exbin/bined/eclipse/resources/icons/icon.png"
-               id="org.exbin.bined.eclipse.VariablesViewAsBinary"
-               label="View as Binary"
-               menubarPath="org.eclipse.debug.ui.launchActionSet/debug">
-         </action>
-         <menu
-               id="org.exbin.bined.eclipse.menu2"
-               label="New Submenu"
-               path="variables">
-            <separator
-                  name="group2">
-            </separator>
-         </menu>
-      </objectContribution>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
