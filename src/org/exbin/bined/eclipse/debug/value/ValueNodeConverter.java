@@ -18,15 +18,19 @@ package org.exbin.bined.eclipse.debug.value;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.jdt.debug.core.IJavaArray;
+import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
 import org.exbin.auxiliary.paged_data.BinaryData;
 import org.exbin.auxiliary.paged_data.ByteArrayData;
 import org.exbin.bined.eclipse.data.PageProviderBinaryData;
 import org.exbin.bined.eclipse.debug.DebugViewDataProvider;
 import org.exbin.bined.eclipse.debug.DefaultDebugViewDataProvider;
+import org.exbin.framework.bined.gui.ValuesPanel;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -36,7 +40,7 @@ import java.util.List;
  * Debug values converter.
  *
  * @author ExBin Project (http://exbin.org)
- * @version 0.2.1 2022/05/31
+ * @version 0.2.1 2022/06/01
  */
 @ParametersAreNonnullByDefault
 public class ValueNodeConverter {
@@ -131,86 +135,79 @@ public class ValueNodeConverter {
     }
 
     @Nullable
-    private BinaryData processSimpleValue(IValue value) {
+    private BinaryData processSimpleValue(IValue simpleValue) {
         try {
-			String typeString = value.getReferenceTypeName();
+        	String typeString = simpleValue.getReferenceTypeName();
+
+	        switch (typeString) {
+	            case "Byte":
+	            case "byte": {
+	                byte[] byteArray = new byte[1];
+	                byteArray[0] = ((IJavaPrimitiveValue) simpleValue).getByteValue();
+	                return new ByteArrayData(byteArray);
+	            }
+	            case "Short":
+	            case "short": {
+	                byte[] byteArray = new byte[2];
+	                short value = ((IJavaPrimitiveValue) simpleValue).getShortValue();
+	                byteArray[0] = (byte) (value >> 8);
+	                byteArray[1] = (byte) (value & 0xff);
+	                return new ByteArrayData(byteArray);
+	            }
+	            case "Integer":
+	            case "int": {
+	                byte[] byteArray = new byte[4];
+	                int value = ((IJavaPrimitiveValue) simpleValue).getIntValue();
+	                byteArray[0] = (byte) (value >> 24);
+	                byteArray[1] = (byte) ((value >> 16) & 0xff);
+	                byteArray[2] = (byte) ((value >> 8) & 0xff);
+	                byteArray[3] = (byte) (value & 0xff);
+	                return new ByteArrayData(byteArray);
+	            }
+	            case "Long":
+	            case "long": {
+	                byte[] byteArray = new byte[8];
+	                long value = ((IJavaPrimitiveValue) simpleValue).getLongValue();
+	                BigInteger bigInteger = BigInteger.valueOf(value);
+	                for (int bit = 0; bit < 7; bit++) {
+	                    BigInteger nextByte = bigInteger.and(ValuesPanel.BIG_INTEGER_BYTE_MASK);
+	                    byteArray[7 - bit] = nextByte.byteValue();
+	                    bigInteger = bigInteger.shiftRight(8);
+	                }
+	                return new ByteArrayData(byteArray);
+	            }
+	            case "Float":
+	            case "float": {
+	                byte[] byteArray = new byte[4];
+	                float value = ((IJavaPrimitiveValue) simpleValue).getFloatValue();
+	                byteBuffer.rewind();
+	                byteBuffer.putFloat(value);
+	                System.arraycopy(valuesCache, 0, byteArray, 0, 4);
+	                return new ByteArrayData(byteArray);
+	            }
+	            case "Double":
+	            case "double": {
+	                byte[] byteArray = new byte[8];
+	                double value = ((IJavaPrimitiveValue) simpleValue).getDoubleValue();
+	                byteBuffer.rewind();
+	                byteBuffer.putDouble(value);
+	                System.arraycopy(valuesCache, 0, byteArray, 0, 8);
+	                return new ByteArrayData(byteArray);
+	            }
+	            case "Character":
+	            case "char": {
+	                byte[] byteArray = new byte[2];
+	                char value = ((IJavaPrimitiveValue) simpleValue).getCharValue();
+	                byteBuffer.rewind();
+	                byteBuffer.putChar(value);
+	                System.arraycopy(valuesCache, 0, byteArray, 0, 2);
+	                return new ByteArrayData(byteArray);
+	            }
+	        }
+	
+	        return null;
 		} catch (DebugException e) {
 			return null;
 		}
-/*
-        switch (typeString) {
-            case "B":
-            case "byte": {
-                ByteValue value = (ByteValue) getPrimitiveValue(descriptor);
-                byte[] byteArray = new byte[1];
-                byteArray[0] = value.value();
-                return new ByteArrayData(byteArray);
-            }
-            case "S":
-            case "short": {
-                ShortValue valueRecord = (ShortValue) getPrimitiveValue(descriptor);
-                byte[] byteArray = new byte[2];
-                short value = valueRecord.value();
-                byteArray[0] = (byte) (value >> 8);
-                byteArray[1] = (byte) (value & 0xff);
-                return new ByteArrayData(byteArray);
-            }
-            case "I":
-            case "int": {
-                IntegerValue valueRecord = (IntegerValue) getPrimitiveValue(descriptor);
-                byte[] byteArray = new byte[4];
-                int value = valueRecord.value();
-                byteArray[0] = (byte) (value >> 24);
-                byteArray[1] = (byte) ((value >> 16) & 0xff);
-                byteArray[2] = (byte) ((value >> 8) & 0xff);
-                byteArray[3] = (byte) (value & 0xff);
-                return new ByteArrayData(byteArray);
-            }
-            case "J":
-            case "long": {
-                LongValue valueRecord = (LongValue) getPrimitiveValue(descriptor);
-                byte[] byteArray = new byte[8];
-                long value = valueRecord.value();
-                BigInteger bigInteger = BigInteger.valueOf(value);
-                for (int bit = 0; bit < 7; bit++) {
-                    BigInteger nextByte = bigInteger.and(ValuesPanel.BIG_INTEGER_BYTE_MASK);
-                    byteArray[7 - bit] = nextByte.byteValue();
-                    bigInteger = bigInteger.shiftRight(8);
-                }
-                return new ByteArrayData(byteArray);
-            }
-            case "F":
-            case "float": {
-                FloatValue valueRecord = (FloatValue) getPrimitiveValue(descriptor);
-                byte[] byteArray = new byte[4];
-                float value = valueRecord.value();
-                byteBuffer.rewind();
-                byteBuffer.putFloat(value);
-                System.arraycopy(valuesCache, 0, byteArray, 0, 4);
-                return new ByteArrayData(byteArray);
-            }
-            case "D":
-            case "double": {
-                DoubleValue valueRecord = (DoubleValue) getPrimitiveValue(descriptor);
-                byte[] byteArray = new byte[8];
-                double value = valueRecord.value();
-                byteBuffer.rewind();
-                byteBuffer.putDouble(value);
-                System.arraycopy(valuesCache, 0, byteArray, 0, 8);
-                return new ByteArrayData(byteArray);
-            }
-            case "C":
-            case "char": {
-                CharValue valueRecord = (CharValue) getPrimitiveValue(descriptor);
-                byte[] byteArray = new byte[2];
-                char value = valueRecord.value();
-                byteBuffer.rewind();
-                byteBuffer.putChar(value);
-                System.arraycopy(valuesCache, 0, byteArray, 0, 2);
-                return new ByteArrayData(byteArray);
-            }
-        }
-*/
-        return null;
     }
 }

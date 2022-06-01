@@ -15,19 +15,21 @@
  */
 package org.exbin.bined.eclipse.debug.value;
 
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.jdt.debug.core.IJavaArray;
+import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
+import org.eclipse.jdt.debug.core.IJavaValue;
 import org.exbin.bined.eclipse.data.PageProvider;
 import org.exbin.bined.eclipse.data.PageProviderBinaryData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
 
 /**
  * Integer array data source for debugger view.
  *
  * @author ExBin Project (http://exbin.org)
- * @version 0.2.1 2022/05/31
+ * @version 0.2.1 2022/06/01
  */
 @ParametersAreNonnullByDefault
 public class ValueIntegerArrayPageProvider implements PageProvider {
@@ -41,33 +43,33 @@ public class ValueIntegerArrayPageProvider implements PageProvider {
     @Nonnull
     @Override
     public byte[] getPage(long pageIndex) {
-/*        int pageSize = PageProviderBinaryData.PAGE_SIZE / 4;
-        int startPos = (int) (pageIndex * pageSize);
-        int length = Math.min(arrayRef.length() - startPos, pageSize);
-        final List<Value> values = arrayRef.getValues(startPos, length);
-        byte[] result = new byte[length * 4];
-        for (int i = 0; i < values.size(); i++) {
-            Value rawValue = values.get(i);
-            if (rawValue instanceof ObjectReference) {
-                Field field = ((ObjectReference) rawValue).referenceType().fieldByName("value");
-                rawValue = ((ObjectReference) rawValue).getValue(field);
-            }
-
-            int value = rawValue instanceof IntegerValue ? ((IntegerValue) rawValue).value() : 0;
-
-            result[i * 4] = (byte) (value >> 24);
-            result[i * 4 + 1] = (byte) ((value >> 16) & 0xff);
-            result[i * 4 + 2] = (byte) ((value >> 8) & 0xff);
-            result[i * 4 + 3] = (byte) (value & 0xff);
-        }
-
-        return result; */
-    	return null;
+        try {
+	        int pageSize = PageProviderBinaryData.PAGE_SIZE / 4;
+	        int startPos = (int) (pageIndex * pageSize);
+	        int length = Math.min(arrayRef.getLength() - startPos, pageSize);
+	        byte[] result = new byte[length * 4];
+	        for (int i = 0; i < length; i++) {
+	        	IJavaValue javaValue = arrayRef.getValue(startPos + i);
+	            int value = ((IJavaPrimitiveValue) javaValue).getIntValue();
+	
+	            result[i * 4] = (byte) (value >> 24);
+	            result[i * 4 + 1] = (byte) ((value >> 16) & 0xff);
+	            result[i * 4 + 2] = (byte) ((value >> 8) & 0xff);
+	            result[i * 4 + 3] = (byte) (value & 0xff);
+	        }
+	
+	        return result;
+		} catch (DebugException e) {
+			return new byte[0];
+		}
     }
 
     @Override
     public long getDocumentSize() {
-//        return arrayRef.length() * 4;
-    	return 0;
+        try {
+        	return arrayRef.getLength() * 4;
+		} catch (DebugException e) {
+			return 0;
+		}
     }
 }

@@ -17,18 +17,19 @@ package org.exbin.bined.eclipse.debug.value;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.jdt.debug.core.IJavaArray;
+import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
+import org.eclipse.jdt.debug.core.IJavaValue;
 import org.exbin.bined.eclipse.data.PageProvider;
 import org.exbin.bined.eclipse.data.PageProviderBinaryData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
 
 /**
  * Boolean array data source for debugger view.
  *
  * @author ExBin Project (http://exbin.org)
- * @version 0.2.1 2022/05/31
+ * @version 0.2.1 2022/06/01
  */
 @ParametersAreNonnullByDefault
 public class ValueBooleanArrayPageProvider implements PageProvider {
@@ -42,41 +43,35 @@ public class ValueBooleanArrayPageProvider implements PageProvider {
     @Nonnull
     @Override
     public byte[] getPage(long pageIndex) {
-/*        int startPos = (int) (pageIndex * PageProviderBinaryData.PAGE_SIZE * 8);
-        int length = PageProviderBinaryData.PAGE_SIZE * 8;
-        long documentSize = getDocumentSize() * 8;
-        if (documentSize - startPos < PageProviderBinaryData.PAGE_SIZE * 8) {
-            length = (int) (documentSize - startPos);
-        }
-        final List<Value> values = arrayRef.getValues(startPos, length);
-        byte[] result = new byte[(length + 7) / 8];
-        int bitMask = 0x80;
-        int bytePos = 0;
-        for (int i = 0; i < values.size(); i++) {
-            Value rawValue = values.get(i);
-            boolean value = false;
-            if (rawValue instanceof ObjectReference) {
-                Field field = ((ObjectReference) rawValue).referenceType().fieldByName("value");
-                rawValue = ((ObjectReference) rawValue).getValue(field);
+        try {
+            int startPos = (int) (pageIndex * PageProviderBinaryData.PAGE_SIZE * 8);
+            int length = PageProviderBinaryData.PAGE_SIZE * 8;
+            long documentSize = getDocumentSize() * 8;
+            if (documentSize - startPos < PageProviderBinaryData.PAGE_SIZE * 8) {
+                length = (int) (documentSize - startPos);
             }
+	        byte[] result = new byte[(length + 7) / 8];
+	        int bitMask = 0x80;
+	        int bytePos = 0;
+	        for (int i = 0; i < length; i++) {
+	        	IJavaValue javaValue = arrayRef.getValue(startPos + i);
+	            boolean value = ((IJavaPrimitiveValue) javaValue).getBooleanValue();
 
-            if (rawValue instanceof BooleanValue) {
-                value = ((BooleanValue) rawValue).value();
-            }
-
-            if (value) {
-                result[bytePos] += bitMask;
-            }
-            if (bitMask == 1) {
-                bitMask = 0x80;
-                bytePos++;
-            } else {
-                bitMask = bitMask >> 1;
-            }
-        }
-
-        return result; */
-        return null;
+	            if (value) {
+	                result[bytePos] += bitMask;
+	            }
+	            if (bitMask == 1) {
+	                bitMask = 0x80;
+	                bytePos++;
+	            } else {
+	                bitMask = bitMask >> 1;
+	            }
+	        }
+	
+	        return result;
+		} catch (DebugException e) {
+			return new byte[0];
+		}
     }
 
     @Override

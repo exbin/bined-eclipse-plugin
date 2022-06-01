@@ -1,5 +1,6 @@
 0.2.1
 - Minor GUI improvements
+- Added view as binary action in variables view
 - Added action for online help/manual
 - Added edit selection action
 - Added templates for profiles

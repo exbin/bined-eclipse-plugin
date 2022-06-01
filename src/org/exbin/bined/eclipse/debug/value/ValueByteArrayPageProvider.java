@@ -17,20 +17,20 @@ package org.exbin.bined.eclipse.debug.value;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.jdt.debug.core.IJavaArray;
+import org.eclipse.jdt.debug.core.IJavaObject;
+import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
 import org.eclipse.jdt.debug.core.IJavaValue;
-import org.eclipse.jdt.internal.debug.core.model.JDIPrimitiveValue;
 import org.exbin.bined.eclipse.data.PageProvider;
 import org.exbin.bined.eclipse.data.PageProviderBinaryData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
 
 /**
  * Byte array data source for debugger view.
  *
  * @author ExBin Project (http://exbin.org)
- * @version 0.2.1 2022/05/31
+ * @version 0.2.1 2022/06/01
  */
 @ParametersAreNonnullByDefault
 public class ValueByteArrayPageProvider implements PageProvider {
@@ -49,8 +49,16 @@ public class ValueByteArrayPageProvider implements PageProvider {
 	        int length = Math.min(arrayRef.getLength() - startPos, PageProviderBinaryData.PAGE_SIZE);
 	        byte[] result = new byte[length];
 	        for (int i = 0; i < length; i++) {
-	        	IJavaValue value = arrayRef.getValue(startPos + i);
-	            result[i] = ((JDIPrimitiveValue) value).getByteValue();
+	        	IJavaValue javaValue = arrayRef.getValue(startPos + i);
+	        	byte value;
+	        	if (javaValue instanceof IJavaPrimitiveValue) {
+	        		value = ((IJavaPrimitiveValue) javaValue).getByteValue();
+	        	} else {
+	        		// TODO
+//	        		((IJavaObject) javaValue).getField(name, superField)Variables();
+	        		value = 0;
+	        	}
+	            result[i] = value;
 	        }
 	
 	        return result;

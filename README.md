@@ -22,20 +22,23 @@ Features
   * Searching for text / hexadecimal code with found matches highlighting
   * Support for undo/redo
   * Support for files with size up to exabytes
+  * Show debug variables as binary data
 
-!! Current version is wrapping Swing components into SWT dialogs, therefore it doesn''t fit
-native look and feel and have various rendering issues. 
+Known issues
+------------
+
+Plugin uses Swing components wrapped in SWT dialogs - it doesn''t fit native look and feel and have various rendering issues depending on system / java version. 
 
 Compiling
 ---------
 
 Java Development Kit (JDK) version 8 or later is required to build this project.
 
-Eclipse platform is necessary for build of this plugin. See. http://eclipse.org
+To compile open this project in Eclipse. See. http://eclipse.org
 
 Install Eclipse Project SDK via Help/Install New Software.
 
-Use Eclipse Application run configuration to run/execute.
+Use "Eclipse Application" run configuration to run/execute.
 
 License
 -------
