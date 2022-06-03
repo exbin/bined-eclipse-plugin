@@ -28,6 +28,7 @@ import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -91,7 +92,6 @@ import org.exbin.framework.utils.WindowUtils;
 import org.exbin.framework.utils.gui.CloseControlPanel;
 import org.exbin.framework.utils.gui.OptionsControlPanel;
 import org.exbin.framework.utils.handler.OptionsControlHandler;
-import org.exbin.framework.preferences.PreferencesWrapper;
 
 /**
  * Binary editor component panel.
@@ -99,6 +99,7 @@ import org.exbin.framework.preferences.PreferencesWrapper;
  * @version 0.2.1 2022/05/28
  * @author ExBin Project (http://exbin.org)
  */
+@ParametersAreNonnullByDefault
 public class BinEdComponentPanel extends javax.swing.JPanel {
 
     private static final FileHandlingMode DEFAULT_FILE_HANDLING_MODE = FileHandlingMode.DELTA;
@@ -187,7 +188,6 @@ public class BinEdComponentPanel extends javax.swing.JPanel {
         this.add(toolbarPanel, BorderLayout.NORTH);
         registerEncodingStatus(statusPanel);
         encodingsHandler = new EncodingsHandler();
-        encodingsHandler.setParentComponent(this);
         encodingsHandler.init();
         encodingsHandler.setTextEncodingStatus(new TextEncodingStatusApi() {
         	@Nonnull
@@ -262,7 +262,6 @@ public class BinEdComponentPanel extends javax.swing.JPanel {
         });
         codeArea.addSelectionChangedListener(() -> {
             binaryStatus.setSelectionRange(codeArea.getSelection());
-            // updateClipboardActionsStatus();
         });
 
         codeArea.addEditModeChangedListener(binaryStatus::setEditMode);
@@ -359,7 +358,7 @@ public class BinEdComponentPanel extends javax.swing.JPanel {
         if (fileApi == null)
             return true;
 
-        while (isModified()) {
+        while (isModified() && fileApi.isSaveSupported()) {
             Object[] options = {
                 "Save",
                 "Discard",
@@ -415,7 +414,9 @@ public class BinEdComponentPanel extends javax.swing.JPanel {
             memoryMode = BinaryStatusApi.MemoryMode.READ_ONLY;
         } else if (fileHandlingMode == FileHandlingMode.DELTA) {
             memoryMode = BinaryStatusApi.MemoryMode.DELTA_MODE;
-        }
+        } /* else if (fileHandlingMode == FileHandlingMode.NATIVE) {
+            memoryMode = BinaryStatusApi.MemoryMode.NATIVE;
+        } */
 
         if (binaryStatus != null) {
             binaryStatus.setMemoryMode(memoryMode);

@@ -43,14 +43,6 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            locationURI="org.exbin.bined.eclipse.plugin.popup.actions.VariablesViewAsBinary">
-         <menu
-               icon="resources/org/exbin/bined/eclipse/resources/icons/icon.png"
-               label="View as Binary">
-         </menu>
-      </menuContribution>
-      <menuContribution
-            allPopups="false"
             locationURI="popup:org.eclipse.debug.ui.VariableView">
          <command
                commandId="org.exbin.bined.eclipse.plugin.variablesViewAsBinary"

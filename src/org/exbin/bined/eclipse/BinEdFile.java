@@ -134,6 +134,7 @@ public class BinEdFile implements BinEdComponentFileApi {
 			try {
 				File documentFile = path.toFile();
 				openDocument(documentFile, documentFile.canWrite());
+		        undoHandler.clear();
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -298,7 +299,7 @@ public class BinEdFile implements BinEdComponentFileApi {
                     componentPanel.setContentData(document);
                 }
                 
-                componentPanel.getUndoHandler().clear();
+                undoHandler.clear();
                 componentPanel.setFileHandlingMode(newHandlingMode);
             }
         }

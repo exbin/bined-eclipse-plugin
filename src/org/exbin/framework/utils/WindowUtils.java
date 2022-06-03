@@ -146,11 +146,25 @@ public class WindowUtils {
     }
 
     @Nonnull
-    public static DialogWrapper createDialog(final JComponent component, @Nullable final Object parentComponent, String dialogTitle, Dialog.ModalityType modalityType) {
-    	Display parentDisplay = null;
+    public static DialogWrapper createDialog(final JComponent component, Object parentComponent, String dialogTitle, Dialog.ModalityType modalityType) {
+    	Display[] initParentDisplay = new Display[1];
+    	Shell[] initParentShell = new Shell[1];
     	if (parentComponent instanceof Composite) {
-    		parentDisplay = ((Composite)parentComponent).getDisplay();
-    	} else if (parentComponent instanceof Component) {
+        	initParentDisplay[0] = ((Composite) parentComponent).getDisplay();
+        	initParentShell[0] = ((Composite) parentComponent).getShell();
+    	} else {
+    		Display display = Display.getDefault();
+    		initParentDisplay[0] = display;
+    		display.syncExec(new Runnable() {
+    			public void run() {
+    				initParentShell[0] = display.getActiveShell();
+    			}
+    		});
+    	}
+
+    	final Display parentDisplay = initParentDisplay[0];
+    	final Shell parentShell = initParentShell[0];
+    	
 //			parentDisplay = Display.getDefault();
 //    		Window window = WindowUtils.getWindow((Component) parentComponent);
 //    		if (window instanceof XEmbeddedFrame) {
@@ -158,17 +172,15 @@ public class WindowUtils {
 //	    		parentContainer.getComponent(0);
 //    			parentDisplay = Display.getDefault();
 //    		}
-    	}
-		final Display finalParentDisplay = parentDisplay; 
+
 		final DialogWrapperHolder holder = new DialogWrapperHolder();
-		Display.getDefault().syncExec(new Runnable() {
+
+		final Shell[] outputShell = new Shell[1];
+		final java.awt.Frame[] outputFrame = new java.awt.Frame[1];
+		final Display[] outputDisplay = new Display[1];
+		parentDisplay.syncExec(new Runnable() {
 			public void run() {
-//				Window window = WindowUtils.getWindow(parent);
-				Display currentDisplay = Display.getCurrent();
-				if (currentDisplay == null)
-					currentDisplay = Display.getDefault();
-				final Display display = currentDisplay;
-				final Shell shell = new Shell(display, SWT.SHELL_TRIM | SWT.CENTER | SWT.APPLICATION_MODAL);
+				Shell shell = new Shell(parentShell, SWT.SHELL_TRIM | SWT.CENTER | SWT.APPLICATION_MODAL);
 				shell.addListener(SWT.Traverse, new Listener() {
 					public void handleEvent(Event e) {
 						if (e.detail == SWT.TRAVERSE_ESCAPE) {
@@ -206,103 +218,92 @@ public class WindowUtils {
 				frame.add(component, BorderLayout.CENTER);
 //				frame.setSize(size.width + 8, size.height + 24);
 
-//				Label label = new Label(shell, SWT.NO_FOCUS);
-//				label.setText("TEST");
-				
-				holder.dialogWrapper = new DialogWrapper() {
+				outputShell[0] = shell;
+				outputFrame[0] = frame;
+				outputDisplay[0] = shell.getDisplay();
+			}
+		});
+		final Shell shell = outputShell[0];
+		final Display display = outputDisplay[0];
+		final java.awt.Frame frame = outputFrame[0];
 
-					@Override
-					public void show() {
-						display.syncExec(new Runnable() {
-							public void run() {
-								shell.open();
-								shell.layout();
-
-								if (finalParentDisplay != null) {
-									while (!shell.isDisposed()) {
-				                	if (!finalParentDisplay.readAndDispatch())
-				                		finalParentDisplay.sleep();
-									}
-								}
-							}
-						});
-
-//						display.syncExec(new Runnable() {
-//							public void run() {
-//								while (!shell.isDisposed()) {
-//				                	if (!display.readAndDispatch())
-//				                		display.sleep();
-//									}
-//							}
-//						});
-
-						// TODO: Wait for dialog to be closed
-//						try {
-//							Composite parentShell = shell.getParent();
-//							Display parentDisplay = parentShell.getDisplay();
-//							while (!shell.isDisposed()) {
-//			                	if (!parentDisplay.readAndDispatch())
-//			                		parentDisplay.sleep();
-//							}
-//						} catch (SWTException ex) {
-//							// Not sure how to work around this as we currently don't have parent shell
-//						}
+		holder.dialogWrapper = new DialogWrapper() {
+			@Override
+			public void show() {
+				display.syncExec(new Runnable() {
+					public void run() {
+						shell.layout();
+						shell.open();
 					}
+				});
 
-		            @Override
-		            public void showCentered(@Nullable Component component) {
-		                center(component);
-		                show();
-		            }
-
-					@Override
-					public void close() {
-						display.syncExec(new Runnable() {
-							public void run() {
-								shell.close();
-							}
-						});
-					}
-
-					@Override
-					public Window getWindow() {
-						return frame;
-					}
-
-					@Override
-					public void dispose() {
-						display.syncExec(new Runnable() {
-							public void run() {
-								shell.dispose();
-							}
-						});
-					}
-
-		            @Override
-		            public Container getParent() {
-		                return frame;
-		            }
-
-		            @Override
-		            public void center(@Nullable Component component) {
-		                if (component == null) {
-		                    center();
-		                } else {
-		                	// TODO holder.dialogWrapper.center(component);
-		                	center();
-		                }
-		            }
-
-					@Override
-					public void center() {
-						IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-						if (activeWorkbenchWindow != null) {
-							Shell parentShell = activeWorkbenchWindow.getShell();
-							placeDialogInCenter(parentShell, shell);
+/*				while (!shell.isDisposed()) {
+					parentDisplay.syncExec(new Runnable() {
+						public void run() {
+							if (!parentDisplay.readAndDispatch())
+								parentDisplay.sleep();
 						}
+					});
+				}
+				System.out.println("END"); */
+			}
+
+            @Override
+            public void showCentered(@Nullable Component component) {
+                center(component);
+                show();
+            }
+
+			@Override
+			public void close() {
+				display.syncExec(new Runnable() {
+					public void run() {
+						shell.close();
 					}
-				};
-				holder.dialogWrapper.center();
+				});
+			}
+
+			@Override
+			public Window getWindow() {
+				return frame;
+			}
+
+			@Override
+			public void dispose() {
+				display.syncExec(new Runnable() {
+					public void run() {
+						shell.dispose();
+					}
+				});
+			}
+
+            @Override
+            public Container getParent() {
+                return frame;
+            }
+
+            @Override
+            public void center(@Nullable Component component) {
+                if (component == null) {
+                    center();
+                } else {
+                	// TODO holder.dialogWrapper.center(component);
+                	center();
+                }
+            }
+
+			@Override
+			public void center() {
+				IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				if (activeWorkbenchWindow != null) {
+					Shell parentShell = activeWorkbenchWindow.getShell();
+					placeDialogInCenter(parentShell, shell);
+				}
+			}
+		};
+		display.syncExec(new Runnable() {
+			public void run() {
+				placeDialogInCenter(parentShell, shell);
 			}
 		});
 		return holder.dialogWrapper;

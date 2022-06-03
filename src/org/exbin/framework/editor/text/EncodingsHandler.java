@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
+
 import org.exbin.framework.editor.text.gui.AddEncodingPanel;
 import org.exbin.framework.editor.text.options.gui.TextEncodingPanel;
 import org.exbin.framework.editor.text.preferences.TextEncodingPreferences;
@@ -66,7 +67,6 @@ public class EncodingsHandler {
     private javax.swing.JMenu toolsEncodingMenu;
     private javax.swing.JRadioButtonMenuItem utfEncodingRadioButtonMenuItem;
     private ActionListener utfEncodingActionListener;
-    private Component parentComponent = null;
 
     public static final String DEFAULT_ENCODING_TEXT = "UTF-8 (default)";
     public static final String ENCODING_TOOLTIP_PREFIX = "Set encoding ";
@@ -103,7 +103,7 @@ public class EncodingsHandler {
                 textEncodingPanel.setEncodingList(textEncodingService.getEncodings());
                 final OptionsControlPanel optionsControlPanel = new OptionsControlPanel();
                 JPanel dialogPanel = WindowUtils.createDialogPanel(textEncodingPanel, optionsControlPanel);
-                final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, parentComponent, "Manage Encodings", Dialog.ModalityType.APPLICATION_MODAL);
+                final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, e.getSource(), "Manage Encodings", Dialog.ModalityType.APPLICATION_MODAL);
                 optionsControlPanel.setHandler((OptionsControlHandler.ControlActionType actionType) -> {
                     if (actionType != OptionsControlHandler.ControlActionType.CANCEL) {
                         textEncodingService.setEncodings(textEncodingPanel.getEncodingList());
@@ -122,7 +122,7 @@ public class EncodingsHandler {
                     addEncodingPanel.setUsedEncodings(usedEncodings);
                     DefaultControlPanel encodingsControlPanel = new DefaultControlPanel(addEncodingPanel.getResourceBundle());
                     JPanel encodingDialogPanel = WindowUtils.createDialogPanel(addEncodingPanel, encodingsControlPanel);
-                    final DialogWrapper addEncodingDialog = WindowUtils.createDialog(encodingDialogPanel, parentComponent, "Add Encodings", Dialog.ModalityType.APPLICATION_MODAL);
+                    final DialogWrapper addEncodingDialog = WindowUtils.createDialog(encodingDialogPanel, e.getSource(), "Add Encodings", Dialog.ModalityType.APPLICATION_MODAL);
                     encodingsControlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
                         if (actionType == DefaultControlHandler.ControlActionType.OK) {
                             result.addAll(addEncodingPanel.getEncodings());
@@ -134,7 +134,7 @@ public class EncodingsHandler {
                     addEncodingDialog.showCentered(addEncodingPanel);
                     return result;
                 });
-                dialog.showCentered(parentComponent);
+                dialog.showCentered((Component) e.getSource());
             }
         };
         ActionUtils.setupAction(manageEncodingsAction, resourceBundle, "manageEncodingsAction");
@@ -243,9 +243,5 @@ public class EncodingsHandler {
 
     public void setEncodings(List<String> encodings) {
         textEncodingService.setEncodings(encodings);
-    }
-
-    public void setParentComponent(Component component) {
-        parentComponent = component;
     }
 }
