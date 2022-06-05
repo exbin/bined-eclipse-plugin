@@ -20,6 +20,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -55,6 +58,7 @@ import org.exbin.bined.operation.swing.CodeAreaUndoHandler;
  * @version 0.2.0 2019/08/10
  * @author ExBin Project (http://exbin.org)
  */
+@ParametersAreNonnullByDefault
 public final class BinEdEditor extends EditorPart implements ISelectionProvider {
 
 	private List<ISelectionChangedListener> selectionChangedListeners = new ArrayList<>();
@@ -74,6 +78,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		selectionChangedListeners.add(listener);
 	}
 
+	@Nonnull
 	@Override
 	public ISelection getSelection() {
 		return new ISelection() {

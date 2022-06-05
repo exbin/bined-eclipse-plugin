@@ -96,7 +96,7 @@ public class TextEncodingOptionsPanel extends javax.swing.JPanel implements Opti
     private void initComponents() {
 
         defaultEncodingPanel = new javax.swing.JPanel();
-        defaultEncodingComboBox = new javax.swing.JComboBox();
+        defaultEncodingComboBox = new javax.swing.JComboBox<>();
         defaultEncodingLabel = new javax.swing.JLabel();
         fillCurrentEncodingButton = new javax.swing.JButton();
         encodingsControlPanel = new javax.swing.JPanel();
@@ -211,7 +211,7 @@ public class TextEncodingOptionsPanel extends javax.swing.JPanel implements Opti
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox defaultEncodingComboBox;
+    private javax.swing.JComboBox<String> defaultEncodingComboBox;
     private javax.swing.JLabel defaultEncodingLabel;
     private javax.swing.JPanel defaultEncodingPanel;
     private javax.swing.JPanel encodingsControlPanel;

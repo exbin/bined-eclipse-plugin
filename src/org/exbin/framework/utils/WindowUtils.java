@@ -426,7 +426,7 @@ public class WindowUtils {
 	                if (window != null) {
 	                    Component focusOwner = window.getFocusOwner();
 	                    if (focusOwner instanceof JComboBox) {
-	                        performCancelAction = !((JComboBox) focusOwner).isPopupVisible();
+	                        performCancelAction = !((JComboBox<?>) focusOwner).isPopupVisible();
 	                    } else if (focusOwner instanceof JRootPane) {
 	                        // Ignore in popup menus
 	                        // performCancelAction = false;
@@ -494,7 +494,7 @@ public class WindowUtils {
                     } else if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
                         boolean performCancelAction = true;
                         if (evt.getSource() instanceof JComboBox) {
-                            performCancelAction = !((JComboBox) evt.getSource()).isPopupVisible();
+                            performCancelAction = !((JComboBox<?>) evt.getSource()).isPopupVisible();
                         } else if (evt.getSource() instanceof JRootPane) {
                             // Ignore in popup menus
                             performCancelAction = false;
