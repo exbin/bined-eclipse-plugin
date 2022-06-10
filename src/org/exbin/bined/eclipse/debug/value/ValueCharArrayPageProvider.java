@@ -17,6 +17,8 @@ package org.exbin.bined.eclipse.debug.value;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.jdt.debug.core.IJavaArray;
+import org.eclipse.jdt.debug.core.IJavaFieldVariable;
+import org.eclipse.jdt.debug.core.IJavaObject;
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
 import org.eclipse.jdt.debug.core.IJavaValue;
 import org.exbin.bined.eclipse.data.PageProvider;
@@ -50,7 +52,13 @@ public class ValueCharArrayPageProvider implements PageProvider {
 	        byte[] result = new byte[length * 2];
 	        for (int i = 0; i < length; i++) {
 	        	IJavaValue javaValue = arrayRef.getValue(startPos + i);
-	            int value = ((IJavaPrimitiveValue) javaValue).getCharValue();
+	            char value;
+	        	if (javaValue instanceof IJavaPrimitiveValue) {
+	        		value = ((IJavaPrimitiveValue) javaValue).getCharValue();
+	        	} else {
+	        		IJavaFieldVariable variable = ((IJavaObject) javaValue).getField(ValueNodeConverter.VALUE_VARIABLE, false);
+	        		value = variable != null ? ((IJavaPrimitiveValue) variable.getValue()).getCharValue() : 0;
+	        	}
 	
 	            result[i * 2 ] = (byte) ((value >> 8) & 0xff);
 	            result[i * 2 + 1] = (byte) (value & 0xff);

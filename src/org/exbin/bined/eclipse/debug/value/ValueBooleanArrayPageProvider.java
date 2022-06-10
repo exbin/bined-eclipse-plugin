@@ -17,6 +17,8 @@ package org.exbin.bined.eclipse.debug.value;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.jdt.debug.core.IJavaArray;
+import org.eclipse.jdt.debug.core.IJavaFieldVariable;
+import org.eclipse.jdt.debug.core.IJavaObject;
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
 import org.eclipse.jdt.debug.core.IJavaValue;
 import org.exbin.bined.eclipse.data.PageProvider;
@@ -55,7 +57,13 @@ public class ValueBooleanArrayPageProvider implements PageProvider {
 	        int bytePos = 0;
 	        for (int i = 0; i < length; i++) {
 	        	IJavaValue javaValue = arrayRef.getValue(startPos + i);
-	            boolean value = ((IJavaPrimitiveValue) javaValue).getBooleanValue();
+	            boolean value;
+	        	if (javaValue instanceof IJavaPrimitiveValue) {
+	        		value = ((IJavaPrimitiveValue) javaValue).getBooleanValue();
+	        	} else {
+	        		IJavaFieldVariable variable = ((IJavaObject) javaValue).getField(ValueNodeConverter.VALUE_VARIABLE, false);
+	        		value = variable != null ? ((IJavaPrimitiveValue) variable.getValue()).getBooleanValue() : false;
+	        	}
 
 	            if (value) {
 	                result[bytePos] += bitMask;

@@ -16,6 +16,7 @@ Require-Bundle: org.eclipse.core.filesystem,
  org.eclipse.ui.ide,
  org.eclipse.debug.core;resolution:=optional,
  org.eclipse.debug.ui;resolution:=optional,
+ org.eclipse.jdt.core;resolution:=optional,
  org.eclipse.jdt.debug;resolution:=optional,
  org.eclipse.jdt.debug.ui;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

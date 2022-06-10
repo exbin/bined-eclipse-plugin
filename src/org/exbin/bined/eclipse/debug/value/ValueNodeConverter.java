@@ -18,6 +18,8 @@ package org.exbin.bined.eclipse.debug.value;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.jdt.debug.core.IJavaArray;
+import org.eclipse.jdt.debug.core.IJavaFieldVariable;
+import org.eclipse.jdt.debug.core.IJavaObject;
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
 import org.exbin.auxiliary.paged_data.BinaryData;
 import org.exbin.auxiliary.paged_data.ByteArrayData;
@@ -45,6 +47,7 @@ import java.util.List;
 @ParametersAreNonnullByDefault
 public class ValueNodeConverter {
 
+	public static final String VALUE_VARIABLE = "value";
     private final byte[] valuesCache = new byte[8];
     private final ByteBuffer byteBuffer = ByteBuffer.wrap(valuesCache);
 
@@ -135,39 +138,68 @@ public class ValueNodeConverter {
     }
 
     @Nullable
-    private BinaryData processSimpleValue(IValue simpleValue) {
+    private BinaryData processSimpleValue(IValue javaValue) {
         try {
-        	String typeString = simpleValue.getReferenceTypeName();
+        	String typeString = javaValue.getReferenceTypeName();
 
 	        switch (typeString) {
-	            case "Byte":
+	            case "java.lang.Byte":
 	            case "byte": {
 	                byte[] byteArray = new byte[1];
-	                byteArray[0] = ((IJavaPrimitiveValue) simpleValue).getByteValue();
+		        	byte value;
+		        	if (javaValue instanceof IJavaPrimitiveValue) {
+		        		value = ((IJavaPrimitiveValue) javaValue).getByteValue();
+		        	} else {
+		        		IJavaFieldVariable variable = ((IJavaObject) javaValue).getField(ValueNodeConverter.VALUE_VARIABLE, false);
+		        		IJavaPrimitiveValue variableValue = (IJavaPrimitiveValue) variable.getValue();
+		        		value = variableValue != null ? variableValue.getByteValue() : 0;
+		        	}
+	                byteArray[0] = value;
 	                return new ByteArrayData(byteArray);
 	            }
-	            case "Short":
+	            case "java.lang.Short":
 	            case "short": {
 	                byte[] byteArray = new byte[2];
-	                short value = ((IJavaPrimitiveValue) simpleValue).getShortValue();
+		            short value;
+		        	if (javaValue instanceof IJavaPrimitiveValue) {
+		        		value = ((IJavaPrimitiveValue) javaValue).getShortValue();
+		        	} else {
+		        		IJavaFieldVariable variable = ((IJavaObject) javaValue).getField(ValueNodeConverter.VALUE_VARIABLE, false);
+		        		IJavaPrimitiveValue variableValue = (IJavaPrimitiveValue) variable.getValue();
+		        		value = variableValue != null ? variableValue.getShortValue() : 0;
+		        	}
 	                byteArray[0] = (byte) (value >> 8);
 	                byteArray[1] = (byte) (value & 0xff);
 	                return new ByteArrayData(byteArray);
 	            }
-	            case "Integer":
+	            case "java.lang.Integer":
 	            case "int": {
 	                byte[] byteArray = new byte[4];
-	                int value = ((IJavaPrimitiveValue) simpleValue).getIntValue();
+		            int value;
+		        	if (javaValue instanceof IJavaPrimitiveValue) {
+		        		value = ((IJavaPrimitiveValue) javaValue).getIntValue();
+		        	} else {
+		        		IJavaFieldVariable variable = ((IJavaObject) javaValue).getField(ValueNodeConverter.VALUE_VARIABLE, false);
+		        		IJavaPrimitiveValue variableValue = (IJavaPrimitiveValue) variable.getValue();
+		        		value = variableValue != null ? variableValue.getIntValue() : 0;
+		        	}
 	                byteArray[0] = (byte) (value >> 24);
 	                byteArray[1] = (byte) ((value >> 16) & 0xff);
 	                byteArray[2] = (byte) ((value >> 8) & 0xff);
 	                byteArray[3] = (byte) (value & 0xff);
 	                return new ByteArrayData(byteArray);
 	            }
-	            case "Long":
+	            case "java.lang.Long":
 	            case "long": {
 	                byte[] byteArray = new byte[8];
-	                long value = ((IJavaPrimitiveValue) simpleValue).getLongValue();
+		        	long value;
+		        	if (javaValue instanceof IJavaPrimitiveValue) {
+		        		value = ((IJavaPrimitiveValue) javaValue).getLongValue();
+		        	} else {
+		        		IJavaFieldVariable variable = ((IJavaObject) javaValue).getField(ValueNodeConverter.VALUE_VARIABLE, false);
+		        		IJavaPrimitiveValue variableValue = (IJavaPrimitiveValue) variable.getValue();
+		        		value = variableValue != null ? variableValue.getLongValue() : 0;
+		        	}
 	                BigInteger bigInteger = BigInteger.valueOf(value);
 	                for (int bit = 0; bit < 7; bit++) {
 	                    BigInteger nextByte = bigInteger.and(ValuesPanel.BIG_INTEGER_BYTE_MASK);
@@ -176,28 +208,49 @@ public class ValueNodeConverter {
 	                }
 	                return new ByteArrayData(byteArray);
 	            }
-	            case "Float":
+	            case "java.lang.Float":
 	            case "float": {
 	                byte[] byteArray = new byte[4];
-	                float value = ((IJavaPrimitiveValue) simpleValue).getFloatValue();
+		            float value;
+		        	if (javaValue instanceof IJavaPrimitiveValue) {
+		        		value = ((IJavaPrimitiveValue) javaValue).getFloatValue();
+		        	} else {
+		        		IJavaFieldVariable variable = ((IJavaObject) javaValue).getField(ValueNodeConverter.VALUE_VARIABLE, false);
+		        		IJavaPrimitiveValue variableValue = (IJavaPrimitiveValue) variable.getValue();
+		        		value = variableValue != null ? variableValue.getFloatValue() : 0;
+		        	}
 	                byteBuffer.rewind();
 	                byteBuffer.putFloat(value);
 	                System.arraycopy(valuesCache, 0, byteArray, 0, 4);
 	                return new ByteArrayData(byteArray);
 	            }
-	            case "Double":
+	            case "java.lang.Double":
 	            case "double": {
 	                byte[] byteArray = new byte[8];
-	                double value = ((IJavaPrimitiveValue) simpleValue).getDoubleValue();
+		            double value;
+		        	if (javaValue instanceof IJavaPrimitiveValue) {
+		        		value = ((IJavaPrimitiveValue) javaValue).getDoubleValue();
+		        	} else {
+		        		IJavaFieldVariable variable = ((IJavaObject) javaValue).getField(ValueNodeConverter.VALUE_VARIABLE, false);
+		        		IJavaPrimitiveValue variableValue = (IJavaPrimitiveValue) variable.getValue();
+		        		value = variableValue != null ? variableValue.getDoubleValue() : 0;
+		        	}
 	                byteBuffer.rewind();
 	                byteBuffer.putDouble(value);
 	                System.arraycopy(valuesCache, 0, byteArray, 0, 8);
 	                return new ByteArrayData(byteArray);
 	            }
-	            case "Character":
+	            case "java.lang.Character":
 	            case "char": {
 	                byte[] byteArray = new byte[2];
-	                char value = ((IJavaPrimitiveValue) simpleValue).getCharValue();
+		            char value;
+		        	if (javaValue instanceof IJavaPrimitiveValue) {
+		        		value = ((IJavaPrimitiveValue) javaValue).getCharValue();
+		        	} else {
+		        		IJavaFieldVariable variable = ((IJavaObject) javaValue).getField(ValueNodeConverter.VALUE_VARIABLE, false);
+		        		IJavaPrimitiveValue variableValue = (IJavaPrimitiveValue) variable.getValue();
+		        		value = variableValue != null ? variableValue.getCharValue() : 0;
+		        	}
 	                byteBuffer.rewind();
 	                byteBuffer.putChar(value);
 	                System.arraycopy(valuesCache, 0, byteArray, 0, 2);

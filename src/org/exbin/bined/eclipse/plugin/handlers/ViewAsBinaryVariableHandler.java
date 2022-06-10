@@ -38,7 +38,6 @@ import org.exbin.bined.eclipse.debug.value.ValueNodeConverter;
 import org.exbin.framework.utils.WindowUtils;
 import org.exbin.framework.utils.WindowUtils.DialogWrapper;
 import org.exbin.framework.utils.gui.CloseControlPanel;
-import org.exbin.framework.utils.handler.CloseControlHandler;
 
 /**
  * Views variable as binary data.

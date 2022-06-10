@@ -17,6 +17,7 @@ package org.exbin.bined.eclipse.debug.value;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.jdt.debug.core.IJavaArray;
+import org.eclipse.jdt.debug.core.IJavaFieldVariable;
 import org.eclipse.jdt.debug.core.IJavaObject;
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
 import org.eclipse.jdt.debug.core.IJavaValue;
@@ -54,9 +55,8 @@ public class ValueByteArrayPageProvider implements PageProvider {
 	        	if (javaValue instanceof IJavaPrimitiveValue) {
 	        		value = ((IJavaPrimitiveValue) javaValue).getByteValue();
 	        	} else {
-	        		// TODO
-//	        		((IJavaObject) javaValue).getField(name, superField)Variables();
-	        		value = 0;
+	        		IJavaFieldVariable variable = ((IJavaObject) javaValue).getField(ValueNodeConverter.VALUE_VARIABLE, false);
+	        		value = variable != null ? ((IJavaPrimitiveValue) variable.getValue()).getByteValue() : 0;
 	        	}
 	            result[i] = value;
 	        }

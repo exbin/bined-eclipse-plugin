@@ -616,13 +616,15 @@ public class WindowUtils {
      * @return panel
      */
     @Nonnull
-    public static JPanel createDialogPanel(JPanel mainPanel, JPanel controlPanel) {
-        JPanel dialogPanel = new JPanel(new BorderLayout());
+    public static JPanel createDialogPanel(final JPanel mainPanel, final JPanel controlPanel) {
+        final JPanel dialogPanel = new JPanel(new BorderLayout());
         dialogPanel.add(mainPanel, BorderLayout.CENTER);
         dialogPanel.add(controlPanel, BorderLayout.SOUTH);
-        Dimension mainPreferredSize = mainPanel.getPreferredSize();
-        Dimension controlPreferredSize = controlPanel.getPreferredSize();
-        dialogPanel.setPreferredSize(new Dimension(mainPreferredSize.width, mainPreferredSize.height + controlPreferredSize.height));
+        SwingUtilities.invokeLater(() -> {
+            Dimension mainPreferredSize = mainPanel.getPreferredSize();
+            Dimension controlPreferredSize = controlPanel.getPreferredSize();
+            dialogPanel.setPreferredSize(new Dimension(mainPreferredSize.width, mainPreferredSize.height + controlPreferredSize.height));
+        });
         WindowUtils.assignGlobalKeyListener(mainPanel, ((OkCancelService) controlPanel).getOkCancelListener());
         return dialogPanel;
     }
