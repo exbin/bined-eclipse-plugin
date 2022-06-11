@@ -51,11 +51,12 @@ public class EclipsePreferencesWrapper implements Preferences {
         return "".equals(value) ? Optional.empty() : Optional.of(value);
     }
 
+    @Nonnull
     @Override
-    public String get(String key, @Nullable String def) {
+    public String get(String key, @Nonnull String def) {
     	if (def != null) preferences.setDefault(key, def);
         String value = preferences.getString(key);
-        return "".equals(value) ? def : value;
+        return "".equals(value) || value == null ? def : value;
     }
 
     @Override

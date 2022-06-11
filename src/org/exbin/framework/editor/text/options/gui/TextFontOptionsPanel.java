@@ -206,12 +206,13 @@ public class TextFontOptionsPanel extends javax.swing.JPanel implements OptionsC
 
     private void changeFontButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeFontButtonActionPerformed
         if (fontChangeAction != null) {
-            Font resultFont = fontChangeAction.changeFont(fontPreviewLabel.getFont());
-            if (resultFont != null) {
-                codeFont = resultFont;
-                updateFontFields();
-                setModified(true);
-            }
+            fontChangeAction.changeFont(fontPreviewLabel.getFont(), (resultFont) -> {
+                if (resultFont != null) {
+                    codeFont = resultFont;
+                    updateFontFields();
+                    setModified(true);
+                }
+            });
         }
     }//GEN-LAST:event_changeFontButtonActionPerformed
 
@@ -274,7 +275,11 @@ public class TextFontOptionsPanel extends javax.swing.JPanel implements OptionsC
     @ParametersAreNonnullByDefault
     public static interface FontChangeAction {
 
-        @Nullable
-        Font changeFont(Font currentFont);
+        void changeFont(Font currentFont, FontChangeResult result);
+    }
+
+    public static interface FontChangeResult {
+
+    	void result(@Nullable Font font);
     }
 }

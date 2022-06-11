@@ -2,7 +2,7 @@
 <feature
       id="org.exbin.bined.eclipse.feature"
       label="BinEd Binary/Hexadecimal Editor"
-      version="0.2.1.snapshot"
+      version="0.2.1"
       provider-name="ExBin Project"
       plugin="org.exbin.bined.eclipse">
 
@@ -18,6 +18,7 @@ Features
 - Searching for text / hexadecimal code with matching highlighting
 - Support for undo/redo
 - Support for files with size up to exabytes
+- Show debug variables as binary data
 Sources
 https://github.com/exbin/bined-eclipse-plugin
    </description>

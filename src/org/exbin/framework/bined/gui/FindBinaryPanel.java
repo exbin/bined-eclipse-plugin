@@ -424,10 +424,11 @@ public class FindBinaryPanel extends javax.swing.JPanel {
 
     private void findMultilineButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_findMultilineButtonActionPerformed
         if (multilineEditorListener != null) {
-            SearchCondition condition = multilineEditorListener.multilineEdit((SearchCondition) findComboBoxEditor.getItem());
-            if (condition != null) {
-                findComboBoxEditorComponent.setItem(condition);
-            }
+            multilineEditorListener.multilineEdit((SearchCondition) findComboBoxEditor.getItem(), (condition) -> {
+                if (condition != null) {
+                    findComboBoxEditorComponent.setItem(condition);
+                }
+            });
         }
     }//GEN-LAST:event_findMultilineButtonActionPerformed
 
@@ -463,10 +464,11 @@ public class FindBinaryPanel extends javax.swing.JPanel {
 
     private void replaceMultilineButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_replaceMultilineButtonActionPerformed
         if (multilineEditorListener != null) {
-            SearchCondition condition = multilineEditorListener.multilineEdit((SearchCondition) replaceComboBoxEditor.getItem());
-            if (condition != null) {
-                replaceComboBoxEditorComponent.setItem(condition);
-            }
+            multilineEditorListener.multilineEdit((SearchCondition) replaceComboBoxEditor.getItem(), (condition) -> {
+                if (condition != null) {
+                    replaceComboBoxEditorComponent.setItem(condition);
+                }
+            });
         }
     }//GEN-LAST:event_replaceMultilineButtonActionPerformed
 
@@ -603,7 +605,10 @@ public class FindBinaryPanel extends javax.swing.JPanel {
     @ParametersAreNonnullByDefault
     public static interface MultilineEditorListener {
 
-        @Nullable
-        SearchCondition multilineEdit(SearchCondition condition);
+        void multilineEdit(SearchCondition condition, MultilineEditorResult result);
+    }
+    
+    public static interface MultilineEditorResult {
+    	void result(@Nullable SearchCondition condition);
     }
 }

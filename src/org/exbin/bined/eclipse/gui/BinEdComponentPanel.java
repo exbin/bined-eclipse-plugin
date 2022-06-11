@@ -210,7 +210,9 @@ public class BinEdComponentPanel extends javax.swing.JPanel {
         initialLoadFromPreferences();
 
         this.add(statusPanel, BorderLayout.SOUTH);
+        this.invalidate();
         codeAreaPanel.add(codeArea, BorderLayout.CENTER);
+        codeAreaPanel.invalidate();
 
         codeArea.setComponentPopupMenu(new JPopupMenu() {
             @Override

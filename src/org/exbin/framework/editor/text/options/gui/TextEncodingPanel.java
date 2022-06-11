@@ -225,12 +225,13 @@ public class TextEncodingPanel extends javax.swing.JPanel implements OptionsCapa
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         if (addEncodingsOperation != null) {
-            List<String> encodings = addEncodingsOperation.run(((EncodingsListModel) encodingsList.getModel()).getCharsets());
-            if (encodings != null) {
-                ((EncodingsListModel) encodingsList.getModel()).addAll(encodings, encodingsList.getSelectedIndex());
-                encodingsList.clearSelection();
-                wasModified();
-            }
+            addEncodingsOperation.run(((EncodingsListModel) encodingsList.getModel()).getCharsets(), (encodings) -> {
+                if (encodings != null) {
+                    ((EncodingsListModel) encodingsList.getModel()).addAll(encodings, encodingsList.getSelectedIndex());
+                    encodingsList.clearSelection();
+                    wasModified();
+                }
+            });
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -334,7 +335,11 @@ public class TextEncodingPanel extends javax.swing.JPanel implements OptionsCapa
 
     public static interface AddEncodingsOperation {
 
-        List<String> run(List<String> usedEncodings);
+         void run(List<String> usedEncodings, AddEncodingsResultListener resultListener);
+    }
+    
+    public static interface AddEncodingsResultListener {
+    	void result(List<String> encodings);
     }
 
     @ParametersAreNonnullByDefault

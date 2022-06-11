@@ -30,6 +30,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import org.exbin.bined.swing.extended.color.ExtendedCodeAreaColorProfile;
+import org.exbin.framework.bined.options.gui.LayoutProfilesPanel.LayoutProfile;
 import org.exbin.framework.bined.options.gui.PreviewPanel.PreviewType;
 import org.exbin.framework.bined.options.impl.CodeAreaColorOptionsImpl;
 import org.exbin.framework.utils.LanguageUtils;
@@ -328,16 +329,17 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (addProfileOperation != null) {
-            ColorProfile newProfileRecord = addProfileOperation.run(this, getNewProfileName());
-            if (newProfileRecord != null) {
-                if (selectedIndex >= 0) {
-                    profilesList.clearSelection();
-                    model.add(selectedIndex, newProfileRecord);
-                } else {
-                    model.add(newProfileRecord);
+            addProfileOperation.run(this, getNewProfileName(), (newProfileRecord) -> {
+                if (newProfileRecord != null) {
+                    if (selectedIndex >= 0) {
+                        profilesList.clearSelection();
+                        model.add(selectedIndex, newProfileRecord);
+                    } else {
+                        model.add(newProfileRecord);
+                    }
+                    wasModified();
                 }
-                wasModified();
-            }
+            });
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -354,14 +356,15 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
         ColorProfile oldProfileRecord = model.getElementAt(selectedIndex);
 
         if (editProfileOperation != null) {
-            ColorProfile newProfileRecord = editProfileOperation.run(this, oldProfileRecord);
-            if (newProfileRecord != null) {
-                ColorProfile profileRecord = model.getElementAt(selectedIndex);
-                profileRecord.profileName = newProfileRecord.getProfileName();
-                profileRecord.colorProfile = newProfileRecord.colorProfile;
-                model.notifyProfileModified(selectedIndex);
-                wasModified();
-            }
+            editProfileOperation.run(this, oldProfileRecord, (newProfileRecord) -> {
+                if (newProfileRecord != null) {
+                    ColorProfile profileRecord = model.getElementAt(selectedIndex);
+                    profileRecord.profileName = newProfileRecord.getProfileName();
+                    profileRecord.colorProfile = newProfileRecord.colorProfile;
+                    model.notifyProfileModified(selectedIndex);
+                    wasModified();
+                }
+            });
         }
     }//GEN-LAST:event_editButtonActionPerformed
 
@@ -384,17 +387,18 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
         ColorProfile profileRecord = new ColorProfile(sourceProfile.profileName, sourceProfile.colorProfile);
 
         if (copyProfileOperation != null) {
-            ColorProfile newProfileRecord = copyProfileOperation.run(this, profileRecord);
-            if (newProfileRecord != null) {
-                if (selectedIndex >= 0) {
-                    model.add(selectedIndex + 1, newProfileRecord);
-                    profilesList.setSelectedIndex(selectedIndex + 1);
-                } else {
-                    profilesList.clearSelection();
-                    model.add(newProfileRecord);
+            copyProfileOperation.run(this, profileRecord, (newProfileRecord) -> {
+                if (newProfileRecord != null) {
+                    if (selectedIndex >= 0) {
+                        model.add(selectedIndex + 1, newProfileRecord);
+                        profilesList.setSelectedIndex(selectedIndex + 1);
+                    } else {
+                        profilesList.clearSelection();
+                        model.add(newProfileRecord);
+                    }
+                    wasModified();
                 }
-                wasModified();
-            }
+            });
         }
     }//GEN-LAST:event_copyButtonActionPerformed
 
@@ -403,16 +407,17 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (templateProfileOperation != null) {
-            ColorProfile newProfileRecord = templateProfileOperation.run(this);
-            if (newProfileRecord != null) {
-                if (selectedIndex >= 0) {
-                    profilesList.clearSelection();
-                    model.add(selectedIndex, newProfileRecord);
-                } else {
-                    model.add(newProfileRecord);
+            templateProfileOperation.run(this, (newProfileRecord) -> {
+                if (newProfileRecord != null) {
+                    if (selectedIndex >= 0) {
+                        profilesList.clearSelection();
+                        model.add(selectedIndex, newProfileRecord);
+                    } else {
+                        model.add(newProfileRecord);
+                    }
+                    wasModified();
                 }
-                wasModified();
-            }
+            });
         }
     }//GEN-LAST:event_fromTemplateButtonActionPerformed
 
@@ -613,28 +618,28 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
     @ParametersAreNonnullByDefault
     public static interface AddProfileOperation {
 
-        @Nullable
-        ColorProfile run(JComponent parentComponent, String profileName);
+        void run(JComponent parentComponent, String profileName, ResultListener resultListener);
     }
 
     @ParametersAreNonnullByDefault
     public static interface EditProfileOperation {
 
-        @Nullable
-        ColorProfile run(JComponent parentComponent, ColorProfile profileRecord);
+        void run(JComponent parentComponent, ColorProfile profileRecord, ResultListener resultListener);
     }
 
     @ParametersAreNonnullByDefault
     public static interface CopyProfileOperation {
 
-        @Nullable
-        ColorProfile run(JComponent parentComponent, ColorProfile profileRecord);
+        void run(JComponent parentComponent, ColorProfile profileRecord, ResultListener resultListener);
     }
 
     @ParametersAreNonnullByDefault
     public static interface TemplateProfileOperation {
 
-        @Nullable
-        ColorProfile run(JComponent parentComponent);
+        void run(JComponent parentComponent, ResultListener resultListener);
+    }
+
+    public static interface ResultListener {
+    	void result(@Nullable ColorProfile profile);
     }
 }

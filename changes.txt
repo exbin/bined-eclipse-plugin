@@ -1,4 +1,4 @@
-0.2.1
+0.2.1 (2022-06-11)
 - Minor GUI improvements
 - Added view as binary action in variables view
 - Added action for online help/manual

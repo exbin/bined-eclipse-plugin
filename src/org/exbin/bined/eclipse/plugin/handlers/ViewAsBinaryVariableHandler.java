@@ -31,6 +31,9 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.exbin.bined.eclipse.debug.DebugViewDataProvider;
 import org.exbin.bined.eclipse.debug.gui.DebugViewPanel;
@@ -64,7 +67,10 @@ public class ViewAsBinaryVariableHandler extends AbstractHandler {
 			}
 			CloseControlPanel controlPanel = new CloseControlPanel();
 			JPanel dialogPanel = WindowUtils.createDialogPanel(debugViewPanel, controlPanel);
-			final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, null, "View as Binary", Dialog.ModalityType.APPLICATION_MODAL);
+			Event triggerEvent = (Event) event.getTrigger();
+			MenuItem menuItem = ((MenuItem) triggerEvent.widget);
+			Menu menu = menuItem.getParent();
+			final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, menu.getShell(), "View as Binary", Dialog.ModalityType.APPLICATION_MODAL);
 
 //	        debugViewPanel.initFocus();
 			controlPanel.setHandler(() -> {

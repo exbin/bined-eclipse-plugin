@@ -116,8 +116,7 @@ public class EncodingsHandler {
                     dialog.close();
                     dialog.dispose();
                 });
-                textEncodingPanel.setAddEncodingsOperation((List<String> usedEncodings) -> {
-                    final List<String> result = new ArrayList<>();
+                textEncodingPanel.setAddEncodingsOperation((List<String> usedEncodings, TextEncodingPanel.AddEncodingsResultListener resultListener) -> {
                     final AddEncodingPanel addEncodingPanel = new AddEncodingPanel();
                     addEncodingPanel.setUsedEncodings(usedEncodings);
                     DefaultControlPanel encodingsControlPanel = new DefaultControlPanel(addEncodingPanel.getResourceBundle());
@@ -125,14 +124,13 @@ public class EncodingsHandler {
                     final DialogWrapper addEncodingDialog = WindowUtils.createDialog(encodingDialogPanel, e.getSource(), "Add Encodings", Dialog.ModalityType.APPLICATION_MODAL);
                     encodingsControlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
                         if (actionType == DefaultControlHandler.ControlActionType.OK) {
-                            result.addAll(addEncodingPanel.getEncodings());
+                            resultListener.result(addEncodingPanel.getEncodings());
                         }
 
                         addEncodingDialog.close();
                         addEncodingDialog.dispose();
                     });
                     addEncodingDialog.showCentered(addEncodingPanel);
-                    return result;
                 });
                 dialog.showCentered((Component) e.getSource());
             }

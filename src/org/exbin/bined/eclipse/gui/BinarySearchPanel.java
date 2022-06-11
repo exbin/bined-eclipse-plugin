@@ -602,17 +602,16 @@ public class BinarySearchPanel extends javax.swing.JPanel {
         final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, (Component) evt.getSource(), "Find Text", Dialog.ModalityType.APPLICATION_MODAL);
         findBinaryPanel.setMultilineEditorListener(new FindBinaryPanel.MultilineEditorListener() {
             @Override
-            public SearchCondition multilineEdit(SearchCondition condition) {
+            public void multilineEdit(SearchCondition condition, FindBinaryPanel.MultilineEditorResult result) {
                 final BinaryMultilinePanel multilinePanel = new BinaryMultilinePanel();
                 multilinePanel.setCodeAreaPopupMenuHandler(codeAreaPopupMenuHandler);
                 multilinePanel.setCondition(condition);
                 DefaultControlPanel controlPanel = new DefaultControlPanel();
                 JPanel dialogPanel = WindowUtils.createDialogPanel(multilinePanel, controlPanel);
                 final DialogWrapper multilineDialog = WindowUtils.createDialog(dialogPanel, (Component) evt.getSource(), "Multiline Hex/Text", Dialog.ModalityType.APPLICATION_MODAL);
-                final SearchConditionResult result = new SearchConditionResult();
                 controlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
                     if (actionType == DefaultControlHandler.ControlActionType.OK) {
-                        result.searchCondition = multilinePanel.getCondition();
+                        result.result(multilinePanel.getCondition());
                         updateFindStatus();
                     }
 
@@ -621,12 +620,6 @@ public class BinarySearchPanel extends javax.swing.JPanel {
                 });
                 multilineDialog.showCentered(dialog.getWindow());
                 multilinePanel.detachMenu();
-                return result.searchCondition;
-            }
-
-            class SearchConditionResult {
-
-                SearchCondition searchCondition = null;
             }
         });
         controlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {

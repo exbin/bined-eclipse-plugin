@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: BinEd Binary/Hexadecimal Editor
 Bundle-SymbolicName: org.exbin.bined.eclipse;singleton:=true
 Automatic-Module-Name: org.exbin.bined.eclipse
-Bundle-Version: 0.2.1.snapshot
+Bundle-Version: 0.2.1
 Bundle-Activator: org.exbin.bined.eclipse.plugin.BinEdPlugin
 Bundle-Vendor: ExBin Project
 Require-Bundle: org.eclipse.core.filesystem,
@@ -26,9 +26,15 @@ Export-Package: org.exbin.bined,
  org.exbin.bined.capability,
  org.exbin.bined.color,
  org.exbin.bined.eclipse,
+ org.exbin.bined.eclipse.action,
+ org.exbin.bined.eclipse.data,
+ org.exbin.bined.eclipse.debug,
+ org.exbin.bined.eclipse.debug.gui,
+ org.exbin.bined.eclipse.debug.value,
  org.exbin.bined.eclipse.gui,
  org.exbin.bined.eclipse.plugin,
  org.exbin.bined.eclipse.plugin.editors,
+ org.exbin.bined.eclipse.plugin.handlers,
  org.exbin.bined.eclipse.wizards,
  org.exbin.bined.swing,
  org.exbin.bined.swing.extended,

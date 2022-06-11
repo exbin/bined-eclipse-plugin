@@ -15,13 +15,13 @@
  */
 package org.exbin.bined.eclipse.plugin.editors;
 
-import java.awt.BorderLayout;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.swing.SwingUtilities;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
@@ -51,6 +51,7 @@ import org.eclipse.ui.part.EditorPart;
 import org.exbin.bined.eclipse.BinEdFile;
 import org.exbin.bined.operation.BinaryDataOperationException;
 import org.exbin.bined.operation.swing.CodeAreaUndoHandler;
+import org.exbin.framework.utils.WindowUtils;
 
 /**
  * Implementation of the binary/hexadecimal editor.
@@ -173,9 +174,18 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		});
 
 		java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
-		frame.setLayout(new BorderLayout());
+		Shell shell = parent.getShell();
+		WindowUtils.frameShells.put(frame, shell);
+		shell.addDisposeListener((e) -> {
+			WindowUtils.frameShells.remove(frame);
+		});
 
-		frame.add(editorFile.getPanel(), java.awt.BorderLayout.CENTER);
+		frame.add(editorFile.getPanel());
+		final org.eclipse.swt.graphics.Rectangle size = wrapper.getClientArea();
+		SwingUtilities.invokeLater(() -> {
+			frame.invalidate();
+			frame.setSize(size.width, size.height);
+		});
 
 		editorFile.openFile(getEditorInput());
 		registerActionBars();

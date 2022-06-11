@@ -71,6 +71,7 @@ public class DebugViewPanel extends javax.swing.JPanel {
         });
 
         this.add(componentPanel, BorderLayout.CENTER);
+        this.invalidate();
     }
 
     /**

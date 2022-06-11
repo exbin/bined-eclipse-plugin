@@ -247,6 +247,7 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
         undoEditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/exbin/bined/eclipse/resources/icons/edit-undo.png"))); // NOI18N
         undoEditButton.setToolTipText(resourceBundle.getString("undoEditButton.toolTipText")); // NOI18N
         undoEditButton.setFocusable(false);
+        undoEditButton.setEnabled(false);
         undoEditButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         undoEditButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         undoEditButton.addActionListener(new java.awt.event.ActionListener() {
@@ -259,6 +260,7 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
         redoEditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/exbin/bined/eclipse/resources/icons/edit-redo.png"))); // NOI18N
         redoEditButton.setToolTipText(resourceBundle.getString("redoEditButton.toolTipText")); // NOI18N
         redoEditButton.setFocusable(false);
+        redoEditButton.setEnabled(false);
         redoEditButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         redoEditButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         redoEditButton.addActionListener(new java.awt.event.ActionListener() {

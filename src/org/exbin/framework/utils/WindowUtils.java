@@ -30,6 +30,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +50,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
@@ -65,6 +68,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -82,6 +86,11 @@ public class WindowUtils {
 
     private static final int BUTTON_CLICK_TIME = 150;
     private static LookAndFeel lookAndFeel = null;
+    
+    /**
+     * Ugly hack for frame handling.
+     */
+    public static Map<Frame, Shell> frameShells = new HashMap<>();
 
     private WindowUtils() {
     }
@@ -152,14 +161,22 @@ public class WindowUtils {
     	if (parentComponent instanceof Composite) {
         	initParentDisplay[0] = ((Composite) parentComponent).getDisplay();
         	initParentShell[0] = ((Composite) parentComponent).getShell();
+    	} else if (parentComponent instanceof Menu) {
+    		Shell shell = ((Menu) parentComponent).getShell();
+    		initParentShell[0] = shell;
+    		initParentDisplay[0] = shell.getDisplay();
     	} else {
+    		Shell shell = identifyComponentShell((Component) parentComponent);
+    		initParentShell[0] = shell;
+    		initParentDisplay[0] = shell.getDisplay();
+/*    		
     		Display display = Display.getDefault();
     		initParentDisplay[0] = display;
     		display.syncExec(new Runnable() {
     			public void run() {
     				initParentShell[0] = display.getActiveShell();
     			}
-    		});
+    		}); */
     	}
 
     	final Display parentDisplay = initParentDisplay[0];
@@ -197,14 +214,16 @@ public class WindowUtils {
 				// dialog.setModalityType(modalityType);
 				shell.setText(dialogTitle);
 				Dimension size = component.getPreferredSize();
-
-				shell.setSize(size.width + 8, size.height + 24);
-				// dialog.setSize(size.width + 8, size.height + 24);
-				// JDialog dialog = new JDialog(parent, modalityType);
-				// dialog.add(component);
+				Point scaledSize = new Point(size.width, size.height); // DPIUtil.autoScaleDown
+				final org.eclipse.swt.graphics.Rectangle clientArea = shell.getClientArea();
+				final org.eclipse.swt.graphics.Rectangle bounds = shell.getBounds();
+				int widthDiff = bounds.width - clientArea.width;
+				int heightDiff = bounds.height - clientArea.height;
+				
+				Point targetShellSize = new Point(scaledSize.x + widthDiff, scaledSize.y + heightDiff);
 
 				shell.setLayout(new FillLayout());
-				Composite wrapper = new Composite(shell, SWT.EMBEDDED | SWT.FILL);
+				Composite wrapper = new Composite(shell, SWT.EMBEDDED);
 				wrapper.addListener(SWT.Traverse, new Listener() {
 					public void handleEvent(Event e) {
 						if (e.detail == SWT.TRAVERSE_ESCAPE) {
@@ -213,10 +232,17 @@ public class WindowUtils {
 					}
 				});
 
-				java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
-				frame.setLayout(new BorderLayout());
-				frame.add(component, BorderLayout.CENTER);
-//				frame.setSize(size.width + 8, size.height + 24);
+				final java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
+				shell.addDisposeListener((e) -> {
+					frameShells.remove(frame);
+				});
+				frameShells.put(frame, shell);
+				frame.add(component);
+				shell.setSize(targetShellSize.x, targetShellSize.y);
+				SwingUtilities.invokeLater(() -> {
+					frame.invalidate();
+					frame.setSize(targetShellSize.x, targetShellSize.y);
+				});
 
 				outputShell[0] = shell;
 				outputFrame[0] = frame;
@@ -232,12 +258,11 @@ public class WindowUtils {
 			public void show() {
 				display.syncExec(new Runnable() {
 					public void run() {
-						shell.layout();
 						shell.open();
 					}
 				});
 
-/*				while (!shell.isDisposed()) {
+				/*				while (!shell.isDisposed()) {
 					parentDisplay.syncExec(new Runnable() {
 						public void run() {
 							if (!parentDisplay.readAndDispatch())
@@ -294,11 +319,15 @@ public class WindowUtils {
 
 			@Override
 			public void center() {
-				IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				if (activeWorkbenchWindow != null) {
-					Shell parentShell = activeWorkbenchWindow.getShell();
-					placeDialogInCenter(parentShell, shell);
-				}
+				display.syncExec(new Runnable() {
+					public void run() {
+						IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+						if (activeWorkbenchWindow != null) {
+							Shell parentShell = activeWorkbenchWindow.getShell();
+							placeDialogInCenter(parentShell, shell);
+						}
+					}
+				});
 			}
 		};
 		display.syncExec(new Runnable() {
@@ -309,7 +338,26 @@ public class WindowUtils {
 		return holder.dialogWrapper;
     }
 
-	private static class DialogWrapperHolder {
+    private static Shell identifyComponentShell(Component component) {
+    	Component parent = null;
+    	do {
+    		parent = component.getParent();
+    		if (parent != null) {
+    			component = parent;
+    		}
+    	} while (parent != null);
+    	
+    	if (component instanceof JPopupMenu) {
+    		Frame frame = (Frame) SwingUtilities.getRoot(((JPopupMenu) component).getInvoker());
+    		return frameShells.get(frame);
+    	} else if (component instanceof Frame) {
+    		return frameShells.get((Frame) component);
+    	}
+
+    	return null;
+    }
+
+    private static class DialogWrapperHolder {
 		private DialogWrapper dialogWrapper;
 	}
 
@@ -511,11 +559,14 @@ public class WindowUtils {
                 }
             };
 
-            RecursiveLazyComponentListener componentListener = new RecursiveLazyComponentListener((Component childComponent) -> {
-                if (childComponent.isFocusable()) {
-                    childComponent.addKeyListener(keyListener);
-                }
-            });
+            RecursiveLazyComponentListener componentListener = new RecursiveLazyComponentListener(new LazyComponentListener() {
+				@Override
+				public void componentCreated(Component childComponent) {
+	                if (childComponent.isFocusable()) {
+	                    childComponent.addKeyListener(keyListener);
+	                }
+				}
+			});
             componentListener.fireListener(component);
       	}
     }

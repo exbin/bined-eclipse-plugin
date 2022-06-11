@@ -46,7 +46,7 @@
             locationURI="popup:org.eclipse.debug.ui.VariableView">
          <command
                commandId="org.exbin.bined.eclipse.plugin.variablesViewAsBinary"
-               icon="resources/org/exbin/bined/eclipse/resources/icons/icon.png"
+               icon="icons/icon.png"
                label="View as Binary"
                style="push">
          </command>
