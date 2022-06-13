@@ -1,3 +1,5 @@
+0.2.2
+
 0.2.1 (2022-06-11)
 - Minor GUI improvements
 - Added view as binary action in variables view
