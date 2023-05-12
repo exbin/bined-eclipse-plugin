@@ -43,4 +43,4 @@ Use "Eclipse Application" run configuration to run/execute.
 License
 -------
 
-Apache License, Version 2.0 - see LICENSE-2.0.txt
+Apache License, Version 2.0 - see LICENSE.txt
