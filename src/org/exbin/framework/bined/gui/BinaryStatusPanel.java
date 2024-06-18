@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,8 @@
  */
 package org.exbin.framework.bined.gui;
 
+import java.awt.Dimension;
+import java.awt.Graphics;
 import org.exbin.framework.bined.StatusDocumentSizeFormat;
 import org.exbin.framework.bined.StatusCursorPositionFormat;
 import java.awt.Toolkit;
@@ -23,7 +25,9 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.swing.JToolTip;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import javax.swing.plaf.basic.BasicArrowButton;
 import org.exbin.bined.CodeAreaCaretPosition;
 import org.exbin.bined.CodeAreaUtils;
 import org.exbin.bined.EditMode;
@@ -41,27 +45,17 @@ import org.exbin.framework.bined.preferences.StatusPreferences;
 /**
  * Binary editor status panel.
  *
- * @version 0.2.1 2019/08/18
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatusApi, TextEncodingStatusApi {
-
-    public static final String INSERT_EDIT_MODE_LABEL = "INS";
-    public static final String OVERWRITE_EDIT_MODE_LABEL = "OVR";
-    public static final String READONLY_EDIT_MODE_LABEL = "RO";
-    public static final String INPLACE_EDIT_MODE_LABEL = "INP";
-
-    public static final String OCTAL_CODE_TYPE_LABEL = "OCT";
-    public static final String DECIMAL_CODE_TYPE_LABEL = "DEC";
-    public static final String HEXADECIMAL_CODE_TYPE_LABEL = "HEX";
 
     private static final String BR_TAG = "<br>";
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(BinaryStatusPanel.class);
 
     private StatusPreferences statusParameters;
-    private StatusControlHandler controller;
+    private StatusControlHandler statusControlHandler;
 
     private StatusCursorPositionFormat cursorPositionFormat = new StatusCursorPositionFormat();
     private StatusDocumentSizeFormat documentSizeFormat = new StatusDocumentSizeFormat();
@@ -175,25 +169,11 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         memoryModeButtonGroup = new javax.swing.ButtonGroup();
         documentSizeModeButtonGroup = new javax.swing.ButtonGroup();
         cursorPositionModeButtonGroup = new javax.swing.ButtonGroup();
+        encodingLabel = new EncodingLabel();
+        documentSizeLabel = new javax.swing.JLabel();
+        cursorPositionLabel = new javax.swing.JLabel();
         memoryModeLabel = new javax.swing.JLabel();
-        documentSizeLabel = new javax.swing.JLabel() {
-            @Override
-            public JToolTip createToolTip() {
-                updateDocumentSizeToolTip();
-                return super.createToolTip();
-            }
-        }
-        ;
-        cursorPositionLabel = new javax.swing.JLabel() {
-            @Override
-            public JToolTip createToolTip() {
-                updateCursorPositionToolTip();
-                return super.createToolTip();
-            }
-        }
-        ;
         editModeLabel = new javax.swing.JLabel();
-        encodingLabel = new javax.swing.JLabel();
 
         positionPopupMenu.setName("positionPopupMenu"); // NOI18N
 
@@ -345,11 +325,21 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
 
         setName("Form"); // NOI18N
 
-        memoryModeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        memoryModeLabel.setText(resourceBundle.getString("memoryModeLabel.text")); // NOI18N
-        memoryModeLabel.setToolTipText(resourceBundle.getString("memoryModeLabel.toolTipText")); // NOI18N
-        memoryModeLabel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        memoryModeLabel.setComponentPopupMenu(memoryModePopupMenu);
+        encodingLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        encodingLabel.setText(resourceBundle.getString("encodingLabel.text")); // NOI18N
+        encodingLabel.setToolTipText(resourceBundle.getString("encodingLabel.toolTipText")); // NOI18N
+        encodingLabel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        encodingLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                encodingLabelMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                encodingLabelMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                encodingLabelMouseReleased(evt);
+            }
+        });
 
         documentSizeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         documentSizeLabel.setText("0 (0)");
@@ -368,6 +358,12 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
             }
         });
 
+        memoryModeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        memoryModeLabel.setText(resourceBundle.getString("memoryModeLabel.text")); // NOI18N
+        memoryModeLabel.setToolTipText(resourceBundle.getString("memoryModeLabel.toolTipText")); // NOI18N
+        memoryModeLabel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        memoryModeLabel.setComponentPopupMenu(memoryModePopupMenu);
+
         editModeLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         editModeLabel.setText("OVR");
         editModeLabel.setToolTipText(resourceBundle.getString("editModeLabel.toolTipText")); // NOI18N
@@ -375,22 +371,6 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         editModeLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 editModeLabelMouseClicked(evt);
-            }
-        });
-
-        encodingLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        encodingLabel.setText(resourceBundle.getString("encodingLabel.text")); // NOI18N
-        encodingLabel.setToolTipText(resourceBundle.getString("encodingLabel.toolTipText")); // NOI18N
-        encodingLabel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        encodingLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                encodingLabelMousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                encodingLabelMouseReleased(evt);
-            }
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                encodingLabelMouseClicked(evt);
             }
         });
 
@@ -421,23 +401,23 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
     }// </editor-fold>//GEN-END:initComponents
 
     private void editModeLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editModeLabelMouseClicked
-        if (controller != null && evt.getButton() == MouseEvent.BUTTON1) {
+        if (statusControlHandler != null && evt.getButton() == MouseEvent.BUTTON1) {
             if (editOperation == EditOperation.INSERT) {
-                controller.changeEditOperation(EditOperation.OVERWRITE);
+                statusControlHandler.changeEditOperation(EditOperation.OVERWRITE);
             } else if (editOperation == EditOperation.OVERWRITE) {
-                controller.changeEditOperation(EditOperation.INSERT);
+                statusControlHandler.changeEditOperation(EditOperation.INSERT);
             }
         }
     }//GEN-LAST:event_editModeLabelMouseClicked
 
     private void cursorPositionLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cursorPositionLabelMouseClicked
         if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() > 1) {
-            controller.changeCursorPosition();
+            statusControlHandler.changeCursorPosition();
         }
     }//GEN-LAST:event_cursorPositionLabelMouseClicked
 
     private void positionGoToMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_positionGoToMenuItemActionPerformed
-        controller.changeCursorPosition();
+        statusControlHandler.changeCursorPosition();
     }//GEN-LAST:event_positionGoToMenuItemActionPerformed
 
     private void positionCopyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_positionCopyMenuItemActionPerformed
@@ -460,7 +440,7 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
 
     private void encodingLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_encodingLabelMouseClicked
         if (evt.getButton() == MouseEvent.BUTTON1) {
-            controller.cycleEncodings();
+            statusControlHandler.cycleEncodings();
         } else {
             handleEncodingPopup(evt);
         }
@@ -475,11 +455,11 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
     }//GEN-LAST:event_encodingLabelMouseReleased
 
     private void deltaMemoryModeRadioButtonMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deltaMemoryModeRadioButtonMenuItemActionPerformed
-        controller.changeMemoryMode(MemoryMode.DELTA_MODE);
+        statusControlHandler.changeMemoryMode(MemoryMode.DELTA_MODE);
     }//GEN-LAST:event_deltaMemoryModeRadioButtonMenuItemActionPerformed
 
     private void ramMemoryModeRadioButtonMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ramMemoryModeRadioButtonMenuItemActionPerformed
-        controller.changeMemoryMode(MemoryMode.RAM_MEMORY);
+        statusControlHandler.changeMemoryMode(MemoryMode.RAM_MEMORY);
     }//GEN-LAST:event_ramMemoryModeRadioButtonMenuItemActionPerformed
 
     private void cursorPositionShowOffsetCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cursorPositionShowOffsetCheckBoxMenuItemActionPerformed
@@ -533,7 +513,7 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
 
     private void handleEncodingPopup(java.awt.event.MouseEvent evt) {
         if (evt.isPopupTrigger()) {
-            controller.encodingsPopupEncodingsMenu(evt);
+            statusControlHandler.encodingsPopupEncodingsMenu(evt);
         }
     }
 
@@ -609,7 +589,7 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
 
     @Override
     public void setEncoding(String encodingName) {
-        encodingLabel.setText(encodingName + " ^");
+        encodingLabel.setText(encodingName);
     }
 
     @Override
@@ -617,18 +597,18 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         this.editOperation = editOperation;
         switch (editMode) {
             case READ_ONLY: {
-                editModeLabel.setText(READONLY_EDIT_MODE_LABEL);
+                editModeLabel.setText(resourceBundle.getString("editMode.readonly"));
                 break;
             }
             case EXPANDING:
             case CAPPED: {
                 switch (editOperation) {
                     case INSERT: {
-                        editModeLabel.setText(INSERT_EDIT_MODE_LABEL);
+                        editModeLabel.setText(resourceBundle.getString("editMode.insert"));
                         break;
                     }
                     case OVERWRITE: {
-                        editModeLabel.setText(OVERWRITE_EDIT_MODE_LABEL);
+                        editModeLabel.setText(resourceBundle.getString("editMode.overwrite"));
                         break;
                     }
                     default:
@@ -637,7 +617,7 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
                 break;
             }
             case INPLACE: {
-                editModeLabel.setText(INPLACE_EDIT_MODE_LABEL);
+                editModeLabel.setText(resourceBundle.getString("editMode.inplace"));
                 break;
             }
             default:
@@ -645,8 +625,8 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         }
     }
 
-    public void setControlHandler(StatusControlHandler statusControlHandler) {
-        this.controller = statusControlHandler;
+    public void setStatusControlHandler(StatusControlHandler statusControlHandler) {
+        this.statusControlHandler = statusControlHandler;
     }
 
     @Override
@@ -670,9 +650,11 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
             if (selectionRange != null && !selectionRange.isEmpty()) {
                 long first = selectionRange.getFirst();
                 long last = selectionRange.getLast();
-                labelBuilder.append(numberToPosition(first, cursorPositionFormat.getCodeType()));
-                labelBuilder.append(" to ");
-                labelBuilder.append(numberToPosition(last, cursorPositionFormat.getCodeType()));
+                labelBuilder.append(String.format(
+                        resourceBundle.getString("caretPosition.text"),
+                        numberToPosition(first, cursorPositionFormat.getCodeType()),
+                        numberToPosition(last, cursorPositionFormat.getCodeType())
+                ));
             } else {
                 labelBuilder.append(numberToPosition(caretPosition.getDataPosition(), cursorPositionFormat.getCodeType()));
                 if (cursorPositionFormat.isShowOffset()) {
@@ -686,31 +668,34 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
 
     private void updateCursorPositionToolTip() {
         StringBuilder builder = new StringBuilder();
-        builder.append("<html>");
+        builder.append("<html><body>");
         if (caretPosition == null) {
             builder.append(resourceBundle.getString("cursorPositionLabel.toolTipText"));
         } else {
+            String octalPrefix = resourceBundle.getString("codeType.octal") + ": ";
+            String decimalPrefix = resourceBundle.getString("codeType.decimal") + ": ";
+            String hexadecimalPrefix = resourceBundle.getString("codeType.hexadecimal") + ": ";
             if (selectionRange != null && !selectionRange.isEmpty()) {
                 long first = selectionRange.getFirst();
                 long last = selectionRange.getLast();
                 builder.append(resourceBundle.getString("selectionFromLabel.toolTipText")).append(BR_TAG);
-                builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.OCTAL)).append(BR_TAG);
-                builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.DECIMAL)).append(BR_TAG);
-                builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.HEXADECIMAL)).append(BR_TAG);
+                builder.append(octalPrefix).append(numberToPosition(first, PositionCodeType.OCTAL)).append(BR_TAG);
+                builder.append(decimalPrefix).append(numberToPosition(first, PositionCodeType.DECIMAL)).append(BR_TAG);
+                builder.append(hexadecimalPrefix).append(numberToPosition(first, PositionCodeType.HEXADECIMAL)).append(BR_TAG);
                 builder.append(BR_TAG);
                 builder.append(resourceBundle.getString("selectionToLabel.toolTipText")).append(BR_TAG);
-                builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(last, PositionCodeType.OCTAL)).append(BR_TAG);
-                builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(last, PositionCodeType.DECIMAL)).append(BR_TAG);
-                builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(first, PositionCodeType.HEXADECIMAL)).append(BR_TAG);
+                builder.append(octalPrefix).append(numberToPosition(last, PositionCodeType.OCTAL)).append(BR_TAG);
+                builder.append(decimalPrefix).append(numberToPosition(last, PositionCodeType.DECIMAL)).append(BR_TAG);
+                builder.append(hexadecimalPrefix).append(numberToPosition(first, PositionCodeType.HEXADECIMAL)).append(BR_TAG);
             } else {
                 long dataPosition = caretPosition.getDataPosition();
                 builder.append(resourceBundle.getString("cursorPositionLabel.toolTipText")).append(BR_TAG);
-                builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(dataPosition, PositionCodeType.OCTAL)).append(BR_TAG);
-                builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(dataPosition, PositionCodeType.DECIMAL)).append(BR_TAG);
-                builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(dataPosition, PositionCodeType.HEXADECIMAL));
-                builder.append("</html>");
+                builder.append(octalPrefix).append(numberToPosition(dataPosition, PositionCodeType.OCTAL)).append(BR_TAG);
+                builder.append(decimalPrefix).append(numberToPosition(dataPosition, PositionCodeType.DECIMAL)).append(BR_TAG);
+                builder.append(hexadecimalPrefix).append(numberToPosition(dataPosition, PositionCodeType.HEXADECIMAL));
             }
         }
+        builder.append("</body></html>");
 
         cursorPositionLabel.setToolTipText(builder.toString());
     }
@@ -721,9 +706,11 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
         } else {
             StringBuilder labelBuilder = new StringBuilder();
             if (selectionRange != null && !selectionRange.isEmpty()) {
-                labelBuilder.append(numberToPosition(selectionRange.getLength(), documentSizeFormat.getCodeType()));
-                labelBuilder.append(" of ");
-                labelBuilder.append(numberToPosition(documentSize, documentSizeFormat.getCodeType()));
+                labelBuilder.append(String.format(
+                        resourceBundle.getString("documentSize.text"),
+                        numberToPosition(selectionRange.getLength(), documentSizeFormat.getCodeType()),
+                        numberToPosition(documentSize, documentSizeFormat.getCodeType())
+                ));
             } else {
                 labelBuilder.append(numberToPosition(documentSize, documentSizeFormat.getCodeType()));
                 if (documentSizeFormat.isShowRelative()) {
@@ -740,22 +727,27 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
     }
 
     private void updateDocumentSizeToolTip() {
+        String octalPrefix = resourceBundle.getString("codeType.octal") + ": ";
+        String decimalPrefix = resourceBundle.getString("codeType.decimal") + ": ";
+        String hexadecimalPrefix = resourceBundle.getString("codeType.hexadecimal") + ": ";
+
         StringBuilder builder = new StringBuilder();
-        builder.append("<html>");
+        builder.append("<html><body>");
         if (selectionRange != null && !selectionRange.isEmpty()) {
             long length = selectionRange.getLength();
             builder.append(resourceBundle.getString("selectionLengthLabel.toolTipText")).append(BR_TAG);
-            builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(length, PositionCodeType.OCTAL)).append(BR_TAG);
-            builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(length, PositionCodeType.DECIMAL)).append(BR_TAG);
-            builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(length, PositionCodeType.HEXADECIMAL)).append(BR_TAG);
+            builder.append(octalPrefix).append(numberToPosition(length, PositionCodeType.OCTAL)).append(BR_TAG);
+            builder.append(decimalPrefix).append(numberToPosition(length, PositionCodeType.DECIMAL)).append(BR_TAG);
+            builder.append(hexadecimalPrefix).append(numberToPosition(length, PositionCodeType.HEXADECIMAL)).append(BR_TAG);
             builder.append(BR_TAG);
         }
 
         builder.append(resourceBundle.getString("documentSizeLabel.toolTipText")).append(BR_TAG);
-        builder.append(OCTAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(documentSize, PositionCodeType.OCTAL)).append(BR_TAG);
-        builder.append(DECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(documentSize, PositionCodeType.DECIMAL)).append(BR_TAG);
-        builder.append(HEXADECIMAL_CODE_TYPE_LABEL + ": ").append(numberToPosition(documentSize, PositionCodeType.HEXADECIMAL));
-        builder.append("</html>");
+        builder.append(octalPrefix).append(numberToPosition(documentSize, PositionCodeType.OCTAL)).append(BR_TAG);
+        builder.append(decimalPrefix).append(numberToPosition(documentSize, PositionCodeType.DECIMAL)).append(BR_TAG);
+        builder.append(hexadecimalPrefix).append(numberToPosition(documentSize, PositionCodeType.HEXADECIMAL));
+        builder.append("</body></html>");
+
         documentSizeLabel.setToolTipText(builder.toString());
     }
 
@@ -841,5 +833,22 @@ public class BinaryStatusPanel extends javax.swing.JPanel implements BinaryStatu
          * @param memoryMode memory mode
          */
         void changeMemoryMode(MemoryMode memoryMode);
+    }
+
+    private static class EncodingLabel extends JLabel {
+
+        private final BasicArrowButton basicArrowButton = new BasicArrowButton(SwingConstants.NORTH);
+
+        @Override
+        protected void paintComponent(@Nonnull Graphics g) {
+            super.paintComponent(g);
+            Dimension areaSize = getSize();
+
+            int h = areaSize.height;
+            int w = areaSize.width;
+            int size = Math.min(Math.max((h - 4) / 4, 2), 10);
+            basicArrowButton.paintTriangle(g, w - size * 2, (h - size) / 2 - (h / 5), size, SwingConstants.NORTH, true);
+            basicArrowButton.paintTriangle(g, w - size * 2, (h - size) / 2 + (h / 5), size, SwingConstants.SOUTH, true);
+        }
     }
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,9 +37,9 @@ import org.exbin.framework.utils.WindowUtils;
 /**
  * Manage list of layout profiles panel.
  *
- * @version 0.2.1 2019/08/20
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
+@ParametersAreNonnullByDefault
 public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileListPanel {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(LayoutProfilesPanel.class);
@@ -268,14 +268,14 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(profilesListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 544, Short.MAX_VALUE)
+                    .addComponent(profilesListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(previewPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(profilesControlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(profilesControlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
+            .addComponent(profilesControlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(profilesListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -326,17 +326,16 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (addProfileOperation != null) {
-            addProfileOperation.run(this, getNewProfileName(), (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    if (selectedIndex >= 0) {
-                        profilesList.clearSelection();
-                        model.add(selectedIndex, newProfileRecord);
-                    } else {
-                        model.add(newProfileRecord);
-                    }
-                    wasModified();
+            LayoutProfilesPanel.LayoutProfile newProfileRecord = addProfileOperation.run(this, getNewProfileName());
+            if (newProfileRecord != null) {
+                if (selectedIndex >= 0) {
+                    profilesList.clearSelection();
+                    model.add(selectedIndex, newProfileRecord);
+                } else {
+                    model.add(newProfileRecord);
                 }
-            });
+                wasModified();
+            }
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -361,15 +360,14 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         LayoutProfile oldProfileRecord = model.getElementAt(selectedIndex);
 
         if (editProfileOperation != null) {
-            editProfileOperation.run(this, oldProfileRecord, (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    LayoutProfile profileRecord = model.getElementAt(selectedIndex);
-                    profileRecord.profileName = newProfileRecord.getProfileName();
-                    profileRecord.layoutProfile = newProfileRecord.layoutProfile;
-                    model.notifyProfileModified(selectedIndex);
-                    wasModified();
-                }
-            });
+            LayoutProfile newProfileRecord = editProfileOperation.run(this, oldProfileRecord);
+            if (newProfileRecord != null) {
+                LayoutProfile profileRecord = model.getElementAt(selectedIndex);
+                profileRecord.profileName = newProfileRecord.getProfileName();
+                profileRecord.layoutProfile = newProfileRecord.layoutProfile;
+                model.notifyProfileModified(selectedIndex);
+                wasModified();
+            }
         }
     }//GEN-LAST:event_editButtonActionPerformed
 
@@ -384,18 +382,17 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         LayoutProfile profileRecord = new LayoutProfile(sourceProfile.profileName, sourceProfile.layoutProfile);
 
         if (copyProfileOperation != null) {
-            copyProfileOperation.run(this, profileRecord, (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    if (selectedIndex >= 0) {
-                        model.add(selectedIndex + 1, newProfileRecord);
-                        profilesList.setSelectedIndex(selectedIndex + 1);
-                    } else {
-                        profilesList.clearSelection();
-                        model.add(newProfileRecord);
-                    }
-                    wasModified();
+            LayoutProfile newProfileRecord = copyProfileOperation.run(this, profileRecord);
+            if (newProfileRecord != null) {
+                if (selectedIndex >= 0) {
+                    model.add(selectedIndex + 1, newProfileRecord);
+                    profilesList.setSelectedIndex(selectedIndex + 1);
+                } else {
+                    profilesList.clearSelection();
+                    model.add(newProfileRecord);
                 }
-            });
+                wasModified();
+            }
         }
     }//GEN-LAST:event_copyButtonActionPerformed
 
@@ -404,17 +401,16 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (templateProfileOperation != null) {
-            templateProfileOperation.run(this, (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    if (selectedIndex >= 0) {
-                        profilesList.clearSelection();
-                        model.add(selectedIndex, newProfileRecord);
-                    } else {
-                        model.add(newProfileRecord);
-                    }
-                    wasModified();
+            LayoutProfile newProfileRecord = templateProfileOperation.run(this);
+            if (newProfileRecord != null) {
+                if (selectedIndex >= 0) {
+                    profilesList.clearSelection();
+                    model.add(selectedIndex, newProfileRecord);
+                } else {
+                    model.add(newProfileRecord);
                 }
-            });
+                wasModified();
+            }
         }
     }//GEN-LAST:event_fromTemplateButtonActionPerformed
 
@@ -620,28 +616,28 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
     @ParametersAreNonnullByDefault
     public static interface AddProfileOperation {
 
-        void run(JComponent parentComponent, String profileName, ResultListener resultListener);
+        @Nullable
+        LayoutProfile run(JComponent parentComponent, String profileName);
     }
 
     @ParametersAreNonnullByDefault
     public static interface EditProfileOperation {
 
-        void run(JComponent parentComponent, LayoutProfile profileRecord, ResultListener resultListener);
+        @Nullable
+        LayoutProfile run(JComponent parentComponent, LayoutProfile profileRecord);
     }
 
     @ParametersAreNonnullByDefault
     public static interface CopyProfileOperation {
 
-        void run(JComponent parentComponent, LayoutProfile profileRecord, ResultListener resultListener);
+        @Nullable
+        LayoutProfile run(JComponent parentComponent, LayoutProfile profileRecord);
     }
 
     @ParametersAreNonnullByDefault
     public static interface TemplateProfileOperation {
 
-        void run(JComponent parentComponent, ResultListener resultListener);
-    }
-    
-    public static interface ResultListener {
-    	void result(@Nullable LayoutProfile layoutProfile);
+        @Nullable
+        LayoutProfile run(JComponent parentComponent);
     }
 }

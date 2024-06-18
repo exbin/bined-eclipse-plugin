@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
-import org.exbin.auxiliary.paged_data.ByteArrayEditableData;
+import javax.annotation.ParametersAreNonnullByDefault;
+import org.exbin.auxiliary.binary_data.ByteArrayEditableData;
 import org.exbin.bined.EditMode;
 import org.exbin.bined.RowWrappingMode;
 import org.exbin.bined.SelectionRange;
@@ -35,9 +36,9 @@ import org.exbin.framework.utils.WindowUtils;
 /**
  * Preview panel for code area.
  *
- * @version 0.2.0 2021/09/21
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
+@ParametersAreNonnullByDefault
 public class PreviewPanel extends javax.swing.JPanel {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(PreviewPanel.class);
@@ -62,6 +63,7 @@ public class PreviewPanel extends javax.swing.JPanel {
 
     private void init() {
         codeArea = new ExtCodeArea();
+        codeArea.setFocusTraversalKeysEnabled(false);
         initPreviewCodeArea();
         this.add(codeArea, BorderLayout.CENTER);
     }

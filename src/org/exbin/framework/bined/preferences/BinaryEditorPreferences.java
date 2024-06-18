@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
  */
 package org.exbin.framework.bined.preferences;
 
+import org.exbin.bined.eclipse.preferences.IntegrationPreferences;
 import org.exbin.framework.api.Preferences;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +28,7 @@ import org.exbin.bined.swing.extended.layout.DefaultExtendedCodeAreaLayoutProfil
 import org.exbin.bined.swing.extended.layout.ExtendedCodeAreaDecorations;
 import org.exbin.bined.swing.extended.theme.ExtendedCodeAreaThemeProfile;
 import org.exbin.framework.bined.FileHandlingMode;
+import org.exbin.framework.bined.inspector.preferences.DataInspectorPreferences;
 import org.exbin.framework.editor.text.preferences.TextEncodingPreferences;
 import org.exbin.framework.editor.text.preferences.TextFontPreferences;
 import org.exbin.xbup.core.util.StringUtils;
@@ -34,8 +36,7 @@ import org.exbin.xbup.core.util.StringUtils;
 /**
  * Binary editor preferences.
  *
- * @version 0.2.1 2019/07/21
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class BinaryEditorPreferences {
@@ -45,11 +46,13 @@ public class BinaryEditorPreferences {
 
     private final Preferences preferences;
 
+    private final IntegrationPreferences integrationPreferences;
     private final EditorPreferences editorPreferences;
     private final StatusPreferences statusPreferences;
     private final CodeAreaPreferences codeAreaPreferences;
     private final TextEncodingPreferences encodingPreferences;
     private final TextFontPreferences fontPreferences;
+    private final DataInspectorPreferences dataInspectorPreferences;
     private final CodeAreaLayoutPreferences layoutPreferences;
     private final CodeAreaThemePreferences themePreferences;
     private final CodeAreaColorPreferences colorPreferences;
@@ -57,11 +60,13 @@ public class BinaryEditorPreferences {
     public BinaryEditorPreferences(Preferences preferences) {
         this.preferences = preferences;
 
+        integrationPreferences = new IntegrationPreferences(preferences);
         editorPreferences = new EditorPreferences(preferences);
         statusPreferences = new StatusPreferences(preferences);
         codeAreaPreferences = new CodeAreaPreferences(preferences);
         encodingPreferences = new TextEncodingPreferences(preferences);
         fontPreferences = new TextFontPreferences(preferences);
+        dataInspectorPreferences = new DataInspectorPreferences(preferences);
         layoutPreferences = new CodeAreaLayoutPreferences(preferences);
         themePreferences = new CodeAreaThemePreferences(preferences);
         colorPreferences = new CodeAreaColorPreferences(preferences);
@@ -83,6 +88,11 @@ public class BinaryEditorPreferences {
     @Nonnull
     public Preferences getPreferences() {
         return preferences;
+    }
+
+    @Nonnull
+    public IntegrationPreferences getIntegrationPreferences() {
+        return integrationPreferences;
     }
 
     @Nonnull
@@ -108,6 +118,11 @@ public class BinaryEditorPreferences {
     @Nonnull
     public TextFontPreferences getFontPreferences() {
         return fontPreferences;
+    }
+
+    @Nonnull
+    public DataInspectorPreferences getDataInspectorPreferences() {
+        return dataInspectorPreferences;
     }
 
     @Nonnull
@@ -137,7 +152,7 @@ public class BinaryEditorPreferences {
         codeAreaPreferences.setCodeColorization(legacyPreferences.isCodeColorization());
 
         editorPreferences.setFileHandlingMode(legacyPreferences.isDeltaMemoryMode() ? FileHandlingMode.DELTA : FileHandlingMode.MEMORY);
-        editorPreferences.setShowValuesPanel(legacyPreferences.isShowValuesPanel());
+        dataInspectorPreferences.setShowParsingPanel(legacyPreferences.isShowValuesPanel());
 
         List<String> layoutProfiles = new ArrayList<>();
         layoutProfiles.add("Imported profile");

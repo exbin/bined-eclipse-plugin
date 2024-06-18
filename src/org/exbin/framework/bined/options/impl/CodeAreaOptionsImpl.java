@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,6 +29,7 @@ import org.exbin.bined.capability.ViewModeCapable;
 import org.exbin.bined.extended.capability.PositionCodeTypeCapable;
 import org.exbin.bined.extended.capability.ShowUnprintablesCapable;
 import org.exbin.bined.highlight.swing.extended.ExtendedHighlightNonAsciiCodeAreaPainter;
+import org.exbin.bined.swing.CodeAreaPainter;
 import org.exbin.bined.swing.extended.ExtCodeArea;
 import org.exbin.framework.bined.preferences.CodeAreaPreferences;
 import org.exbin.framework.options.api.OptionsData;
@@ -36,8 +37,7 @@ import org.exbin.framework.options.api.OptionsData;
 /**
  * Code area options.
  *
- * @version 0.2.1 2019/08/21
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class CodeAreaOptionsImpl implements OptionsData, CodeAreaOptions {
@@ -190,7 +190,10 @@ public class CodeAreaOptionsImpl implements OptionsData, CodeAreaOptions {
         codeAreaOptions.setCodeCharactersCase(((CodeCharactersCaseCapable) codeArea).getCodeCharactersCase());
         codeAreaOptions.setPositionCodeType(((PositionCodeTypeCapable) codeArea).getPositionCodeType());
         codeAreaOptions.setViewMode(((ViewModeCapable) codeArea).getViewMode());
-        codeAreaOptions.setCodeColorization(((ExtendedHighlightNonAsciiCodeAreaPainter) codeArea.getPainter()).isNonAsciiHighlightingEnabled());
+        CodeAreaPainter painter = codeArea.getPainter();
+        if (painter instanceof ExtendedHighlightNonAsciiCodeAreaPainter) {
+            codeAreaOptions.setCodeColorization(((ExtendedHighlightNonAsciiCodeAreaPainter) painter).isNonAsciiHighlightingEnabled());
+        }
         codeAreaOptions.setRowWrappingMode(codeArea.getRowWrapping());
         codeAreaOptions.setMaxBytesPerRow(codeArea.getMaxBytesPerRow());
         codeAreaOptions.setMinRowPositionLength(codeArea.getMinRowPositionLength());
@@ -203,7 +206,10 @@ public class CodeAreaOptionsImpl implements OptionsData, CodeAreaOptions {
         ((CodeCharactersCaseCapable) codeArea).setCodeCharactersCase(codeAreaOptions.getCodeCharactersCase());
         ((PositionCodeTypeCapable) codeArea).setPositionCodeType(codeAreaOptions.getPositionCodeType());
         ((ViewModeCapable) codeArea).setViewMode(codeAreaOptions.getViewMode());
-        ((ExtendedHighlightNonAsciiCodeAreaPainter) codeArea.getPainter()).setNonAsciiHighlightingEnabled(codeAreaOptions.isCodeColorization());
+        CodeAreaPainter painter = codeArea.getPainter();
+        if (painter instanceof ExtendedHighlightNonAsciiCodeAreaPainter) {
+            ((ExtendedHighlightNonAsciiCodeAreaPainter) painter).setNonAsciiHighlightingEnabled(codeAreaOptions.isCodeColorization());
+        }
         codeArea.setRowWrapping(codeAreaOptions.getRowWrappingMode());
         codeArea.setMaxBytesPerRow(codeAreaOptions.getMaxBytesPerRow());
         codeArea.setMinRowPositionLength(codeAreaOptions.getMinRowPositionLength());

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@ package org.exbin.bined.eclipse.action;
 
 import org.exbin.bined.basic.PositionScrollVisibility;
 import org.exbin.bined.swing.extended.ExtCodeArea;
-import org.exbin.framework.bined.gui.GoToBinaryPanel;
+import org.exbin.framework.bined.gui.GoToPositionPanel;
 import org.exbin.framework.utils.LanguageUtils;
 import org.exbin.framework.utils.WindowUtils;
 import org.exbin.framework.utils.WindowUtils.DialogWrapper;
@@ -35,13 +35,12 @@ import java.util.ResourceBundle;
 /**
  * Go to handler.
  *
- * @version 0.2.0 2019/07/24
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class GoToPositionAction implements ActionListener {
 
-    private final ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(GoToBinaryPanel.class);
+    private final ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(GoToPositionPanel.class);
     private final ExtCodeArea codeArea;
 
     public GoToPositionAction(ExtCodeArea codeArea) {
@@ -50,7 +49,7 @@ public class GoToPositionAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent event) {
-        final GoToBinaryPanel goToPanel = new GoToBinaryPanel();
+        final GoToPositionPanel goToPanel = new GoToPositionPanel();
         DefaultControlPanel goToControlPanel = new DefaultControlPanel(goToPanel.getResourceBundle());
         goToPanel.setCursorPosition(codeArea.getCaretPosition().getDataPosition());
         goToPanel.setMaxPosition(codeArea.getDataSize());

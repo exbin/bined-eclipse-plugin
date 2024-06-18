@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,12 +21,12 @@ import org.eclipse.jdt.debug.core.IJavaArray;
 import org.eclipse.jdt.debug.core.IJavaFieldVariable;
 import org.eclipse.jdt.debug.core.IJavaObject;
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
-import org.exbin.auxiliary.paged_data.BinaryData;
-import org.exbin.auxiliary.paged_data.ByteArrayData;
+import org.exbin.auxiliary.binary_data.BinaryData;
+import org.exbin.auxiliary.binary_data.ByteArrayData;
 import org.exbin.bined.eclipse.data.PageProviderBinaryData;
 import org.exbin.bined.eclipse.debug.DebugViewDataProvider;
 import org.exbin.bined.eclipse.debug.DefaultDebugViewDataProvider;
-import org.exbin.framework.bined.gui.ValuesPanel;
+import org.exbin.framework.bined.inspector.gui.BasicValuesPanel;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,8 +41,7 @@ import java.util.List;
 /**
  * Debug values converter.
  *
- * @author ExBin Project (http://exbin.org)
- * @version 0.2.1 2022/06/01
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class ValueNodeConverter {
@@ -58,7 +57,7 @@ public class ValueNodeConverter {
     public List<DebugViewDataProvider> identifyAvailableProviders(IValue value) {
 
         List<DebugViewDataProvider> providers = new ArrayList<>();
-        
+
         if (value instanceof IJavaArray) {
             BinaryData data = processArrayData((IJavaArray) value);
             if (data != null)
@@ -202,7 +201,7 @@ public class ValueNodeConverter {
 		        	}
 	                BigInteger bigInteger = BigInteger.valueOf(value);
 	                for (int bit = 0; bit < 7; bit++) {
-	                    BigInteger nextByte = bigInteger.and(ValuesPanel.BIG_INTEGER_BYTE_MASK);
+	                    BigInteger nextByte = bigInteger.and(BasicValuesPanel.BIG_INTEGER_BYTE_MASK);
 	                    byteArray[7 - bit] = nextByte.byteValue();
 	                    bigInteger = bigInteger.shiftRight(8);
 	                }
@@ -257,7 +256,7 @@ public class ValueNodeConverter {
 	                return new ByteArrayData(byteArray);
 	            }
 	        }
-	
+
 	        return null;
 		} catch (DebugException e) {
 			return null;

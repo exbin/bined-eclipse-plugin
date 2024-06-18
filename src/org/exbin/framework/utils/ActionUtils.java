@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,23 +15,28 @@
  */
 package org.exbin.framework.utils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.swing.*;
-import javax.swing.text.JTextComponent;
-import java.awt.*;
+import java.awt.AWTEvent;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Map;
 import java.util.ResourceBundle;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.text.JTextComponent;
 
 /**
  * Some simple static methods usable for actions, menus and toolbars.
  *
- * @version 0.2.1 2019/08/17
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class ActionUtils {
@@ -56,6 +61,12 @@ public class ActionUtils {
      * Value is Boolean.
      */
     public static final String ACTION_DIALOG_MODE = "dialogMode";
+    /**
+     * Menu creation handler.
+     *
+     * Value is MenuCreation.
+     */
+    public static final String ACTION_MENU_CREATION = "menu_creation";
 
     public static final String ACTION_ID = "actionId";
     public static final String ACTION_NAME_POSTFIX = ".text";
@@ -86,7 +97,7 @@ public class ActionUtils {
      * @param resourceClass resourceClass
      * @param actionId action identifier and bundle key prefix
      */
-    public static void setupAction(Action action, ResourceBundle bundle, Class resourceClass, String actionId) {
+    public static void setupAction(Action action, ResourceBundle bundle, Class<?> resourceClass, String actionId) {
         action.putValue(Action.NAME, bundle.getString(actionId + ACTION_NAME_POSTFIX));
         action.putValue(ACTION_ID, actionId);
 
@@ -197,6 +208,26 @@ public class ActionUtils {
             modifiers = ((ActionEvent) currentEvent).getModifiers();
         }
         return modifiers;
+    }
+
+    @ParametersAreNonnullByDefault
+    public static interface MenuCreation {
+
+        /**
+         * Checks whether menu item should be created.
+         *
+         * @param menuId menu ID
+         * @return true if menu item should be created
+         */
+        boolean shouldCreate(String menuId);
+
+        /**
+         * Called when new menu item is created.
+         *
+         * @param menuItem new menu item instance
+         * @param menuId menu ID
+         */
+        void onCreate(JMenuItem menuItem, String menuId);
     }
 
     /**

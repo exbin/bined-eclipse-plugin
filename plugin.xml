@@ -9,7 +9,7 @@
             extensions="bin"
             icon="icons/icon.png"
             id="org.exbin.bined.eclipse.plugin.editors.BinEdEditor"
-            name="BinEd Binary/Hexadecimal Editor">
+            name="BinEd Binary/Hex Editor">
             <contentTypeBinding contentTypeId="bined.binaryFile"/>
       </editor>
    </extension>

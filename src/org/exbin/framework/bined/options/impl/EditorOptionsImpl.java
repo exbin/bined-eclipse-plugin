@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ import org.exbin.framework.bined.options.EditorOptions;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.exbin.bined.basic.EnterKeyHandlingMode;
+import org.exbin.bined.basic.TabKeyHandlingMode;
 import org.exbin.framework.bined.FileHandlingMode;
 import org.exbin.framework.bined.preferences.EditorPreferences;
 import org.exbin.framework.options.api.OptionsData;
@@ -26,15 +27,14 @@ import org.exbin.framework.options.api.OptionsData;
 /**
  * Binary editor preferences.
  *
- * @version 0.2.1 2019/07/20
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class EditorOptionsImpl implements OptionsData, EditorOptions {
 
     private FileHandlingMode fileHandlingMode = FileHandlingMode.DELTA;
-    private boolean showValuesPanel = true;
     private EnterKeyHandlingMode enterKeyHandlingMode = EnterKeyHandlingMode.PLATFORM_SPECIFIC;
+    private TabKeyHandlingMode tabKeyHandlingMode = TabKeyHandlingMode.PLATFORM_SPECIFIC;
 
     @Nonnull
     @Override
@@ -45,16 +45,6 @@ public class EditorOptionsImpl implements OptionsData, EditorOptions {
     @Override
     public void setFileHandlingMode(FileHandlingMode fileHandlingMode) {
         this.fileHandlingMode = fileHandlingMode;
-    }
-
-    @Override
-    public boolean isShowValuesPanel() {
-        return showValuesPanel;
-    }
-
-    @Override
-    public void setShowValuesPanel(boolean showValuesPanel) {
-        this.showValuesPanel = showValuesPanel;
     }
 
     @Nonnull
@@ -68,21 +58,32 @@ public class EditorOptionsImpl implements OptionsData, EditorOptions {
         this.enterKeyHandlingMode = enterKeyHandlingMode;
     }
 
+    @Nonnull
+    @Override
+    public TabKeyHandlingMode getTabKeyHandlingMode() {
+        return tabKeyHandlingMode;
+    }
+
+    @Override
+    public void setTabKeyHandlingMode(TabKeyHandlingMode tabKeyHandlingMode) {
+        this.tabKeyHandlingMode = tabKeyHandlingMode;
+    }
+
     public void loadFromPreferences(EditorPreferences preferences) {
         fileHandlingMode = preferences.getFileHandlingMode();
-        showValuesPanel = preferences.isShowValuesPanel();
         enterKeyHandlingMode = preferences.getEnterKeyHandlingMode();
+        tabKeyHandlingMode = preferences.getTabKeyHandlingMode();
     }
 
     public void saveToPreferences(EditorPreferences preferences) {
         preferences.setFileHandlingMode(fileHandlingMode);
-        preferences.setShowValuesPanel(showValuesPanel);
         preferences.setEnterKeyHandlingMode(enterKeyHandlingMode);
+        preferences.setTabKeyHandlingMode(tabKeyHandlingMode);
     }
 
     public void setOptions(EditorOptionsImpl editorOptions) {
         fileHandlingMode = editorOptions.fileHandlingMode;
-        showValuesPanel = editorOptions.showValuesPanel;
         enterKeyHandlingMode = editorOptions.enterKeyHandlingMode;
+        tabKeyHandlingMode = editorOptions.tabKeyHandlingMode;
     }
 }

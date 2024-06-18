@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,8 +15,11 @@
  */
 package org.exbin.framework.bined.options.gui;
 
+import org.exbin.framework.bined.model.ColorProfileTableModel;
 import java.awt.Color;
 import java.awt.Component;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
@@ -25,8 +28,7 @@ import javax.swing.table.TableCellEditor;
 /**
  * Table model for color profile panel.
  *
- * @version 0.2.0 2019/03/01
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class ColorCellTableEditor extends AbstractCellEditor implements TableCellEditor {
@@ -36,17 +38,19 @@ public class ColorCellTableEditor extends AbstractCellEditor implements TableCel
     public ColorCellTableEditor() {
     }
 
+    @Nonnull
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
         currentColor = (Color) value;
         return new ColorCellPanel(new ColorCellPanel.ColorHandler() {
+            @Nullable
             @Override
             public Color getColor() {
                 return currentColor;
             }
 
             @Override
-            public void setColor(Color color) {
+            public void setColor(@Nullable Color color) {
                 currentColor = color;
 
                 ColorProfileTableModel model = (ColorProfileTableModel) table.getModel();
@@ -55,6 +59,7 @@ public class ColorCellTableEditor extends AbstractCellEditor implements TableCel
         });
     }
 
+    @Nullable
     @Override
     public Object getCellEditorValue() {
         return currentColor;

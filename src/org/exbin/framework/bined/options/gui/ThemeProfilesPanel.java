@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,9 +37,9 @@ import org.exbin.framework.utils.WindowUtils;
 /**
  * Manage list of theme profiles panel.
  *
- * @version 0.2.1 2019/08/20
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
+@ParametersAreNonnullByDefault
 public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileListPanel {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(ThemeProfilesPanel.class);
@@ -256,7 +256,7 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
                 .addComponent(removeButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(hideButton)
-                .addContainerGap(199, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -266,7 +266,7 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(profilesListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 666, Short.MAX_VALUE)
+                    .addComponent(profilesListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(previewPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(profilesControlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -324,17 +324,16 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (addProfileOperation != null) {
-            addProfileOperation.run(this, getNewProfileName(), (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    if (selectedIndex >= 0) {
-                        profilesList.clearSelection();
-                        model.add(selectedIndex, newProfileRecord);
-                    } else {
-                        model.add(newProfileRecord);
-                    }
-                    wasModified();
+            ThemeProfilesPanel.ThemeProfile newProfileRecord = addProfileOperation.run(this, getNewProfileName());
+            if (newProfileRecord != null) {
+                if (selectedIndex >= 0) {
+                    profilesList.clearSelection();
+                    model.add(selectedIndex, newProfileRecord);
+                } else {
+                    model.add(newProfileRecord);
                 }
-            });
+                wasModified();
+            }
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -359,15 +358,14 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
         ThemeProfile oldProfileRecord = model.getElementAt(selectedIndex);
 
         if (editProfileOperation != null) {
-            editProfileOperation.run(this, oldProfileRecord, (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    ThemeProfile profileRecord = model.getElementAt(selectedIndex);
-                    profileRecord.profileName = newProfileRecord.getProfileName();
-                    profileRecord.themeProfile = newProfileRecord.themeProfile;
-                    model.notifyProfileModified(selectedIndex);
-                    wasModified();
-                }
-            });
+            ThemeProfile newProfileRecord = editProfileOperation.run(this, oldProfileRecord);
+            if (newProfileRecord != null) {
+                ThemeProfile profileRecord = model.getElementAt(selectedIndex);
+                profileRecord.profileName = newProfileRecord.getProfileName();
+                profileRecord.themeProfile = newProfileRecord.themeProfile;
+                model.notifyProfileModified(selectedIndex);
+                wasModified();
+            }
         }
     }//GEN-LAST:event_editButtonActionPerformed
 
@@ -382,18 +380,17 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
         ThemeProfile profileRecord = new ThemeProfile(sourceProfile.profileName, sourceProfile.themeProfile);
 
         if (copyProfileOperation != null) {
-            copyProfileOperation.run(this, profileRecord, (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    if (selectedIndex >= 0) {
-                        model.add(selectedIndex + 1, newProfileRecord);
-                        profilesList.setSelectedIndex(selectedIndex + 1);
-                    } else {
-                        profilesList.clearSelection();
-                        model.add(newProfileRecord);
-                    }
-                    wasModified();
+            ThemeProfile newProfileRecord = copyProfileOperation.run(this, profileRecord);
+            if (newProfileRecord != null) {
+                if (selectedIndex >= 0) {
+                    model.add(selectedIndex + 1, newProfileRecord);
+                    profilesList.setSelectedIndex(selectedIndex + 1);
+                } else {
+                    profilesList.clearSelection();
+                    model.add(newProfileRecord);
                 }
-            });
+                wasModified();
+            }
         }
     }//GEN-LAST:event_copyButtonActionPerformed
 
@@ -402,17 +399,16 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (templateProfileOperation != null) {
-            templateProfileOperation.run(this, (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    if (selectedIndex >= 0) {
-                        profilesList.clearSelection();
-                        model.add(selectedIndex, newProfileRecord);
-                    } else {
-                        model.add(newProfileRecord);
-                    }
-                    wasModified();
+            ThemeProfilesPanel.ThemeProfile newProfileRecord = templateProfileOperation.run(this);
+            if (newProfileRecord != null) {
+                if (selectedIndex >= 0) {
+                    profilesList.clearSelection();
+                    model.add(selectedIndex, newProfileRecord);
+                } else {
+                    model.add(newProfileRecord);
                 }
-            });
+                wasModified();
+            }
         }
     }//GEN-LAST:event_fromTemplateButtonActionPerformed
 
@@ -620,28 +616,28 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
     @ParametersAreNonnullByDefault
     public static interface AddProfileOperation {
 
-        void run(JComponent parentComponent, String profileName, ResultListener resultListener);
+        @Nullable
+        ThemeProfile run(JComponent parentComponent, String profileName);
     }
 
     @ParametersAreNonnullByDefault
     public static interface EditProfileOperation {
 
-        void run(JComponent parentComponent, ThemeProfile profileRecord, ResultListener resultListener);
+        @Nullable
+        ThemeProfile run(JComponent parentComponent, ThemeProfile profileRecord);
     }
 
     @ParametersAreNonnullByDefault
     public static interface CopyProfileOperation {
 
-        void run(JComponent parentComponent, ThemeProfile profileRecord, ResultListener resultListener);
+        @Nullable
+        ThemeProfile run(JComponent parentComponent, ThemeProfile profileRecord);
     }
 
     @ParametersAreNonnullByDefault
     public static interface TemplateProfileOperation {
 
-        void run(JComponent parentComponent, ResultListener resultListener);
-    }
-    
-    public static interface ResultListener {
-    	void result(@Nullable ThemeProfile profile);
+        @Nullable
+        ThemeProfile run(JComponent parentComponent);
     }
 }

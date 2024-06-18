@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,7 @@ import javax.swing.JPopupMenu;
 /**
  * Drop down button.
  *
- * @version 0.2.1 2021/10/30
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class DropDownButton extends JButton {
@@ -52,7 +51,9 @@ public class DropDownButton extends JButton {
         action.addPropertyChangeListener((PropertyChangeEvent evt) -> {
             setEnabled(action.isEnabled());
         });
-        setToolTipText((String) action.getValue(Action.SHORT_DESCRIPTION));
+        String toolTipText = (String) action.getValue(Action.SHORT_DESCRIPTION);
+        setToolTipText(toolTipText);
+        setActionTooltip(toolTipText);
 
         setMargin(new Insets(0, 0, 0, 0));
         add(buttonPanel);
@@ -97,6 +98,17 @@ public class DropDownButton extends JButton {
         });
     }
 
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        if (buttonPanel != null) {
+            buttonPanel.updateUI();
+        }
+        if (popupMenu != null) {
+            popupMenu.updateUI();
+        }
+    }
+    
     protected void setRolloverBorder() {
         JButton menuButton = buttonPanel.getMenuButton();
         menuButton.setBorderPainted(true);

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,6 @@ import javax.swing.ListCellRenderer;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import org.exbin.bined.swing.extended.color.ExtendedCodeAreaColorProfile;
-import org.exbin.framework.bined.options.gui.LayoutProfilesPanel.LayoutProfile;
 import org.exbin.framework.bined.options.gui.PreviewPanel.PreviewType;
 import org.exbin.framework.bined.options.impl.CodeAreaColorOptionsImpl;
 import org.exbin.framework.utils.LanguageUtils;
@@ -39,8 +38,7 @@ import org.exbin.framework.utils.WindowUtils;
 /**
  * Manage list of color profiles panel.
  *
- * @version 0.2.1 2021/09/21
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileListPanel {
@@ -261,7 +259,7 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
                 .addComponent(removeButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(hideButton)
-                .addContainerGap(212, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -271,14 +269,14 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(profilesListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 662, Short.MAX_VALUE)
+                    .addComponent(profilesListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addComponent(previewPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(profilesControlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(profilesControlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 545, Short.MAX_VALUE)
+            .addComponent(profilesControlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(profilesListScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -329,17 +327,16 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (addProfileOperation != null) {
-            addProfileOperation.run(this, getNewProfileName(), (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    if (selectedIndex >= 0) {
-                        profilesList.clearSelection();
-                        model.add(selectedIndex, newProfileRecord);
-                    } else {
-                        model.add(newProfileRecord);
-                    }
-                    wasModified();
+            ColorProfile newProfileRecord = addProfileOperation.run(this, getNewProfileName());
+            if (newProfileRecord != null) {
+                if (selectedIndex >= 0) {
+                    profilesList.clearSelection();
+                    model.add(selectedIndex, newProfileRecord);
+                } else {
+                    model.add(newProfileRecord);
                 }
-            });
+                wasModified();
+            }
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -356,15 +353,14 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
         ColorProfile oldProfileRecord = model.getElementAt(selectedIndex);
 
         if (editProfileOperation != null) {
-            editProfileOperation.run(this, oldProfileRecord, (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    ColorProfile profileRecord = model.getElementAt(selectedIndex);
-                    profileRecord.profileName = newProfileRecord.getProfileName();
-                    profileRecord.colorProfile = newProfileRecord.colorProfile;
-                    model.notifyProfileModified(selectedIndex);
-                    wasModified();
-                }
-            });
+            ColorProfile newProfileRecord = editProfileOperation.run(this, oldProfileRecord);
+            if (newProfileRecord != null) {
+                ColorProfile profileRecord = model.getElementAt(selectedIndex);
+                profileRecord.profileName = newProfileRecord.getProfileName();
+                profileRecord.colorProfile = newProfileRecord.colorProfile;
+                model.notifyProfileModified(selectedIndex);
+                wasModified();
+            }
         }
     }//GEN-LAST:event_editButtonActionPerformed
 
@@ -387,18 +383,17 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
         ColorProfile profileRecord = new ColorProfile(sourceProfile.profileName, sourceProfile.colorProfile);
 
         if (copyProfileOperation != null) {
-            copyProfileOperation.run(this, profileRecord, (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    if (selectedIndex >= 0) {
-                        model.add(selectedIndex + 1, newProfileRecord);
-                        profilesList.setSelectedIndex(selectedIndex + 1);
-                    } else {
-                        profilesList.clearSelection();
-                        model.add(newProfileRecord);
-                    }
-                    wasModified();
+            ColorProfile newProfileRecord = copyProfileOperation.run(this, profileRecord);
+            if (newProfileRecord != null) {
+                if (selectedIndex >= 0) {
+                    model.add(selectedIndex + 1, newProfileRecord);
+                    profilesList.setSelectedIndex(selectedIndex + 1);
+                } else {
+                    profilesList.clearSelection();
+                    model.add(newProfileRecord);
                 }
-            });
+                wasModified();
+            }
         }
     }//GEN-LAST:event_copyButtonActionPerformed
 
@@ -407,17 +402,16 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (templateProfileOperation != null) {
-            templateProfileOperation.run(this, (newProfileRecord) -> {
-                if (newProfileRecord != null) {
-                    if (selectedIndex >= 0) {
-                        profilesList.clearSelection();
-                        model.add(selectedIndex, newProfileRecord);
-                    } else {
-                        model.add(newProfileRecord);
-                    }
-                    wasModified();
+            ColorProfile newProfileRecord = templateProfileOperation.run(this);
+            if (newProfileRecord != null) {
+                if (selectedIndex >= 0) {
+                    profilesList.clearSelection();
+                    model.add(selectedIndex, newProfileRecord);
+                } else {
+                    model.add(newProfileRecord);
                 }
-            });
+                wasModified();
+            }
         }
     }//GEN-LAST:event_fromTemplateButtonActionPerformed
 
@@ -618,28 +612,28 @@ public class ColorProfilesPanel extends javax.swing.JPanel implements ProfileLis
     @ParametersAreNonnullByDefault
     public static interface AddProfileOperation {
 
-        void run(JComponent parentComponent, String profileName, ResultListener resultListener);
+        @Nullable
+        ColorProfile run(JComponent parentComponent, String profileName);
     }
 
     @ParametersAreNonnullByDefault
     public static interface EditProfileOperation {
 
-        void run(JComponent parentComponent, ColorProfile profileRecord, ResultListener resultListener);
+        @Nullable
+        ColorProfile run(JComponent parentComponent, ColorProfile profileRecord);
     }
 
     @ParametersAreNonnullByDefault
     public static interface CopyProfileOperation {
 
-        void run(JComponent parentComponent, ColorProfile profileRecord, ResultListener resultListener);
+        @Nullable
+        ColorProfile run(JComponent parentComponent, ColorProfile profileRecord);
     }
 
     @ParametersAreNonnullByDefault
     public static interface TemplateProfileOperation {
 
-        void run(JComponent parentComponent, ResultListener resultListener);
-    }
-
-    public static interface ResultListener {
-    	void result(@Nullable ColorProfile profile);
+        @Nullable
+        ColorProfile run(JComponent parentComponent);
     }
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,24 +20,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.ComboBoxModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import org.exbin.framework.editor.text.options.impl.TextEncodingOptionsImpl;
 import org.exbin.framework.utils.LanguageUtils;
 import org.exbin.framework.utils.WindowUtils;
-import org.exbin.framework.options.api.OptionsCapable;
 import org.exbin.framework.options.api.OptionsModifiedListener;
 import org.exbin.framework.editor.text.service.TextEncodingService;
 import org.exbin.xbup.core.util.StringUtils;
+import org.exbin.framework.options.api.OptionsComponent;
 
 /**
  * Text encoding options panel.
  *
- * @version 0.2.1 2019/07/21
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
-public class TextEncodingOptionsPanel extends javax.swing.JPanel implements OptionsCapable<TextEncodingOptionsImpl> {
+@ParametersAreNonnullByDefault
+public class TextEncodingOptionsPanel extends javax.swing.JPanel implements OptionsComponent<TextEncodingOptionsImpl> {
 
     private OptionsModifiedListener optionsModifiedListener;
     private final ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(TextEncodingOptionsPanel.class);
@@ -239,6 +241,7 @@ public class TextEncodingOptionsPanel extends javax.swing.JPanel implements Opti
         encodingPanel.setAddEncodingsOperation(addEncodingsOperation);
     }
 
+    @ParametersAreNonnullByDefault
     public class DefaultEncodingComboBoxModel implements ComboBoxModel<String> {
 
         private List<String> availableEncodings = new ArrayList<>();
@@ -253,6 +256,7 @@ public class TextEncodingOptionsPanel extends javax.swing.JPanel implements Opti
             selectedEncoding = (String) anItem;
         }
 
+        @Nullable
         @Override
         public Object getSelectedItem() {
             return selectedEncoding;
@@ -263,6 +267,7 @@ public class TextEncodingOptionsPanel extends javax.swing.JPanel implements Opti
             return availableEncodings.size();
         }
 
+        @Nonnull
         @Override
         public String getElementAt(int index) {
             return availableEncodings.get(index);
@@ -278,6 +283,7 @@ public class TextEncodingOptionsPanel extends javax.swing.JPanel implements Opti
             dataListeners.remove(listener);
         }
 
+        @Nonnull
         public List<String> getAvailableEncodings() {
             return availableEncodings;
         }
@@ -298,6 +304,7 @@ public class TextEncodingOptionsPanel extends javax.swing.JPanel implements Opti
             }
         }
 
+        @Nonnull
         public String getSelectedEncoding() {
             return selectedEncoding;
         }

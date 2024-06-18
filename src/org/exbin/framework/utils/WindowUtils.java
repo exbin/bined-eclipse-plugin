@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,8 +47,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
@@ -78,15 +76,16 @@ import org.exbin.framework.utils.handler.OkCancelService;
 /**
  * Utility static methods usable for windows and dialogs.
  *
- * @version 0.2.0 2019/08/09
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class WindowUtils {
 
-    private static final int BUTTON_CLICK_TIME = 150;
+    public static final String ESC_CANCEL_KEY = "esc-cancel";
+    public static final String ENTER_OK_KEY = "enter-ok";
+
     private static LookAndFeel lookAndFeel = null;
-    
+
     /**
      * Ugly hack for frame handling.
      */
@@ -113,20 +112,22 @@ public class WindowUtils {
         WindowHeaderPanel headerPanel = new WindowHeaderPanel();
         headerPanel.setTitle(headerTitle);
         headerPanel.setDescription(headerDescription);
-        if (headerIcon != null) {
+
+        // Ignore
+/*        if (headerIcon != null) {
             headerPanel.setIcon(headerIcon);
         }
         if (window instanceof WindowHeaderPanel.WindowHeaderDecorationProvider) {
             ((WindowHeaderPanel.WindowHeaderDecorationProvider) window).setHeaderDecoration(headerPanel);
         } else {
-            Frame frame = getFrame(window);
+            Frame frame = UiUtils.getFrame(window);
             if (frame instanceof WindowHeaderPanel.WindowHeaderDecorationProvider) {
                 ((WindowHeaderPanel.WindowHeaderDecorationProvider) frame).setHeaderDecoration(headerPanel);
             }
         }
         int height = window.getHeight() + headerPanel.getPreferredSize().height;
         ((JDialog) window).getContentPane().add(headerPanel, java.awt.BorderLayout.PAGE_START);
-        window.setSize(window.getWidth(), height);
+        window.setSize(window.getWidth(), height); */
         return headerPanel;
     }
 
@@ -169,7 +170,7 @@ public class WindowUtils {
     		Shell shell = identifyComponentShell((Component) parentComponent);
     		initParentShell[0] = shell;
     		initParentDisplay[0] = shell.getDisplay();
-/*    		
+/*
     		Display display = Display.getDefault();
     		initParentDisplay[0] = display;
     		display.syncExec(new Runnable() {
@@ -181,7 +182,7 @@ public class WindowUtils {
 
     	final Display parentDisplay = initParentDisplay[0];
     	final Shell parentShell = initParentShell[0];
-    	
+
 //			parentDisplay = Display.getDefault();
 //    		Window window = WindowUtils.getWindow((Component) parentComponent);
 //    		if (window instanceof XEmbeddedFrame) {
@@ -219,7 +220,7 @@ public class WindowUtils {
 				final org.eclipse.swt.graphics.Rectangle bounds = shell.getBounds();
 				int widthDiff = bounds.width - clientArea.width;
 				int heightDiff = bounds.height - clientArea.height;
-				
+
 				Point targetShellSize = new Point(scaledSize.x + widthDiff, scaledSize.y + heightDiff);
 
 				shell.setLayout(new FillLayout());
@@ -283,7 +284,9 @@ public class WindowUtils {
 			public void close() {
 				display.syncExec(new Runnable() {
 					public void run() {
-						shell.close();
+						if (!shell.isDisposed()) {
+							shell.close();
+						}
 					}
 				});
 			}
@@ -297,7 +300,9 @@ public class WindowUtils {
 			public void dispose() {
 				display.syncExec(new Runnable() {
 					public void run() {
-						shell.dispose();
+						if (!shell.isDisposed()) {
+							shell.dispose();
+						}
 					}
 				});
 			}
@@ -346,7 +351,7 @@ public class WindowUtils {
     			component = parent;
     		}
     	} while (parent != null);
-    	
+
     	if (component instanceof JPopupMenu) {
     		Frame frame = (Frame) SwingUtilities.getRoot(((JPopupMenu) component).getInvoker());
     		return frameShells.get(frame);
@@ -375,6 +380,7 @@ public class WindowUtils {
         invokeWindow(dialog);
     }
 
+    @Nullable
     public static LookAndFeel getLookAndFeel() {
         return lookAndFeel;
     }
@@ -394,28 +400,10 @@ public class WindowUtils {
         dialog.setLocationByPlatform(true);
         return dialog;
     }
-
-    /**
-     * Finds frame component for given component.
-     *
-     * @param component instantiated component
-     * @return frame instance if found
-     */
-    @Nullable
-    public static Frame getFrame(Component component) {
-        Window parentComponent = SwingUtilities.getWindowAncestor(component);
-        while (!(parentComponent == null || parentComponent instanceof Frame)) {
-            parentComponent = SwingUtilities.getWindowAncestor(parentComponent);
-        }
-        if (parentComponent == null) {
-            parentComponent = JOptionPane.getRootFrame();
-        }
-        return (Frame) parentComponent;
-    }
-
+    
     @Nullable
     public static Window getWindow(Component component) {
-        return SwingUtilities.getWindowAncestor(component);
+    	return SwingUtilities.getWindowAncestor(component);
     }
 
     /**
@@ -439,12 +427,12 @@ public class WindowUtils {
         assignGlobalKeyListener(component, new OkCancelListener() {
             @Override
             public void okEvent() {
-                doButtonClick(okButton);
+                UiUtils.doButtonClick(okButton);
             }
 
             @Override
             public void cancelEvent() {
-                doButtonClick(cancelButton);
+            	UiUtils.doButtonClick(cancelButton);
             }
         });
     }
@@ -467,9 +455,9 @@ public class WindowUtils {
 	                if (listener == null) {
 	                    return;
 	                }
-	
+
 	                boolean performCancelAction = true;
-	
+
 	                Window window = SwingUtilities.getWindowAncestor(event.getSource() instanceof JRootPane ? (JRootPane) event.getSource() : rootPane);
 	                if (window != null) {
 	                    Component focusOwner = window.getFocusOwner();
@@ -480,13 +468,13 @@ public class WindowUtils {
 	                        // performCancelAction = false;
 	                    }
 	                }
-	
+
 	                if (performCancelAction) {
 	                    listener.cancelEvent();
 	                }
 	            }
 	        });
-	
+
 	        rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), ENTER_OK);
 	        rootPane.getActionMap().put(ENTER_OK, new AbstractAction() {
 	            @Override
@@ -494,9 +482,9 @@ public class WindowUtils {
 	                if (listener == null) {
 	                    return;
 	                }
-	
+
 	                boolean performOkAction = true;
-	
+
 	                Window window = SwingUtilities.getWindowAncestor(event.getSource() instanceof JRootPane ? (JRootPane) event.getSource() : rootPane);
 	                if (window != null) {
 	                    Component focusOwner = window.getFocusOwner();
@@ -504,7 +492,7 @@ public class WindowUtils {
 	                        performOkAction = !((JTextComponent) focusOwner).isEditable();
 	                    }
 	                }
-	
+
 	                if (performOkAction) {
 	                    listener.okEvent();
 	                }
@@ -526,7 +514,7 @@ public class WindowUtils {
                         boolean performOkAction = true;
 
                         if (evt.getSource() instanceof JButton) {
-                            ((JButton) evt.getSource()).doClick(BUTTON_CLICK_TIME);
+                        	UiUtils.doButtonClick(((JButton) evt.getSource()));
                             performOkAction = false;
                         } else if (evt.getSource() instanceof JTextArea) {
                             performOkAction = !((JTextArea) evt.getSource()).isEditable();
@@ -571,15 +559,6 @@ public class WindowUtils {
       	}
     }
 
-    /**
-     * Performs visually visible click on the button component.
-     *
-     * @param button button component
-     */
-    public static void doButtonClick(JButton button) {
-        button.doClick(BUTTON_CLICK_TIME);
-    }
-
     @Nonnull
     public static WindowPosition getWindowPosition(Window window) {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -610,7 +589,7 @@ public class WindowUtils {
         position.setRelativeY(window.getY() - screenY);
         position.setWidth(window.getWidth());
         position.setHeight(window.getHeight());
-        position.setMaximized(window instanceof Frame ? (((Frame) window).getExtendedState() & JFrame.MAXIMIZED_BOTH) > 0 : false);
+        position.setMaximized(window instanceof Frame ? (((Frame) window).getExtendedState() & Frame.MAXIMIZED_BOTH) > 0 : false);
         return position;
     }
 
@@ -639,9 +618,9 @@ public class WindowUtils {
         if (position.isMaximized()) {
             window.setLocation((int) absoluteX, (int) absoluteY);
             if (window instanceof Frame) {
-                ((Frame) window).setExtendedState(JFrame.MAXIMIZED_BOTH);
+                ((Frame) window).setExtendedState(Frame.MAXIMIZED_BOTH);
             } else {
-                // TODO if (window instanceof JDialog) 
+                // TODO if (window instanceof JDialog)
             }
         } else {
             window.setBounds((int) absoluteX, (int) absoluteY, (int) widthX, (int) widthY);
@@ -678,6 +657,29 @@ public class WindowUtils {
         });
         WindowUtils.assignGlobalKeyListener(mainPanel, ((OkCancelService) controlPanel).getOkCancelListener());
         return dialogPanel;
+    }
+
+    @ParametersAreNonnullByDefault
+    private static final class DialogPanel extends JPanel implements OkCancelService {
+
+        private final OkCancelService okCancelService;
+
+        public DialogPanel(OkCancelService okCancelService) {
+            super(new BorderLayout());
+            this.okCancelService = okCancelService;
+        }
+
+        @Nullable
+        @Override
+        public JButton getDefaultButton() {
+            return null;
+        }
+
+        @Nonnull
+        @Override
+        public OkCancelListener getOkCancelListener() {
+            return okCancelService.getOkCancelListener();
+        }
     }
 
     @ParametersAreNonnullByDefault

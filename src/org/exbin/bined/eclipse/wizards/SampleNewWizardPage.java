@@ -35,7 +35,7 @@ public class SampleNewWizardPage extends WizardPage {
 
 	/**
 	 * Constructor for SampleNewWizardPage.
-	 * 
+	 *
 	 * @param pageName
 	 */
 	public SampleNewWizardPage(ISelection selection) {

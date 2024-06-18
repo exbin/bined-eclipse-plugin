@@ -1,4 +1,12 @@
 0.2.2
+- Added support for language switching (zh, jp, ko)
+- Added support for basic macro
+- Added support for bookmarks
+- Added integration options page with laf option
+- Added convert data action
+- Added clipboard content tool
+- Added drag&drop content tool
+- New app icon
 
 0.2.1 (2022-06-11)
 - Minor GUI improvements

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,12 +18,13 @@ package org.exbin.bined.eclipse.debug.gui;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.exbin.bined.EditMode;
-import org.exbin.auxiliary.paged_data.BinaryData;
+import org.exbin.auxiliary.binary_data.BinaryData;
 import org.exbin.bined.eclipse.debug.DebugViewDataProvider;
-import org.exbin.bined.eclipse.gui.BinEdComponentFileApi;
-import org.exbin.bined.eclipse.gui.BinEdComponentPanel;
 import org.exbin.framework.bined.FileHandlingMode;
+import org.exbin.framework.bined.gui.BinEdComponentFileApi;
+import org.exbin.framework.bined.gui.BinEdComponentPanel;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -31,8 +32,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 /**
  * Panel to show debug view.
  *
- * @version 0.2.1 2022/05/29
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class DebugViewPanel extends javax.swing.JPanel {
@@ -51,24 +51,6 @@ public class DebugViewPanel extends javax.swing.JPanel {
 
     private void init() {
         componentPanel.getCodeArea().setEditMode(EditMode.READ_ONLY);
-        componentPanel.setFileApi(new BinEdComponentFileApi() {
-            @Override
-            public boolean isSaveSupported() {
-                return false;
-            }
-
-            @Override
-            public void saveDocument() {
-            }
-
-            @Override
-            public void switchFileHandlingMode(FileHandlingMode newHandlingMode) {
-            }
-
-            @Override
-            public void closeData() {
-            }
-        });
 
         this.add(componentPanel, BorderLayout.CENTER);
         this.invalidate();

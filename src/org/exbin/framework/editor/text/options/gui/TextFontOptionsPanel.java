@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,8 +17,6 @@ package org.exbin.framework.editor.text.options.gui;
 
 import java.awt.Font;
 import java.awt.event.ItemEvent;
-import java.awt.font.TextAttribute;
-import java.util.Map;
 import java.util.ResourceBundle;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,18 +24,17 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import org.exbin.framework.editor.text.options.impl.TextFontOptionsImpl;
 import org.exbin.framework.utils.LanguageUtils;
 import org.exbin.framework.utils.WindowUtils;
-import org.exbin.framework.options.api.OptionsCapable;
 import org.exbin.framework.options.api.OptionsModifiedListener;
 import org.exbin.framework.editor.text.service.TextFontService;
+import org.exbin.framework.options.api.OptionsComponent;
 
 /**
  * Text font options panel.
  *
- * @version 0.2.1 2019/08/21
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
-public class TextFontOptionsPanel extends javax.swing.JPanel implements OptionsCapable<TextFontOptionsImpl> {
+public class TextFontOptionsPanel extends javax.swing.JPanel implements OptionsComponent<TextFontOptionsImpl> {
 
     private OptionsModifiedListener optionsModifiedListener;
     private FontChangeAction fontChangeAction;
@@ -62,7 +59,7 @@ public class TextFontOptionsPanel extends javax.swing.JPanel implements OptionsC
     @Override
     public void saveToOptions(TextFontOptionsImpl options) {
         options.setUseDefaultFont(defaultFontCheckBox.isSelected());
-        options.setFontAttributes(codeFont != null ? (Map<TextAttribute, Object>) codeFont.getAttributes() : null);
+        options.setFontAttributes(codeFont != null ? codeFont.getAttributes() : null);
     }
 
     @Override
@@ -206,13 +203,12 @@ public class TextFontOptionsPanel extends javax.swing.JPanel implements OptionsC
 
     private void changeFontButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeFontButtonActionPerformed
         if (fontChangeAction != null) {
-            fontChangeAction.changeFont(fontPreviewLabel.getFont(), (resultFont) -> {
-                if (resultFont != null) {
-                    codeFont = resultFont;
-                    updateFontFields();
-                    setModified(true);
-                }
-            });
+            Font resultFont = fontChangeAction.changeFont(fontPreviewLabel.getFont());
+            if (resultFont != null) {
+                codeFont = resultFont;
+                updateFontFields();
+                setModified(true);
+            }
         }
     }//GEN-LAST:event_changeFontButtonActionPerformed
 
@@ -275,11 +271,7 @@ public class TextFontOptionsPanel extends javax.swing.JPanel implements OptionsC
     @ParametersAreNonnullByDefault
     public static interface FontChangeAction {
 
-        void changeFont(Font currentFont, FontChangeResult result);
-    }
-
-    public static interface FontChangeResult {
-
-    	void result(@Nullable Font font);
+        @Nullable
+        Font changeFont(Font currentFont);
     }
 }

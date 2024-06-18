@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,21 +21,21 @@ import org.exbin.framework.api.Preferences;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.exbin.bined.basic.EnterKeyHandlingMode;
+import org.exbin.bined.basic.TabKeyHandlingMode;
 import org.exbin.framework.bined.FileHandlingMode;
 import org.exbin.framework.bined.options.EditorOptions;
 
 /**
- * Hexadecimal editor preferences.
+ * Binary editor preferences.
  *
- * @version 0.2.1 2021/10/30
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class EditorPreferences implements EditorOptions {
 
     public static final String PREFERENCES_FILE_HANDLING_MODE = "fileHandlingMode";
-    public static final String PREFERENCES_SHOW_VALUES_PANEL = "valuesPanel";
     public static final String PREFERENCES_ENTER_KEY_HANDLING_MODE = "enterKeyHandlingMode";
+    public static final String PREFERENCES_TAB_KEY_HANDLING_MODE = "tabKeyHandlingMode";
 
     private final Preferences preferences;
 
@@ -60,16 +60,6 @@ public class EditorPreferences implements EditorOptions {
         preferences.put(PREFERENCES_FILE_HANDLING_MODE, fileHandlingMode.name());
     }
 
-    @Override
-    public boolean isShowValuesPanel() {
-        return preferences.getBoolean(PREFERENCES_SHOW_VALUES_PANEL, true);
-    }
-
-    @Override
-    public void setShowValuesPanel(boolean showValuesPanel) {
-        preferences.putBoolean(PREFERENCES_SHOW_VALUES_PANEL, showValuesPanel);
-    }
-
     @Nonnull
     @Override
     public EnterKeyHandlingMode getEnterKeyHandlingMode() {
@@ -84,5 +74,21 @@ public class EditorPreferences implements EditorOptions {
     @Override
     public void setEnterKeyHandlingMode(EnterKeyHandlingMode enterKeyHandlingMode) {
         preferences.put(PREFERENCES_ENTER_KEY_HANDLING_MODE, enterKeyHandlingMode.name());
+    }
+
+    @Nonnull
+    @Override
+    public TabKeyHandlingMode getTabKeyHandlingMode() {
+        TabKeyHandlingMode defaultValue = TabKeyHandlingMode.PLATFORM_SPECIFIC;
+        try {
+            return TabKeyHandlingMode.valueOf(preferences.get(PREFERENCES_TAB_KEY_HANDLING_MODE, defaultValue.name()));
+        } catch (IllegalArgumentException ex) {
+            return defaultValue;
+        }
+    }
+
+    @Override
+    public void setTabKeyHandlingMode(TabKeyHandlingMode tabKeyHandlingMode) {
+        preferences.put(PREFERENCES_TAB_KEY_HANDLING_MODE, tabKeyHandlingMode.name());
     }
 }

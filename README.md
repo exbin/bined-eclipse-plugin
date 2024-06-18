@@ -1,7 +1,7 @@
-BinEd - Binary/Hexadecimal Editor - Plugin for Eclipse Platform
-===============================================================
+BinEd - Binary/Hex Editor - Plugin for Eclipse Platform
+=======================================================
 
-Hexadecimal viewer/editor plugin module for Eclipse platform.
+Hex editor/viewer plugin module for Eclipse platform.
 
 Homepage: https://bined.exbin.org/eclipse-plugin/  
 
@@ -34,7 +34,7 @@ Compiling
 
 Java Development Kit (JDK) version 8 or later is required to build this project.
 
-To compile open this project in Eclipse. See. http://eclipse.org
+To compile open this project in Eclipse. See. https://eclipse.org
 
 Install Eclipse Project SDK via Help/Install New Software.
 

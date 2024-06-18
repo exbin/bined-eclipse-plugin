@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.exbin.framework.api.Preferences;
 import org.exbin.framework.editor.text.options.TextFontOptions;
@@ -29,8 +28,7 @@ import org.exbin.framework.editor.text.options.TextFontOptions;
 /**
  * Text font preferences.
  *
- * @version 0.2.1 2019/07/19
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class TextFontPreferences implements TextFontOptions {
@@ -103,10 +101,10 @@ public class TextFontPreferences implements TextFontOptions {
         return attribs;
     }
 
-    public void setFont(@Nullable Font font) {
+    public void setFont(Font font) {
         if (font != null) {
             Map<TextAttribute, ?> attribs = font.getAttributes();
-            setFontAttributes((Map<TextAttribute, Object>) attribs);
+            setFontAttributes(attribs);
         } else {
             preferences.remove(PREFERENCES_TEXT_FONT_FAMILY);
             preferences.remove(PREFERENCES_TEXT_FONT_SIZE);
@@ -120,7 +118,7 @@ public class TextFontPreferences implements TextFontOptions {
     }
 
     @Override
-    public void setFontAttributes(Map<TextAttribute, Object> attribs) {
+    public void setFontAttributes(Map<TextAttribute, ?> attribs) {
         String value = (String) attribs.get(TextAttribute.FAMILY);
         if (value != null) {
             preferences.put(PREFERENCES_TEXT_FONT_FAMILY, value);

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +15,20 @@
  */
 package org.exbin.framework.about.gui;
 
-import org.exbin.framework.utils.BareBonesBrowserLaunch;
+import org.exbin.framework.utils.DesktopUtils;
 import org.exbin.framework.utils.LanguageUtils;
+import org.exbin.framework.utils.UiUtils;
 import org.exbin.framework.utils.WindowUtils;
 
-import javax.swing.*;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.swing.JComponent;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,15 +41,16 @@ import java.util.logging.Logger;
 /**
  * About application panel.
  *
- * @version 0.2.0 2018/12/30
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
+@ParametersAreNonnullByDefault
 public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener {
 
     private ResourceBundle appBundle;
     private final ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(AboutPanel.class);
     private JComponent sideComponent = null;
     private boolean darkMode = false;
+    private String appHomepageLink;
 
     public AboutPanel() {
         initComponents();
@@ -52,10 +58,7 @@ public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener 
     }
 
     private void init() {
-        initComponents();
-        Color backgroundColor = getBackground();
-        int medium = (backgroundColor.getRed() + backgroundColor.getBlue() + backgroundColor.getGreen()) / 3;
-        darkMode = medium < 96;
+        darkMode = UiUtils.isDarkUI();
         if (darkMode) {
             aboutHeaderPanel.setBackground(Color.BLACK);
             appTitleLabel.setForeground(Color.WHITE);
@@ -72,13 +75,9 @@ public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener 
                     resourceBundle.getString("environmentTable.propertyColumn"), resourceBundle.getString("environmentTable.valueColumn")
                 }
         ) {
-            boolean[] canEdit = new boolean[]{
-                false, false
-            };
-
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
+                return false;
             }
         });
 
@@ -101,7 +100,7 @@ public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener 
     @Override
     public void hyperlinkUpdate(HyperlinkEvent event) {
         if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-            BareBonesBrowserLaunch.openURL(event.getURL().toExternalForm());
+            DesktopUtils.openDesktopURL(event.getURL().toExternalForm());
         }
     }
 
@@ -178,7 +177,6 @@ public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener 
         homepageLabel.setFont(homepageLabel.getFont().deriveFont(homepageLabel.getFont().getStyle() | java.awt.Font.BOLD));
         homepageLabel.setText(resourceBundle.getString("homepageLabel.text")); // NOI18N
 
-        appHomepageLabel.setForeground(java.awt.Color.blue);
         appHomepageLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         HashMap<TextAttribute, Object> attribs = new HashMap<TextAttribute, Object>();
         attribs.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
@@ -348,9 +346,8 @@ public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener 
     }// </editor-fold>//GEN-END:initComponents
 
     private void appHomepageLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appHomepageLabelMouseClicked
-        if (!evt.isPopupTrigger()) {
-            String targetURL = ((JLabel) evt.getSource()).getText();
-            BareBonesBrowserLaunch.openDesktopURL(targetURL);
+        if (evt.getButton() == MouseEvent.BUTTON1 && !evt.isPopupTrigger()) {
+            DesktopUtils.openDesktopURL(appHomepageLink);
         }
     }//GEN-LAST:event_appHomepageLabelMouseClicked
 
@@ -362,7 +359,6 @@ public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener 
     public static void main(String[] args) {
         WindowUtils.invokeDialog(new AboutPanel());
     }
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel aboutHeaderPanel;
@@ -393,7 +389,7 @@ public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener 
     private javax.swing.JTextField versionTextField;
     // End of variables declaration//GEN-END:variables
 
-    public void setSideComponent(JComponent sideComponent) {
+    public void setSideComponent(@Nullable JComponent sideComponent) {
         if (this.sideComponent != null) {
             remove(this.sideComponent);
         }
@@ -405,7 +401,7 @@ public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener 
     }
 
     public void setupFields() {
-        appBundle = ResourceBundle.getBundle("org.exbin.bined.eclipse.Bundle");
+        appBundle = LanguageUtils.getResourceBundleByBundleName("org/exbin/bined/eclipse/Bundle");
 
         // Load license
         try {
@@ -422,7 +418,8 @@ public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener 
         versionTextField.setText(appBundle.getString("Application.version"));
         vendorTextField.setText(appBundle.getString("Application.vendor"));
         licenseTextField.setText(appBundle.getString("Application.license"));
-        appHomepageLabel.setText(appBundle.getString("Application.homepage"));
+        appHomepageLink = appBundle.getString("Application.homepage");
+        appHomepageLabel.setText("<html><a href=\"\">" + appHomepageLink + "</a></html>");
         authorsTextArea.setText(appBundle.getString("Application.authors"));
         String aboutImagePath = appBundle.getString("Application.aboutImage");
         if (aboutImagePath != null) {

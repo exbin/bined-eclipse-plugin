@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,25 +15,26 @@
  */
 package org.exbin.framework.bined.options.gui;
 
+import java.util.List;
 import java.util.ResourceBundle;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import org.exbin.bined.basic.EnterKeyHandlingMode;
+import org.exbin.bined.basic.TabKeyHandlingMode;
 import org.exbin.framework.bined.FileHandlingMode;
 import org.exbin.framework.bined.options.impl.EditorOptionsImpl;
 import org.exbin.framework.utils.LanguageUtils;
 import org.exbin.framework.utils.WindowUtils;
-import org.exbin.framework.options.api.OptionsCapable;
 import org.exbin.framework.options.api.OptionsModifiedListener;
+import org.exbin.framework.options.api.OptionsComponent;
 
 /**
  * Editor preference parameters panel.
  *
- * @version 0.2.1 2019/07/20
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
-public class EditorOptionsPanel extends javax.swing.JPanel implements OptionsCapable<EditorOptionsImpl> {
+public class EditorOptionsPanel extends javax.swing.JPanel implements OptionsComponent<EditorOptionsImpl> {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(EditorOptionsPanel.class);
 
@@ -47,18 +48,36 @@ public class EditorOptionsPanel extends javax.swing.JPanel implements OptionsCap
         return resourceBundle;
     }
 
+    public void setFileHandlingModes(List<String> fileHandlingModes) {
+        for (String fileHandlingMode : fileHandlingModes) {
+            fileHandlingModeComboBox.addItem(fileHandlingMode);
+        }
+    }
+
+    public void setEnterKeyHandlingModes(List<String> enterKeyHandlingModes) {
+        for (String enterKeyHandlingMode : enterKeyHandlingModes) {
+            enterKeyHandlingModeComboBox.addItem(enterKeyHandlingMode);
+        }
+    }
+
+    public void setTabKeyHandlingModes(List<String> tabKeyHandlingModes) {
+        for (String tabKeyHandlingMode : tabKeyHandlingModes) {
+            tabKeyHandlingModeComboBox.addItem(tabKeyHandlingMode);
+        }
+    }
+
     @Override
     public void saveToOptions(EditorOptionsImpl options) {
-        options.setFileHandlingMode(FileHandlingMode.valueOf((String) fileHandlingModeComboBox.getSelectedItem()));
-        options.setShowValuesPanel(showValuesPanelCheckBox.isSelected());
-        options.setEnterKeyHandlingMode(EnterKeyHandlingMode.valueOf((String) enterKeyHandlingModeComboBox.getSelectedItem()));
+        options.setFileHandlingMode(FileHandlingMode.values()[fileHandlingModeComboBox.getSelectedIndex()]);
+        options.setEnterKeyHandlingMode(EnterKeyHandlingMode.values()[enterKeyHandlingModeComboBox.getSelectedIndex()]);
+        options.setTabKeyHandlingMode(TabKeyHandlingMode.values()[tabKeyHandlingModeComboBox.getSelectedIndex()]);
     }
 
     @Override
     public void loadFromOptions(EditorOptionsImpl options) {
         fileHandlingModeComboBox.setSelectedIndex(options.getFileHandlingMode().ordinal());
-        showValuesPanelCheckBox.setSelected(options.isShowValuesPanel());
         enterKeyHandlingModeComboBox.setSelectedIndex(options.getEnterKeyHandlingMode().ordinal());
+        tabKeyHandlingModeComboBox.setSelectedIndex(options.getTabKeyHandlingMode().ordinal());
     }
 
     /**
@@ -72,19 +91,16 @@ public class EditorOptionsPanel extends javax.swing.JPanel implements OptionsCap
 
         fileHandlingModeLabel = new javax.swing.JLabel();
         fileHandlingModeComboBox = new javax.swing.JComboBox<>();
-        showValuesPanelCheckBox = new javax.swing.JCheckBox();
         enterKeyHandlingModeLabel = new javax.swing.JLabel();
         enterKeyHandlingModeComboBox = new javax.swing.JComboBox<>();
+        tabKeyHandlingModeLabel = new javax.swing.JLabel();
+        tabKeyHandlingModeComboBox = new javax.swing.JComboBox<>();
 
         fileHandlingModeLabel.setText(resourceBundle.getString("fileHandlingModeLabel.text")); // NOI18N
 
-        fileHandlingModeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MEMORY", "DELTA" }));
-
-        showValuesPanelCheckBox.setText(resourceBundle.getString("showValuesPanelCheckBox.text")); // NOI18N
-
         enterKeyHandlingModeLabel.setText(resourceBundle.getString("enterKeyHandlingModeLabel.text")); // NOI18N
 
-        enterKeyHandlingModeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "PLATFORM_SPECIFIC", "CR", "LF", "CRLF", "IGNORE" }));
+        tabKeyHandlingModeLabel.setText(resourceBundle.getString("tabKeyHandlingModeLabel.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -94,21 +110,20 @@ public class EditorOptionsPanel extends javax.swing.JPanel implements OptionsCap
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(fileHandlingModeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(showValuesPanelCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(enterKeyHandlingModeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(tabKeyHandlingModeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(fileHandlingModeLabel)
-                            .addComponent(enterKeyHandlingModeLabel))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(enterKeyHandlingModeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(enterKeyHandlingModeLabel)
+                            .addComponent(tabKeyHandlingModeLabel))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(showValuesPanelCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(fileHandlingModeLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(fileHandlingModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -116,6 +131,10 @@ public class EditorOptionsPanel extends javax.swing.JPanel implements OptionsCap
                 .addComponent(enterKeyHandlingModeLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(enterKeyHandlingModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tabKeyHandlingModeLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tabKeyHandlingModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -134,7 +153,8 @@ public class EditorOptionsPanel extends javax.swing.JPanel implements OptionsCap
     private javax.swing.JLabel enterKeyHandlingModeLabel;
     private javax.swing.JComboBox<String> fileHandlingModeComboBox;
     private javax.swing.JLabel fileHandlingModeLabel;
-    private javax.swing.JCheckBox showValuesPanelCheckBox;
+    private javax.swing.JComboBox<String> tabKeyHandlingModeComboBox;
+    private javax.swing.JLabel tabKeyHandlingModeLabel;
     // End of variables declaration//GEN-END:variables
 
     @Override

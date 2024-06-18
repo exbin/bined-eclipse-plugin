@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,16 +17,16 @@ package org.exbin.framework.utils.gui;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.swing.JButton;
 import org.exbin.framework.utils.LanguageUtils;
 import org.exbin.framework.utils.OkCancelListener;
-import org.exbin.framework.utils.WindowUtils;
+import org.exbin.framework.utils.UiUtils;
 import org.exbin.framework.utils.handler.CloseControlHandler;
 
 /**
  * Basic close control panel.
  *
- * @version 0.2.1 2019/07/14
- * @author ExBin Project (http://exbin.org)
+ * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class CloseControlPanel extends javax.swing.JPanel implements CloseControlHandler.CloseControlService {
@@ -108,7 +108,13 @@ public class CloseControlPanel extends javax.swing.JPanel implements CloseContro
 
     @Override
     public void performCloseClick() {
-        WindowUtils.doButtonClick(closeButton);
+        UiUtils.doButtonClick(closeButton);
+    }
+
+    @Nonnull
+    @Override
+    public JButton getDefaultButton() {
+        return closeButton;
     }
 
     @Nonnull
