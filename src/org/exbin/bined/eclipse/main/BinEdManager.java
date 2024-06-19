@@ -1013,13 +1013,11 @@ public final class BinEdManager {
     public boolean releaseFile(FileHandler fileHandler) {
         while (fileHandler.isModified() && ((BinEdComponentFileApi) fileHandler).isSaveSupported()) {
             Object[] options = {
-                    "Save",
-                    "Discard",
-                    "Cancel"
+                    fileResourceBundle.getString("Question.modified_save"), fileResourceBundle.getString("Question.modified_discard"), fileResourceBundle.getString("Question.modified_cancel")
             };
             int result = JOptionPane.showOptionDialog(fileHandler.getComponent(),
                     fileResourceBundle.getString("Question.modified"),
-                    "Save File?",
+                    fileResourceBundle.getString("Question.modified_title"),
                     JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
                     null, options, options[0]);

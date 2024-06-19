@@ -30,9 +30,14 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Shell;
 import org.exbin.bined.eclipse.plugin.BinEdPlugin;
 import org.exbin.framework.api.Preferences;
 import org.exbin.framework.api.XBApplication;
@@ -120,6 +125,7 @@ public class Application implements XBApplication {
                 ((JDialog) window).setTitle(resourceBundle.getString(RESOURCES_DIALOG_TITLE));
         	} else if (window instanceof Frame) {
         		((Frame) window).setTitle(resourceBundle.getString(RESOURCES_DIALOG_TITLE));
+        		WindowUtils.setWindowTitle(window, resourceBundle.getString(RESOURCES_DIALOG_TITLE));
         	}
         }
 

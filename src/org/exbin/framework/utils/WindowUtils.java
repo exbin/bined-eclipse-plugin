@@ -343,6 +343,17 @@ public class WindowUtils {
 		return holder.dialogWrapper;
     }
 
+    public static void setWindowTitle(Window window, String title) {
+		Shell windowShell = WindowUtils.identifyComponentShell(window);
+		if (windowShell != null) {
+			windowShell.getDisplay().syncExec(new Runnable() {
+				public void run() {
+					windowShell.setText(title);
+				}
+			});
+		}
+    }
+
     private static Shell identifyComponentShell(Component component) {
     	Component parent = null;
     	do {
