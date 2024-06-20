@@ -121,8 +121,8 @@ public class OptionsAction extends AbstractAction {
             }
 
             dialog.close();
+            dialog.dispose();
         });
         dialog.showCentered(componentPanel);
-        dialog.dispose();
     }
 }

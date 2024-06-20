@@ -55,6 +55,7 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.text.JTextComponent;
 
@@ -233,7 +234,16 @@ public class WindowUtils {
 					}
 				});
 
+				try {
+					UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+				} catch (ClassNotFoundException | InstantiationException
+						| IllegalAccessException
+						| UnsupportedLookAndFeelException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				final java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
+				
 				shell.addDisposeListener((e) -> {
 					frameShells.remove(frame);
 				});

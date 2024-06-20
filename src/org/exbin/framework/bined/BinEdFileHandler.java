@@ -67,7 +67,7 @@ import org.exbin.xbup.operation.undo.XBUndoHandler;
 @ParametersAreNonnullByDefault
 public class BinEdFileHandler implements FileHandler, UndoFileHandler, BinEdComponentFileApi, ClipboardActionsHandler, TextFontApi, TextCharsetApi {
 
-    private SegmentsRepository segmentsRepository;
+    protected SegmentsRepository segmentsRepository;
 
     @Nonnull
     private final BinEdEditorComponent editorComponent;

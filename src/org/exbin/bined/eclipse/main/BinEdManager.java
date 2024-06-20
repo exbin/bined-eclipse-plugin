@@ -738,7 +738,7 @@ public final class BinEdManager {
 
     @Nonnull
     private OptionsAction createOptionsAction(BinEdEditorComponent editorComponent, FileHandler fileHandler) {
-        return new OptionsAction(editorComponent.getComponentPanel(), fileHandler, preferences);
+    	return new OptionsAction(editorComponent.getComponentPanel(), fileHandler, preferences);
     }
 
     @Nonnull

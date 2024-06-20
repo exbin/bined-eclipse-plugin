@@ -49,10 +49,8 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.part.EditorPart;
 import org.exbin.bined.eclipse.main.BinEdNativeFile;
-import org.exbin.bined.operation.BinaryDataOperationException;
-import org.exbin.bined.operation.swing.CodeAreaUndoHandler;
-import org.exbin.bined.operation.undo.BinaryDataUndoHandler;
 import org.exbin.framework.utils.WindowUtils;
+import org.exbin.xbup.operation.undo.XBUndoHandler;
 
 /**
  * Implementation of the binary/hexadecimal editor.
@@ -180,7 +178,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 			WindowUtils.frameShells.remove(frame);
 		});
 
-		frame.add(editorFile.getComponent());
+		frame.add(editorFile.getEditorComponent().getComponent());
 		final org.eclipse.swt.graphics.Rectangle size = wrapper.getClientArea();
 		SwingUtilities.invokeLater(() -> {
 			frame.invalidate();
@@ -196,13 +194,13 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		bars.setGlobalActionHandler(ActionFactory.UNDO.getId(), new Action() {
 			@Override
 			public void run() {
-				BinaryDataUndoHandler undoHandler = editorFile.getUndoHandler();
+				XBUndoHandler undoHandler = editorFile.getUndoHandler();
 				if (!undoHandler.canUndo())
 					return;
 
 				try {
 					undoHandler.performUndo();
-				} catch (BinaryDataOperationException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -211,13 +209,13 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		bars.setGlobalActionHandler(ActionFactory.REDO.getId(), new Action() {
 			@Override
 			public void run() {
-				BinaryDataUndoHandler undoHandler = editorFile.getUndoHandler();
+				XBUndoHandler undoHandler = editorFile.getUndoHandler();
 				if (!undoHandler.canRedo())
 					return;
 
 				try {
 					undoHandler.performRedo();
-				} catch (BinaryDataOperationException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -260,13 +258,13 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		IActionBars bars = getEditorSite().getActionBars();
 		IAction undoAction = bars.getGlobalActionHandler(ActionFactory.UNDO.getId());
 		if (undoAction != null) {
-			BinaryDataUndoHandler undoHandler = editorFile.getUndoHandler();
+			XBUndoHandler undoHandler = editorFile.getUndoHandler();
 			undoAction.setEnabled(undoHandler.canUndo());
 		}
 
 		IAction redoAction = bars.getGlobalActionHandler(ActionFactory.REDO.getId());
 		if (redoAction != null) {
-			BinaryDataUndoHandler undoHandler = editorFile.getUndoHandler();
+			XBUndoHandler undoHandler = editorFile.getUndoHandler();
 			redoAction.setEnabled(undoHandler.canRedo());
 		}
 

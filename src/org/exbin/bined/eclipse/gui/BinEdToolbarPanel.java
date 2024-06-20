@@ -231,8 +231,17 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
     }
 
     public void updateUndoState() {
-        undoEditButton.setEnabled(undoHandler.canUndo());
+    	if (undoHandler == null) {
+    		return;
+    	}
+
+    	undoEditButton.setEnabled(undoHandler.canUndo());
         redoEditButton.setEnabled(undoHandler.canRedo());
+
+        if (saveAction != null) {
+            boolean modified = undoHandler != null && undoHandler.getCommandPosition() != undoHandler.getSyncPoint();
+            saveFileButton.setEnabled(modified);
+        }
     }
 
     public void updateUnprintables() {
@@ -240,13 +249,9 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
         showUnprintablesToggleButton.setSelected(showUnprintables);
     }
 
-    public void updateModified(boolean modified) {
-        saveFileButton.setEnabled(modified);
-        updateUndoState();
-    }
-
     public void setSaveAction(ActionListener saveAction) {
         this.saveAction = saveAction;
+        updateUndoState();
     }
 
     public void saveFile() {
