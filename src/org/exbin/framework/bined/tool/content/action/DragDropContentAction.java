@@ -15,6 +15,7 @@
  */
 package org.exbin.framework.bined.tool.content.action;
 
+import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -24,9 +25,12 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+
 import org.exbin.auxiliary.binary_data.BinaryData;
 import org.exbin.framework.api.XBApplication;
 import org.exbin.framework.bined.BinEdFileHandler;
@@ -53,6 +57,7 @@ public class DragDropContentAction extends AbstractAction {
     private XBApplication application;
     private ResourceBundle resourceBundle;
     private DragDropContentPanel dragDropContentPanel = new DragDropContentPanel();
+    private JComponent parentComponent;
 
     public DragDropContentAction() {
     }
@@ -65,11 +70,15 @@ public class DragDropContentAction extends AbstractAction {
         putValue(ActionUtils.ACTION_DIALOG_MODE, true);
     }
 
+    public void setParentComponent(JComponent parentComponent) {
+    	this.parentComponent = parentComponent;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         FrameModuleApi frameModule = application.getModuleRepository().getModuleByInterface(FrameModuleApi.class);
         CloseControlPanel controlPanel = new CloseControlPanel();
-        final WindowUtils.DialogWrapper dialog = frameModule.createDialog(dragDropContentPanel, controlPanel);
+        final WindowUtils.DialogWrapper dialog = frameModule.createDialog(parentComponent, ModalityType.APPLICATION_MODAL, dragDropContentPanel, controlPanel);
         dragDropContentPanel.setSaveAsFileAction(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -107,7 +116,7 @@ public class DragDropContentAction extends AbstractAction {
             dialog.dispose();
         });
         WindowUtils.addHeaderPanel(dialog.getWindow(), dragDropContentPanel.getClass(), dragDropContentPanel.getResourceBundle());
-        dialog.showCentered(frameModule.getFrame());
+        dialog.showCentered(parentComponent);
     }
 
     public void setEditorProvider(EditorProvider editorProvider) {

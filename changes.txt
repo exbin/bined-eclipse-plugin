@@ -2,7 +2,7 @@
 - Added support for language switching (zh, jp, ko)
 - Added support for basic macro
 - Added support for bookmarks
-- Added integration options page with laf option
+- Added integration options page
 - Added convert data action
 - Added clipboard content tool
 - Added drag&drop content tool

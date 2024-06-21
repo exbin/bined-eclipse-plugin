@@ -42,6 +42,7 @@ public class IntegrationPreferences implements IntegrationOptions {
     public static final String PREFERENCES_REGISTER_NATIVE_BINARY_FILE = "registerNativeBinaryFile";
     public static final String PREFERENCES_REGISTER_DEBUG_VIEW_AS_BINARY = "registerDebugVariablesAsBinary";
     public static final String PREFERENCES_REGISTER_BYTE_TO_BYTE_DIFF_TOOL = "registerByteToByteDiffTool";
+    public static final String PREFERENCES_REGISTER_DEFAULT_POPUP_MENU = "registerDefaultPopupMenu";
 
     public static final String PREFERENCES_REGISTER_EDIT_AS_BINARY_FOR_DB_COLUMN = "registerEditAsBinaryForDbColumn";
 
@@ -189,5 +190,14 @@ public class IntegrationPreferences implements IntegrationOptions {
 
     public void setRegisterEditAsBinaryForDbColumn(boolean registerEditAsBinaryForDbColumn) {
         preferences.putBoolean(PREFERENCES_REGISTER_EDIT_AS_BINARY_FOR_DB_COLUMN, registerEditAsBinaryForDbColumn);
+    }
+    
+    @Override
+    public boolean isRegisterDefaultPopupMenu() {
+        return preferences.getBoolean(PREFERENCES_REGISTER_DEFAULT_POPUP_MENU, false);
+    }
+
+    public void setRegisterDefaultPopupMenu(boolean registerDefaultPopupMenu) {
+        preferences.putBoolean(PREFERENCES_REGISTER_DEFAULT_POPUP_MENU, registerDefaultPopupMenu);
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.exbin.framework.bined.tool.content.action;
 
+import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -24,9 +25,12 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+
 import org.exbin.auxiliary.binary_data.BinaryData;
 import org.exbin.framework.api.XBApplication;
 import org.exbin.framework.bined.BinEdFileHandler;
@@ -53,6 +57,7 @@ public class ClipboardContentAction extends AbstractAction {
     private XBApplication application;
     private ResourceBundle resourceBundle;
     private ClipboardContentPanel clipboardContentPanel = new ClipboardContentPanel();
+    private JComponent parentComponent;
 
     public ClipboardContentAction() {
     }
@@ -65,12 +70,16 @@ public class ClipboardContentAction extends AbstractAction {
         putValue(ActionUtils.ACTION_DIALOG_MODE, true);
     }
 
+    public void setParentComponent(JComponent parentComponent) {
+    	this.parentComponent = parentComponent;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         FrameModuleApi frameModule = application.getModuleRepository().getModuleByInterface(FrameModuleApi.class);
         clipboardContentPanel.loadFromClipboard();
         ClipboardContentControlPanel controlPanel = new ClipboardContentControlPanel();
-        final WindowUtils.DialogWrapper dialog = frameModule.createDialog(clipboardContentPanel, controlPanel);
+        final WindowUtils.DialogWrapper dialog = frameModule.createDialog(parentComponent, ModalityType.APPLICATION_MODAL, clipboardContentPanel, controlPanel);
         clipboardContentPanel.setSaveAsFileAction(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -118,7 +127,7 @@ public class ClipboardContentAction extends AbstractAction {
             }
         });
         WindowUtils.addHeaderPanel(dialog.getWindow(), clipboardContentPanel.getClass(), clipboardContentPanel.getResourceBundle());
-        dialog.showCentered(frameModule.getFrame());
+        dialog.showCentered(parentComponent);
     }
 
     public void setEditorProvider(EditorProvider editorProvider) {

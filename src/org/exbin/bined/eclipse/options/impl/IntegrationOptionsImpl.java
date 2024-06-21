@@ -21,6 +21,7 @@ import org.exbin.framework.options.api.OptionsData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+
 import java.util.Locale;
 
 /**
@@ -39,6 +40,7 @@ public class IntegrationOptionsImpl implements OptionsData, IntegrationOptions {
     private boolean registerNativeBinaryFile = true;
     private boolean registerDebugViewAsBinary = true;
     private boolean registerByteToByteDiffTool = true;
+    private boolean registerDefaultPopupMenu = false;
 
     private boolean registerEditAsBinaryForDbColumn = true;
 
@@ -124,6 +126,15 @@ public class IntegrationOptionsImpl implements OptionsData, IntegrationOptions {
         this.registerEditAsBinaryForDbColumn = registerEditAsBinaryForDbColumn;
     }
 
+    @Override
+    public boolean isRegisterDefaultPopupMenu() {
+        return registerDefaultPopupMenu;
+    }
+
+    public void setRegisterDefaultPopupMenu(boolean registerDefaultPopupMenu) {
+        this.registerDefaultPopupMenu = registerDefaultPopupMenu;
+    }
+
     public void loadFromPreferences(IntegrationPreferences preferences) {
         languageLocale = preferences.getLanguageLocale();
         registerFileMenuOpenAsBinary = preferences.isRegisterFileMenuOpenAsBinary();
@@ -134,6 +145,7 @@ public class IntegrationOptionsImpl implements OptionsData, IntegrationOptions {
         registerDebugViewAsBinary = preferences.isRegisterDebugViewAsBinary();
         registerByteToByteDiffTool = preferences.isRegisterByteToByteDiffTool();
         registerEditAsBinaryForDbColumn = preferences.isRegisterEditAsBinaryForDbColumn();
+        registerDefaultPopupMenu = preferences.isRegisterDefaultPopupMenu(); 
     }
 
     public void saveToPreferences(IntegrationPreferences preferences) {
@@ -146,6 +158,7 @@ public class IntegrationOptionsImpl implements OptionsData, IntegrationOptions {
         preferences.setRegisterDebugViewAsBinary(registerDebugViewAsBinary);
         preferences.setRegisterByteToByteDiffTool(registerByteToByteDiffTool);
         preferences.setRegisterEditAsBinaryForDbColumn(registerEditAsBinaryForDbColumn);
+        preferences.setRegisterDefaultPopupMenu(registerDefaultPopupMenu);
     }
 
     public void setOptions(IntegrationOptionsImpl options) {
@@ -158,5 +171,6 @@ public class IntegrationOptionsImpl implements OptionsData, IntegrationOptions {
         registerDebugViewAsBinary = options.isRegisterDebugViewAsBinary();
         registerByteToByteDiffTool = options.isRegisterByteToByteDiffTool();
         registerEditAsBinaryForDbColumn = options.isRegisterEditAsBinaryForDbColumn();
+        registerDefaultPopupMenu = options.isRegisterDefaultPopupMenu();
     }
 }

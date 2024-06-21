@@ -13,40 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.exbin.bined.eclipse.options;
+package org.exbin.framework.popup;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Locale;
 
 /**
- * BinEd plugin preferences.
+ * Interface for image handler for visual component / context menu.
  *
  * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
-public interface IntegrationOptions {
+public interface ImageActionsHandler {
 
-    @Nonnull
-    Locale getLanguageLocale();
+    /**
+     * Performs copy image to clipboard operation.
+     */
+    void performCopyImage();
 
-    void setLanguageLocale(Locale languageLocale);
-
-    boolean isRegisterFileMenuOpenAsBinary();
-
-    boolean isRegisterOpenFileAsBinaryViaToolbar();
-
-    boolean isRegisterContextOpenAsBinary();
-
-    boolean isRegisterContextOpenInBinaryEditor();
-
-    boolean isRegisterNativeBinaryFile();
-
-    boolean isRegisterDebugViewAsBinary();
-
-    boolean isRegisterByteToByteDiffTool();
-
-    boolean isRegisterEditAsBinaryForDbColumn();
-
-    boolean isRegisterDefaultPopupMenu();
+    /**
+     * Returns if true if image is selected.
+     *
+     * @return true if image is selected
+     */
+    boolean isImageSelected();
 }

@@ -158,6 +158,7 @@ public class MacroManager {
         macrosManagerPanel.setControl(new MacrosManagerPanel.Control() {
             @Override
             public void addRecord() {
+            	addMacroAction.setParentComponent(macrosManagerPanel);
                 addMacroAction.actionPerformed(null);
                 Optional<MacroRecord> macroRecord = addMacroAction.getMacroRecord();
                 if (macroRecord.isPresent()) {
@@ -171,6 +172,7 @@ public class MacroManager {
             public void editRecord() {
                 int selectedRow = macrosManagerPanel.getTable().getSelectedRow();
                 MacroRecord selectedRecord = macrosManagerPanel.getMacroRecords().get(selectedRow);
+            	editMacroAction.setParentComponent(macrosManagerPanel);
                 editMacroAction.setMacroRecord(new MacroRecord(selectedRecord));
                 editMacroAction.actionPerformed(null);
                 Optional<MacroRecord> macroRecord = editMacroAction.getMacroRecord();

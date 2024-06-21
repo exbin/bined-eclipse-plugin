@@ -156,6 +156,7 @@ public class BookmarksManager {
                     ExtCodeArea codeArea = fileHandler.getCodeArea();
                     addBookmarkAction.setCurrentSelection(codeArea.getSelectionHandler());
                 }
+                addBookmarkAction.setParentComponent(bookmarksManagerPanel);
                 addBookmarkAction.actionPerformed(null);
                 Optional<BookmarkRecord> bookmarkRecord = addBookmarkAction.getBookmarkRecord();
                 if (bookmarkRecord.isPresent()) {
@@ -176,6 +177,7 @@ public class BookmarksManager {
                 BookmarkRecord selectedRecord = bookmarksManagerPanel.getSelectedRecord();
                 int selectedRow = bookmarksManagerPanel.getTable().getSelectedRow();
                 editBookmarkAction.setBookmarkRecord(new BookmarkRecord(selectedRecord));
+                editBookmarkAction.setParentComponent(bookmarksManagerPanel);
                 editBookmarkAction.actionPerformed(null);
                 Optional<BookmarkRecord> bookmarkRecord = editBookmarkAction.getBookmarkRecord();
                 if (bookmarkRecord.isPresent()) {

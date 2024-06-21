@@ -20,9 +20,12 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.AbstractAction;
+import javax.swing.GrayFilter;
+import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
@@ -85,6 +88,7 @@ public class BinedModule implements XBApplicationModule {
     @Nonnull
     public static JPopupMenu createCodeAreaPopupMenu(final ExtCodeArea codeArea, String menuPostfix) {
         ResourceBundle popupResourceBundle = LanguageUtils.getResourceBundleByBundleName("org/exbin/framework/popup/resources/DefaultPopupMenu");
+        String FRAMEWORK_TANGO_ICON_THEME_PREFIX = "/org/exbin/framework/action/resources/icons/tango-icon-theme/16x16/actions/";
         JPopupMenu popupMenu = new JPopupMenu();
 
         JMenuItem cutMenuItem = new JMenuItem(new AbstractAction() {
@@ -100,6 +104,9 @@ public class BinedModule implements XBApplicationModule {
         });
         cutMenuItem.setText(popupResourceBundle.getString("popupCutAction.text"));
         cutMenuItem.setToolTipText(popupResourceBundle.getString("popupCutAction.shortDescription"));
+        ImageIcon cutMenuItemIcon = new ImageIcon(BinedModule.class.getResource(FRAMEWORK_TANGO_ICON_THEME_PREFIX + "edit-cut.png"));
+        cutMenuItem.setIcon(cutMenuItemIcon);
+        cutMenuItem.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(cutMenuItemIcon.getImage())));
         cutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionUtils.getMetaMask()));
         popupMenu.add(cutMenuItem);
         JMenuItem copyMenuItem = new JMenuItem(new AbstractAction() {
@@ -114,6 +121,9 @@ public class BinedModule implements XBApplicationModule {
             }
         });
         copyMenuItem.setText(popupResourceBundle.getString("popupCopyAction.text"));
+        ImageIcon copyMenuItemIcon = new ImageIcon(BinedModule.class.getResource(FRAMEWORK_TANGO_ICON_THEME_PREFIX + "edit-copy.png"));
+        copyMenuItem.setIcon(copyMenuItemIcon);
+        copyMenuItem.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(copyMenuItemIcon.getImage())));
         copyMenuItem.setToolTipText(popupResourceBundle.getString("popupCopyAction.shortDescription"));
         copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionUtils.getMetaMask()));
         popupMenu.add(copyMenuItem);
@@ -130,6 +140,9 @@ public class BinedModule implements XBApplicationModule {
         });
         pasteMenuItem.setText(popupResourceBundle.getString("popupPasteAction.text"));
         pasteMenuItem.setToolTipText(popupResourceBundle.getString("popupPasteAction.shortDescription"));
+        ImageIcon pasteMenuItemIcon = new ImageIcon(BinedModule.class.getResource(FRAMEWORK_TANGO_ICON_THEME_PREFIX + "edit-paste.png"));
+        pasteMenuItem.setIcon(pasteMenuItemIcon);
+        pasteMenuItem.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(pasteMenuItemIcon.getImage())));
         pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionUtils.getMetaMask()));
         popupMenu.add(pasteMenuItem);
         JMenuItem deleteMenuItem = new JMenuItem(new AbstractAction() {
@@ -145,6 +158,9 @@ public class BinedModule implements XBApplicationModule {
         });
         deleteMenuItem.setText(popupResourceBundle.getString("popupDeleteAction.text"));
         deleteMenuItem.setToolTipText(popupResourceBundle.getString("popupDeleteAction.shortDescription"));
+        ImageIcon deleteMenuItemIcon = new ImageIcon(BinedModule.class.getResource(FRAMEWORK_TANGO_ICON_THEME_PREFIX + "edit-delete.png"));
+        deleteMenuItem.setIcon(deleteMenuItemIcon);
+        deleteMenuItem.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(deleteMenuItemIcon.getImage())));
         deleteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
         popupMenu.add(deleteMenuItem);
         JMenuItem selectAllMenuItem = new JMenuItem(new AbstractAction() {
@@ -154,6 +170,7 @@ public class BinedModule implements XBApplicationModule {
             }
         });
         selectAllMenuItem.setText(popupResourceBundle.getString("popupSelectAllAction.text"));
+        selectAllMenuItem.setIcon(new ImageIcon(BinedModule.class.getResource(FRAMEWORK_TANGO_ICON_THEME_PREFIX + "edit-select-all.png")));
         selectAllMenuItem.setToolTipText(popupResourceBundle.getString("popupSelectAllAction.shortDescription"));
         selectAllMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionUtils.getMetaMask()));
         popupMenu.add(selectAllMenuItem);

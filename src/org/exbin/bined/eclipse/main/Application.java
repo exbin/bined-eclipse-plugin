@@ -47,6 +47,7 @@ import org.exbin.framework.frame.api.FrameModuleApi;
 import org.exbin.framework.utils.WindowUtils;
 import org.exbin.framework.utils.WindowUtils.DialogWrapper;
 import org.exbin.framework.utils.handler.OkCancelService;
+//import org.eclipse.e4.ui.model.application.MApplication;
 
 /**
  * Application wrapper.
@@ -131,6 +132,8 @@ public class Application implements XBApplication {
 
         @Override
         public Frame getFrame() {
+//        	MApplication application = E4Workbench.getServiceContext().get(MApplication.class);
+//        	MWindow mWindow = application.getChildren().get(0);
             return null;
         }
 

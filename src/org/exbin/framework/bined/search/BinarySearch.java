@@ -16,13 +16,16 @@
 package org.exbin.framework.bined.search;
 
 import java.awt.Dialog;
+import java.awt.Dialog.ModalityType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.JPanel;
+
 import org.exbin.auxiliary.binary_data.ByteArrayEditableData;
 import org.exbin.auxiliary.binary_data.EditableBinaryData;
 import org.exbin.framework.api.XBApplication;
@@ -212,7 +215,7 @@ public class BinarySearch {
                 findBinaryPanel.setReplaceParameters(currentReplaceParameters);
                 findBinaryPanel.setCodeAreaPopupMenuHandler(codeAreaPopupMenuHandler);
                 DefaultControlPanel controlPanel = new DefaultControlPanel(findBinaryPanel.getResourceBundle());
-                final WindowUtils.DialogWrapper dialog = frameModule.createDialog(findBinaryPanel, controlPanel);
+                final WindowUtils.DialogWrapper dialog = frameModule.createDialog(binarySearchPanel, ModalityType.APPLICATION_MODAL, findBinaryPanel, controlPanel);
                 frameModule.setDialogTitle(dialog, findBinaryPanel.getResourceBundle());
                 WindowUtils.addHeaderPanel(dialog.getWindow(), findBinaryPanel.getClass(), findBinaryPanel.getResourceBundle());
                 findBinaryPanel.setMultilineEditorListener(new FindBinaryPanel.MultilineEditorListener() {

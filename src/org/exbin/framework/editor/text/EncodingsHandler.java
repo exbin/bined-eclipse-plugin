@@ -17,6 +17,7 @@ package org.exbin.framework.editor.text;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -24,6 +25,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.AbstractAction;
@@ -35,6 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
+
 import org.exbin.framework.api.XBApplication;
 import org.exbin.framework.editor.text.gui.AddEncodingPanel;
 import org.exbin.framework.editor.text.options.gui.TextEncodingPanel;
@@ -109,7 +112,7 @@ public class EncodingsHandler {
                 textEncodingPanel.setEncodingList(textEncodingService.getEncodings());
                 final OptionsControlPanel optionsControlPanel = new OptionsControlPanel();
                 JPanel dialogPanel = WindowUtils.createDialogPanel(textEncodingPanel, optionsControlPanel);
-                final DialogWrapper dialog = frameModule.createDialog(dialogPanel, optionsControlPanel);
+                final DialogWrapper dialog = frameModule.createDialog(parentComponent, ModalityType.APPLICATION_MODAL, dialogPanel, optionsControlPanel);
                 WindowUtils.addHeaderPanel(dialog.getWindow(), textEncodingPanel.getClass(), textEncodingPanel.getResourceBundle());
                 frameModule.setDialogTitle(dialog, textEncodingPanel.getResourceBundle());
                 optionsControlPanel.setHandler((OptionsControlHandler.ControlActionType actionType) -> {
@@ -129,7 +132,7 @@ public class EncodingsHandler {
                     final AddEncodingPanel addEncodingPanel = new AddEncodingPanel();
                     addEncodingPanel.setUsedEncodings(usedEncodings);
                     DefaultControlPanel encodingsControlPanel = new DefaultControlPanel(addEncodingPanel.getResourceBundle());
-                    final DialogWrapper addEncodingDialog = frameModule.createDialog(addEncodingPanel, encodingsControlPanel);
+                    final DialogWrapper addEncodingDialog = frameModule.createDialog(parentComponent, ModalityType.APPLICATION_MODAL, addEncodingPanel, encodingsControlPanel);
                     WindowUtils.addHeaderPanel(addEncodingDialog.getWindow(), addEncodingPanel.getClass(), addEncodingPanel.getResourceBundle());
                     frameModule.setDialogTitle(addEncodingDialog, addEncodingPanel.getResourceBundle());
 

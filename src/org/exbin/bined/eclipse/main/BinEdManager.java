@@ -390,6 +390,7 @@ public final class BinEdManager {
                 }
             }
         });
+        statusPanel.loadFromPreferences(preferences.getStatusPreferences());
         registerBinaryStatus(editorComponent, (BinEdComponentFileApi) fileHandler);
         registerEncodingStatus(statusPanel, editorComponent);
         bookmarksManager.registerBookmarksComponentActions(editorComponent.getComponentPanel());
@@ -403,6 +404,7 @@ public final class BinEdManager {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         fileHandler.saveFile();
+                        toolbarPanel.updateUndoState();
                     }
                 });
             }
@@ -685,8 +687,8 @@ public final class BinEdManager {
         if (fileHandler != null) {
             toolsMenu.add(ActionUtils.actionToMenuItem(createCompareFilesAction(codeArea)));
         }
-        toolsMenu.add(ActionUtils.actionToMenuItem(createClipboardContentAction()));
-        toolsMenu.add(ActionUtils.actionToMenuItem(createDragDropContentAction()));
+        toolsMenu.add(ActionUtils.actionToMenuItem(createClipboardContentAction(editorComponent.getComponent())));
+        toolsMenu.add(ActionUtils.actionToMenuItem(createDragDropContentAction(editorComponent.getComponent())));
         menu.add(toolsMenu);
 
         if (fileHandler instanceof BinEdFileHandler || fileHandler instanceof BinEdNativeFile) {
@@ -900,16 +902,18 @@ public final class BinEdManager {
     }
 
     @Nonnull
-    public ClipboardContentAction createClipboardContentAction() {
+    public ClipboardContentAction createClipboardContentAction(JComponent parentComponent) {
         ClipboardContentAction clipboardContentAction = new ClipboardContentAction();
         clipboardContentAction.setup(application, toolContentResourceBundle);
+        clipboardContentAction.setParentComponent(parentComponent);
         return clipboardContentAction;
     }
 
     @Nonnull
-    public DragDropContentAction createDragDropContentAction() {
+    public DragDropContentAction createDragDropContentAction(JComponent parentComponent) {
         DragDropContentAction dragDropContentAction = new DragDropContentAction();
         dragDropContentAction.setup(application, toolContentResourceBundle);
+        dragDropContentAction.setParentComponent(parentComponent);
         return dragDropContentAction;
     }
 

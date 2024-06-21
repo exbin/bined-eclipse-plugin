@@ -234,16 +234,18 @@ public class WindowUtils {
 					}
 				});
 
-				try {
+				/* try {
 					UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
 				} catch (ClassNotFoundException | InstantiationException
 						| IllegalAccessException
 						| UnsupportedLookAndFeelException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
-				}
+				} */
 				final java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
 				
+				// component.
+
 				shell.addDisposeListener((e) -> {
 					frameShells.remove(frame);
 				});

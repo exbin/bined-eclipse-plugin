@@ -27,6 +27,7 @@ import org.exbin.bined.eclipse.main.EclipsePreferencesWrapper;
 import org.exbin.bined.eclipse.options.IntegrationOptions;
 import org.exbin.bined.eclipse.preferences.IntegrationPreferences;
 import org.exbin.framework.options.model.LanguageRecord;
+import org.exbin.framework.popup.DefaultPopupMenu;
 import org.exbin.framework.utils.LanguageUtils;
 import org.osgi.framework.BundleContext;
 
@@ -69,6 +70,8 @@ public class BinEdPlugin extends AbstractUIPlugin {
 //				// contentTypeManager.addContentType();
 //			}
 //		}
+		
+		DefaultPopupMenu.register();
 
         if (initialIntegrationOptions == null) {
             // initIntegrations();

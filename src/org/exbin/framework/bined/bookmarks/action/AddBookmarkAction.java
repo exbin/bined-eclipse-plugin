@@ -19,9 +19,12 @@ import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.AbstractAction;
+import javax.swing.JComponent;
+
 import org.exbin.bined.CodeAreaSelection;
 import org.exbin.framework.api.XBApplication;
 import org.exbin.framework.utils.ActionUtils;
@@ -44,6 +47,7 @@ public class AddBookmarkAction extends AbstractAction {
     private XBApplication application;
     private ResourceBundle resourceBundle;
     private BookmarkRecord bookmarkRecord = null;
+    private JComponent parentComponent;
     private CodeAreaSelection currentSelection;
 
     public AddBookmarkAction() {
@@ -66,6 +70,10 @@ public class AddBookmarkAction extends AbstractAction {
         return Optional.ofNullable(bookmarkRecord);
     }
 
+    public void setParentComponent(JComponent parentComponent) {
+    	this.parentComponent = parentComponent;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         final BookmarkEditorPanel bookmarkEditorPanel = new BookmarkEditorPanel();
@@ -75,7 +83,7 @@ public class AddBookmarkAction extends AbstractAction {
         DefaultControlPanel controlPanel = new DefaultControlPanel(panelResourceBundle);
 
         FrameModuleApi frameModule = application.getModuleRepository().getModuleByInterface(FrameModuleApi.class);
-        final WindowUtils.DialogWrapper dialog = frameModule.createDialog(frameModule.getFrame(), Dialog.ModalityType.APPLICATION_MODAL, bookmarkEditorPanel, controlPanel);
+        final WindowUtils.DialogWrapper dialog = frameModule.createDialog(parentComponent, Dialog.ModalityType.APPLICATION_MODAL, bookmarkEditorPanel, controlPanel);
         frameModule.setDialogTitle(dialog, panelResourceBundle);
         controlPanel.setHandler((actionType) -> {
             switch (actionType) {
@@ -91,6 +99,6 @@ public class AddBookmarkAction extends AbstractAction {
             dialog.close();
         });
 
-        dialog.showCentered(frameModule.getFrame());
+        dialog.showCentered(parentComponent);
     }
 }

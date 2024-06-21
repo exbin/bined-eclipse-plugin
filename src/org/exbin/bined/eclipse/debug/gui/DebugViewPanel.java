@@ -22,8 +22,9 @@ import java.util.List;
 import org.exbin.bined.EditMode;
 import org.exbin.auxiliary.binary_data.BinaryData;
 import org.exbin.bined.eclipse.debug.DebugViewDataProvider;
-import org.exbin.framework.bined.FileHandlingMode;
-import org.exbin.framework.bined.gui.BinEdComponentFileApi;
+import org.exbin.bined.eclipse.main.BinEdManager;
+import org.exbin.framework.bined.BinEdEditorComponent;
+import org.exbin.framework.bined.BinEdFileManager;
 import org.exbin.framework.bined.gui.BinEdComponentPanel;
 
 import javax.annotation.Nullable;
@@ -40,19 +41,24 @@ public class DebugViewPanel extends javax.swing.JPanel {
     private final List<DebugViewDataProvider> providers = new ArrayList<>();
     private int selectedProvider = 0;
 
-    private final BinEdComponentPanel componentPanel;
+    private final BinEdEditorComponent editorComponent = new BinEdEditorComponent();
 
     public DebugViewPanel() {
-        componentPanel = new BinEdComponentPanel();
+        BinEdManager binEdManager = BinEdManager.getInstance();
+	    BinEdFileManager fileManager = binEdManager.getFileManager();
+	    BinEdComponentPanel componentPanel = editorComponent.getComponentPanel();
+	    fileManager.initComponentPanel(componentPanel);
+	    binEdManager.initEditorComponent(editorComponent);
 
         initComponents();
         init();
     }
 
     private void init() {
-        componentPanel.getCodeArea().setEditMode(EditMode.READ_ONLY);
+        BinEdComponentPanel componentPanel = editorComponent.getComponentPanel();
+        editorComponent.getCodeArea().setEditMode(EditMode.READ_ONLY);
 
-        this.add(componentPanel, BorderLayout.CENTER);
+        this.add(editorComponent.getComponent(), BorderLayout.CENTER);
         this.invalidate();
     }
 
@@ -99,6 +105,6 @@ public class DebugViewPanel extends javax.swing.JPanel {
     }
 
     public void setContentData(@Nullable BinaryData data) {
-        componentPanel.setContentData(data);
+        editorComponent.setContentData(data);
     }
 }

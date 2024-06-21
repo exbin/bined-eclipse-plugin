@@ -19,9 +19,12 @@ import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.AbstractAction;
+import javax.swing.JComponent;
+
 import org.exbin.framework.api.XBApplication;
 import org.exbin.framework.bined.macro.gui.MacroEditorPanel;
 import org.exbin.framework.bined.macro.model.MacroRecord;
@@ -42,6 +45,7 @@ public class AddMacroAction extends AbstractAction {
 
     private XBApplication application;
     private ResourceBundle resourceBundle;
+    private JComponent parentComponent;
     private MacroRecord macroRecord = null;
 
     public AddMacroAction() {
@@ -59,6 +63,10 @@ public class AddMacroAction extends AbstractAction {
     public Optional<MacroRecord> getMacroRecord() {
         return Optional.ofNullable(macroRecord);
     }
+    
+    public void setParentComponent(JComponent parentComponent) {
+    	this.parentComponent = parentComponent;
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -68,7 +76,7 @@ public class AddMacroAction extends AbstractAction {
         DefaultControlPanel controlPanel = new DefaultControlPanel(panelResourceBundle);
 
         FrameModuleApi frameModule = application.getModuleRepository().getModuleByInterface(FrameModuleApi.class);
-        final WindowUtils.DialogWrapper dialog = frameModule.createDialog(frameModule.getFrame(), Dialog.ModalityType.APPLICATION_MODAL, macroEditorPanel, controlPanel);
+        final WindowUtils.DialogWrapper dialog = frameModule.createDialog(parentComponent, Dialog.ModalityType.APPLICATION_MODAL, macroEditorPanel, controlPanel);
         frameModule.setDialogTitle(dialog, panelResourceBundle);
         controlPanel.setHandler((actionType) -> {
             switch (actionType) {
@@ -84,6 +92,6 @@ public class AddMacroAction extends AbstractAction {
             dialog.close();
         });
 
-        dialog.showCentered(frameModule.getFrame());
+        dialog.showCentered(parentComponent);
     }
 }

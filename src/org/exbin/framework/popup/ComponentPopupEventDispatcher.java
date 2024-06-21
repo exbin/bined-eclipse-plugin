@@ -13,40 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.exbin.bined.eclipse.options;
+package org.exbin.framework.popup;
 
-import javax.annotation.Nonnull;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Locale;
 
 /**
- * BinEd plugin preferences.
+ * Interface for popup event trigger dispatcher.
  *
  * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
-public interface IntegrationOptions {
+public interface ComponentPopupEventDispatcher {
 
-    @Nonnull
-    Locale getLanguageLocale();
+    /**
+     * Processes event for popup trigger actions.
+     *
+     * @param mouseEvent mouse event
+     * @return true if event was processed
+     */
+    boolean dispatchMouseEvent(MouseEvent mouseEvent);
 
-    void setLanguageLocale(Locale languageLocale);
-
-    boolean isRegisterFileMenuOpenAsBinary();
-
-    boolean isRegisterOpenFileAsBinaryViaToolbar();
-
-    boolean isRegisterContextOpenAsBinary();
-
-    boolean isRegisterContextOpenInBinaryEditor();
-
-    boolean isRegisterNativeBinaryFile();
-
-    boolean isRegisterDebugViewAsBinary();
-
-    boolean isRegisterByteToByteDiffTool();
-
-    boolean isRegisterEditAsBinaryForDbColumn();
-
-    boolean isRegisterDefaultPopupMenu();
+    /**
+     * Processes event for popup trigger actions.
+     *
+     * @param keyEvent key event
+     * @return true if event was processed
+     */
+    boolean dispatchKeyEvent(KeyEvent keyEvent);
 }
