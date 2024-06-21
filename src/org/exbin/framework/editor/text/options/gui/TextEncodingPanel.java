@@ -18,6 +18,7 @@ package org.exbin.framework.editor.text.options.gui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -25,6 +26,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
+
 import org.exbin.framework.editor.text.options.impl.TextEncodingOptionsImpl;
 import org.exbin.framework.utils.LanguageUtils;
 import org.exbin.framework.utils.WindowUtils;
@@ -224,12 +226,13 @@ public class TextEncodingPanel extends javax.swing.JPanel implements OptionsComp
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         if (addEncodingsOperation != null) {
-            List<String> encodings = addEncodingsOperation.run(((EncodingsListModel) encodingsList.getModel()).getCharsets());
-            if (encodings != null) {
-                ((EncodingsListModel) encodingsList.getModel()).addAll(encodings, encodingsList.getSelectedIndex());
-                encodingsList.clearSelection();
-                wasModified();
-            }
+            addEncodingsOperation.run(((EncodingsListModel) encodingsList.getModel()).getCharsets(), (List<String> encodings) -> {
+                if (encodings != null) {
+                    ((EncodingsListModel) encodingsList.getModel()).addAll(encodings, encodingsList.getSelectedIndex());
+                    encodingsList.clearSelection();
+                    wasModified();
+                }
+            });
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -333,7 +336,12 @@ public class TextEncodingPanel extends javax.swing.JPanel implements OptionsComp
 
     public static interface AddEncodingsOperation {
 
-        List<String> run(List<String> usedEncodings);
+        void run(List<String> usedEncodings, EncodingsUpdate encodingsUpdate);
+    }
+
+    public static interface EncodingsUpdate {
+
+        void update(List<String> encodings);
     }
 
     @ParametersAreNonnullByDefault

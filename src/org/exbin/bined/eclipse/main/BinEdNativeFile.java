@@ -24,6 +24,7 @@ import java.util.Objects;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.swing.event.ChangeListener;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspace;
@@ -42,6 +43,8 @@ import org.exbin.bined.swing.extended.ExtCodeArea;
 import org.exbin.framework.bined.BinEdFileHandler;
 import org.exbin.framework.bined.FileHandlingMode;
 import org.exbin.framework.bined.UndoHandlerWrapper;
+import org.exbin.xbup.operation.Command;
+import org.exbin.xbup.operation.undo.XBUndoUpdateListener;
 
 /**
  * File editor wrapper using BinEd editor component.
@@ -52,6 +55,7 @@ import org.exbin.framework.bined.UndoHandlerWrapper;
 public class BinEdNativeFile extends BinEdFileHandler {
 
     private IEditorInput dataObject;
+    private ChangeListener changeListener;
 
     public BinEdNativeFile() {
     	super();
@@ -60,6 +64,20 @@ public class BinEdNativeFile extends BinEdFileHandler {
         CodeAreaUndoHandler undoHandler = new CodeAreaUndoHandler(codeArea);
         getEditorComponent().setUndoHandler(undoHandler);
         ((UndoHandlerWrapper) getUndoHandler()).setHandler(undoHandler);
+		getUndoHandler().addUndoUpdateListener(new XBUndoUpdateListener() {
+			
+			@Override
+			public void undoCommandPositionChanged() {
+				notifyChanged();
+			}
+			
+			@Override
+			public void undoCommandAdded(Command command) {
+				notifyChanged();
+			}
+		});
+        BinEdManager binEdManager = BinEdManager.getInstance();
+        binEdManager.getFileManager().initCommandHandler(getComponent());
     }
 
     public IEditorInput getContent() {
@@ -146,6 +164,8 @@ public class BinEdNativeFile extends BinEdFileHandler {
 		            document.save();
 		        }
 		        getUndoHandler().setSyncPoint();
+		        notifyChanged();
+		        getEditorComponent().getToolbarPanel().updateUndoState();
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -167,6 +187,8 @@ public class BinEdNativeFile extends BinEdFileHandler {
 //	            document.save();
 	        }
 	        getUndoHandler().setSyncPoint();
+	        notifyChanged();
+	        getEditorComponent().getToolbarPanel().updateUndoState();
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
     		dataObject = new FileEditorInput(workspace.getRoot().getFileForLocation(org.eclipse.core.runtime.Path.fromOSString(file.getAbsolutePath())));
 		} catch (IOException ex) {
@@ -185,6 +207,16 @@ public class BinEdNativeFile extends BinEdFileHandler {
         }
 
         saveFile();
+    }
+    
+    public void setChangeListener(ChangeListener changeListener) {
+    	this.changeListener = changeListener;
+    }
+    
+    public void notifyChanged() {
+    	if (changeListener != null) {
+    		changeListener.stateChanged(null);
+    	}
     }
     
     @Nonnull

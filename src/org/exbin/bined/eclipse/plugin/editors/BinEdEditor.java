@@ -22,6 +22,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
@@ -50,7 +52,9 @@ import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.part.EditorPart;
 import org.exbin.bined.eclipse.main.BinEdNativeFile;
 import org.exbin.framework.utils.WindowUtils;
+import org.exbin.xbup.operation.Command;
 import org.exbin.xbup.operation.undo.XBUndoHandler;
+import org.exbin.xbup.operation.undo.XBUndoUpdateListener;
 
 /**
  * Implementation of the binary/hexadecimal editor.
@@ -63,8 +67,6 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 	private List<ISelectionChangedListener> selectionChangedListeners = new ArrayList<>();
 	private BinEdNativeFile editorFile;
 
-    private boolean opened = false;
-    private boolean modified = false;
     protected String displayName;
     private ActionsStateListener actionsStateListener;
 
@@ -151,15 +153,19 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public boolean isSaveAsAllowed() {
-		return true;
+		return editorFile != null && editorFile.isSaveSupported();
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 		editorFile = new BinEdNativeFile();
-//		editorFile.setModifiedChangeListener(() -> {
-//			notifyChanged();
-//		});
+		editorFile.setChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				notifyChanged();
+			}
+		});
 
 		Composite wrapper = new Composite(parent, SWT.EMBEDDED);
 		wrapper.addTraverseListener(new TraverseListener() {

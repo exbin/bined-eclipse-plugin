@@ -230,8 +230,7 @@ public class BinEdOptionsPanel extends javax.swing.JPanel implements BinEdApplyO
         });
         categoriesList.setSelectedIndex(0);
 
-        encodingOptionsPanel.setAddEncodingsOperation((List<String> usedEncodings) -> {
-            final List<String> result = new ArrayList<>();
+        encodingOptionsPanel.setAddEncodingsOperation((List<String> usedEncodings, TextEncodingPanel.EncodingsUpdate encodingsUpdate) -> {
             final AddEncodingPanel addEncodingPanel = new AddEncodingPanel();
             addEncodingPanel.setUsedEncodings(usedEncodings);
             DefaultControlPanel encodingsControlPanel = new DefaultControlPanel(addEncodingPanel.getResourceBundle());
@@ -239,13 +238,12 @@ public class BinEdOptionsPanel extends javax.swing.JPanel implements BinEdApplyO
             final DialogWrapper addEncodingDialog = WindowUtils.createDialog(dialogPanel, this, addEncodingPanel.getResourceBundle().getString("dialog.title"), Dialog.ModalityType.APPLICATION_MODAL);
             encodingsControlPanel.setHandler((DefaultControlHandler.ControlActionType actionType) -> {
                 if (actionType == DefaultControlHandler.ControlActionType.OK) {
-                    result.addAll(addEncodingPanel.getEncodings());
+                	encodingsUpdate.update(addEncodingPanel.getEncodings());
                 }
 
                 addEncodingDialog.close();
             });
             addEncodingDialog.show();
-            return result;
         });
 
         fontOptionsPanel.setFontChangeAction(new TextFontOptionsPanel.FontChangeAction() {
