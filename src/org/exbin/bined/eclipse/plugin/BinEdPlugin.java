@@ -18,8 +18,12 @@ package org.exbin.bined.eclipse.plugin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -71,8 +75,6 @@ public class BinEdPlugin extends AbstractUIPlugin {
 //			}
 //		}
 		
-		DefaultPopupMenu.register();
-
         if (initialIntegrationOptions == null) {
             // initIntegrations();
 
@@ -148,6 +150,38 @@ public class BinEdPlugin extends AbstractUIPlugin {
         for (IntegrationOptionsListener listener : INTEGRATION_OPTIONS_LISTENERS) {
             listener.integrationInit(integrationOptions);
         }
+        
+        if (integrationOptions.isChangeVisualTheme()) {
+        	String laf = integrationOptions.getVisualTheme();
+            try {
+                if (laf.isEmpty()) {
+                    String osName = System.getProperty("os.name").toLowerCase();
+                    if (!osName.startsWith("windows") && !osName.startsWith("mac")) {
+                        // Try "GTK+" on linux
+                        try {
+                            UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+                        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+                            laf = UIManager.getSystemLookAndFeelClassName();
+                        }
+                    } else {
+                        laf = UIManager.getSystemLookAndFeelClassName();
+                    }
+                }
+
+                if (laf != null && !laf.isEmpty()) {
+//                    LookAndFeelApplier applier = lafPlugins.get(laf);
+//                    if (applier != null) {
+//                        applier.applyLookAndFeel(laf);
+//                    } else {
+                    UIManager.setLookAndFeel(laf);
+//                    }
+                }
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+                Logger.getLogger(BinEdPlugin.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        DefaultPopupMenu.registerOptional(integrationOptions.isRegisterDefaultPopupMenu());
     }
 
     private static void uninstallIntegration() {

@@ -32,21 +32,15 @@ public interface IntegrationOptions {
 
     void setLanguageLocale(Locale languageLocale);
 
-    boolean isRegisterFileMenuOpenAsBinary();
-
-    boolean isRegisterOpenFileAsBinaryViaToolbar();
-
-    boolean isRegisterContextOpenAsBinary();
-
-    boolean isRegisterContextOpenInBinaryEditor();
-
-    boolean isRegisterNativeBinaryFile();
+    boolean isRegisterOpenWithAsBinary();
 
     boolean isRegisterDebugViewAsBinary();
 
     boolean isRegisterByteToByteDiffTool();
 
-    boolean isRegisterEditAsBinaryForDbColumn();
-
     boolean isRegisterDefaultPopupMenu();
+    
+    boolean isChangeVisualTheme();
+    
+    String getVisualTheme();
 }

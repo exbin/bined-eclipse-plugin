@@ -19,13 +19,16 @@ import java.awt.Component;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
+
 import org.exbin.bined.eclipse.options.impl.IntegrationOptionsImpl;
 import org.exbin.framework.options.model.LanguageRecord;
 import org.exbin.framework.utils.LanguageUtils;
@@ -58,14 +61,12 @@ public class IntegrationOptionsPanel extends javax.swing.JPanel implements Optio
     @Override
     public void saveToOptions(IntegrationOptionsImpl options) {
         options.setLanguageLocale(((LanguageRecord) languageComboBox.getSelectedItem()).getLocale());
-        options.setRegisterFileMenuOpenAsBinary(openFileAsBinaryCheckBox.isSelected());
-        options.setRegisterOpenFileAsBinaryViaToolbar(openFileToolbarBinaryCheckBox.isSelected());
-        options.setRegisterContextOpenAsBinary(contextOpenAsBinaryCheckBox.isSelected());
-        options.setRegisterContextOpenInBinaryEditor(binaryEditorInContextOpenInCheckBox.isSelected());
-        options.setRegisterNativeBinaryFile(nativeBinaryFileCheckBox.isSelected());
+        options.setRegisterOpenWithAsBinary(openWithAsBinaryCheckBox.isSelected());
         options.setRegisterDebugViewAsBinary(openAsBinaryInDebugViewCheckBox.isSelected());
         options.setRegisterByteToByteDiffTool(byteToByteDiffToolCheckBox.isSelected());
-        options.setRegisterEditAsBinaryForDbColumn(editAsBinaryForDbColumnCheckBox.isSelected());
+        options.setRegisterDefaultPopupMenu(registerDefaultPopupCheckBox.isSelected());
+        options.setChangeVisualTheme(visualThemeCheckBox.isSelected());
+        options.setVisualTheme((String) visualThemeComboBox.getSelectedItem());
     }
 
     @Override
@@ -79,14 +80,12 @@ public class IntegrationOptionsPanel extends javax.swing.JPanel implements Optio
                 break;
             }
         }
-        openFileAsBinaryCheckBox.setSelected(options.isRegisterFileMenuOpenAsBinary());
-        openFileToolbarBinaryCheckBox.setSelected(options.isRegisterOpenFileAsBinaryViaToolbar());
-        contextOpenAsBinaryCheckBox.setSelected(options.isRegisterContextOpenAsBinary());
-        binaryEditorInContextOpenInCheckBox.setSelected(options.isRegisterContextOpenInBinaryEditor());
-        nativeBinaryFileCheckBox.setSelected(options.isRegisterNativeBinaryFile());
+        openWithAsBinaryCheckBox.setSelected(options.isRegisterOpenWithAsBinary());
         openAsBinaryInDebugViewCheckBox.setSelected(options.isRegisterDebugViewAsBinary());
         byteToByteDiffToolCheckBox.setSelected(options.isRegisterByteToByteDiffTool());
-        editAsBinaryForDbColumnCheckBox.setSelected(options.isRegisterEditAsBinaryForDbColumn());
+        registerDefaultPopupCheckBox.setSelected(options.isRegisterDefaultPopupMenu());
+        visualThemeCheckBox.setSelected(options.isChangeVisualTheme());
+        visualThemeComboBox.setSelectedIndex(findMatchingElement(visualThemeComboBox.getModel(), options.getVisualTheme()));
     }
 
     public void setLanguageLocales(List<LanguageRecord> languageLocales) {
@@ -116,6 +115,34 @@ public class IntegrationOptionsPanel extends javax.swing.JPanel implements Optio
         this.defaultLocaleName = defaultLocaleName;
     }
 
+    public void setThemes(List<String> themeKeys, List<String> themeNames) {
+        DefaultComboBoxModel<String> themeComboBoxModel = new DefaultComboBoxModel<>();
+        themeKeys.forEach((themeKey) -> {
+            themeComboBoxModel.addElement(themeKey);
+        });
+        visualThemeComboBox.setModel(themeComboBoxModel);
+        visualThemeComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Nonnull
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, @Nullable Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                if (index >= 0) {
+                    return super.getListCellRendererComponent(list, themeNames.get(index), index, isSelected, cellHasFocus);
+                }
+                int selectedIndex = visualThemeComboBox.getSelectedIndex();
+                return super.getListCellRendererComponent(list, selectedIndex >= 0 ? themeNames.get(selectedIndex) : value, index, isSelected, cellHasFocus);
+            }
+        });
+    }
+
+    private static int findMatchingElement(ComboBoxModel<String> model, String value) {
+        for (int i = 0; i < model.getSize(); i++) {
+            if (value.equals(model.getElementAt(i))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -125,16 +152,17 @@ public class IntegrationOptionsPanel extends javax.swing.JPanel implements Optio
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        languageComboBox = new javax.swing.JComboBox<>();
         languageLabel = new javax.swing.JLabel();
-        openFileAsBinaryCheckBox = new javax.swing.JCheckBox();
-        openFileToolbarBinaryCheckBox = new javax.swing.JCheckBox();
-        contextOpenAsBinaryCheckBox = new javax.swing.JCheckBox();
-        binaryEditorInContextOpenInCheckBox = new javax.swing.JCheckBox();
+        languageComboBox = new javax.swing.JComboBox<>();
+        openWithAsBinaryCheckBox = new javax.swing.JCheckBox();
         openAsBinaryInDebugViewCheckBox = new javax.swing.JCheckBox();
-        nativeBinaryFileCheckBox = new javax.swing.JCheckBox();
         byteToByteDiffToolCheckBox = new javax.swing.JCheckBox();
-        editAsBinaryForDbColumnCheckBox = new javax.swing.JCheckBox();
+        visualThemeCheckBox = new javax.swing.JCheckBox();
+        visualThemeLabel = new javax.swing.JLabel();
+        visualThemeComboBox = new javax.swing.JComboBox<>();
+        registerDefaultPopupCheckBox = new javax.swing.JCheckBox();
+
+        languageLabel.setText(resourceBundle.getString("languageLabel.text") + " *"); // NOI18N
 
         languageComboBox.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -142,67 +170,62 @@ public class IntegrationOptionsPanel extends javax.swing.JPanel implements Optio
             }
         });
 
-        languageLabel.setText(resourceBundle.getString("languageLabel.text")); // NOI18N
-
-        openFileAsBinaryCheckBox.setText(resourceBundle.getString("openFileAsBinaryCheckBox.text")); // NOI18N
-        openFileAsBinaryCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
+        openWithAsBinaryCheckBox.setSelected(true);
+        openWithAsBinaryCheckBox.setText(resourceBundle.getString("openWithAsBinaryCheckBox.text")); // NOI18N
+        openWithAsBinaryCheckBox.setEnabled(false);
+        openWithAsBinaryCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                openFileAsBinaryCheckBoxStateChanged(evt);
-            }
-        });
-
-        openFileToolbarBinaryCheckBox.setSelected(true);
-        openFileToolbarBinaryCheckBox.setText(resourceBundle.getString("openFileToolbarBinaryCheckBox.text")); // NOI18N
-        openFileToolbarBinaryCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                openFileToolbarBinaryCheckBoxStateChanged(evt);
-            }
-        });
-
-        contextOpenAsBinaryCheckBox.setText(resourceBundle.getString("contextOpenAsBinaryCheckBox.text")); // NOI18N
-        contextOpenAsBinaryCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                contextOpenAsBinaryCheckBoxStateChanged(evt);
-            }
-        });
-
-        binaryEditorInContextOpenInCheckBox.setSelected(true);
-        binaryEditorInContextOpenInCheckBox.setText(resourceBundle.getString("binaryEditorInContextOpenInCheckBox.text")); // NOI18N
-        binaryEditorInContextOpenInCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                binaryEditorInContextOpenInCheckBoxStateChanged(evt);
+                openWithAsBinaryCheckBoxStateChanged(evt);
             }
         });
 
         openAsBinaryInDebugViewCheckBox.setSelected(true);
         openAsBinaryInDebugViewCheckBox.setText(resourceBundle.getString("openAsBinaryInDebugViewCheckBox.text")); // NOI18N
+        openAsBinaryInDebugViewCheckBox.setEnabled(false);
         openAsBinaryInDebugViewCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 openAsBinaryInDebugViewCheckBoxStateChanged(evt);
             }
         });
-
-        nativeBinaryFileCheckBox.setSelected(true);
-        nativeBinaryFileCheckBox.setText(resourceBundle.getString("nativeBinaryFileCheckBox.text")); // NOI18N
-        nativeBinaryFileCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                nativeBinaryFileCheckBoxStateChanged(evt);
+        openAsBinaryInDebugViewCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openAsBinaryInDebugViewCheckBoxActionPerformed(evt);
             }
         });
 
-        byteToByteDiffToolCheckBox.setSelected(true);
         byteToByteDiffToolCheckBox.setText(resourceBundle.getString("byteToByteDiffToolCheckBox.text")); // NOI18N
+        byteToByteDiffToolCheckBox.setEnabled(false);
         byteToByteDiffToolCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 byteToByteDiffToolCheckBoxStateChanged(evt);
             }
         });
+        byteToByteDiffToolCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                byteToByteDiffToolCheckBoxActionPerformed(evt);
+            }
+        });
 
-        editAsBinaryForDbColumnCheckBox.setSelected(true);
-        editAsBinaryForDbColumnCheckBox.setText(resourceBundle.getString("editAsBinaryForDbColumnCheckBox.text")); // NOI18N
-        editAsBinaryForDbColumnCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
+        visualThemeCheckBox.setText(resourceBundle.getString("visualThemeCheckBox.text") + " *"); // NOI18N
+        visualThemeCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                editAsBinaryForDbColumnCheckBoxStateChanged(evt);
+                visualThemeCheckBoxStateChanged(evt);
+            }
+        });
+
+        visualThemeLabel.setText(resourceBundle.getString("visualThemeLabel.text")); // NOI18N
+
+        visualThemeComboBox.setEnabled(false);
+        visualThemeComboBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                visualThemeComboBoxjComboBoxItemStateChanged(evt);
+            }
+        });
+
+        registerDefaultPopupCheckBox.setText(resourceBundle.getString("registerDefaultPopupCheckBox.text")); // NOI18N
+        registerDefaultPopupCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                registerDefaultPopupCheckBoxStateChanged(evt);
             }
         });
 
@@ -213,18 +236,18 @@ public class IntegrationOptionsPanel extends javax.swing.JPanel implements Optio
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(openFileAsBinaryCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(openFileToolbarBinaryCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(contextOpenAsBinaryCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(binaryEditorInContextOpenInCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(openWithAsBinaryCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(openAsBinaryInDebugViewCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(byteToByteDiffToolCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(editAsBinaryForDbColumnCheckBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(languageComboBox, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(byteToByteDiffToolCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(registerDefaultPopupCheckBox, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(visualThemeCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(visualThemeComboBox, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(languageLabel)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(nativeBinaryFileCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(languageLabel)
+                            .addComponent(visualThemeLabel))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -235,60 +258,59 @@ public class IntegrationOptionsPanel extends javax.swing.JPanel implements Optio
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(languageComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(openFileAsBinaryCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(openFileToolbarBinaryCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(contextOpenAsBinaryCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(binaryEditorInContextOpenInCheckBox)
+                .addComponent(openWithAsBinaryCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(openAsBinaryInDebugViewCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(nativeBinaryFileCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(byteToByteDiffToolCheckBox)
+                .addGap(18, 18, 18)
+                .addComponent(visualThemeCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(editAsBinaryForDbColumnCheckBox)
+                .addComponent(visualThemeLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(visualThemeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(registerDefaultPopupCheckBox)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void openFileAsBinaryCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_openFileAsBinaryCheckBoxStateChanged
+    private void openWithAsBinaryCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_openWithAsBinaryCheckBoxStateChanged
         notifyModified();
-    }//GEN-LAST:event_openFileAsBinaryCheckBoxStateChanged
-
-    private void openFileToolbarBinaryCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_openFileToolbarBinaryCheckBoxStateChanged
-        notifyModified();
-    }//GEN-LAST:event_openFileToolbarBinaryCheckBoxStateChanged
-
-    private void contextOpenAsBinaryCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_contextOpenAsBinaryCheckBoxStateChanged
-        notifyModified();
-    }//GEN-LAST:event_contextOpenAsBinaryCheckBoxStateChanged
-
-    private void binaryEditorInContextOpenInCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_binaryEditorInContextOpenInCheckBoxStateChanged
-        notifyModified();
-    }//GEN-LAST:event_binaryEditorInContextOpenInCheckBoxStateChanged
+    }//GEN-LAST:event_openWithAsBinaryCheckBoxStateChanged
 
     private void openAsBinaryInDebugViewCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_openAsBinaryInDebugViewCheckBoxStateChanged
         notifyModified();
     }//GEN-LAST:event_openAsBinaryInDebugViewCheckBoxStateChanged
 
-    private void byteToByteDiffToolCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_byteToByteDiffToolCheckBoxStateChanged
+    private void registerDefaultPopupCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_registerDefaultPopupCheckBoxStateChanged
         notifyModified();
-    }//GEN-LAST:event_byteToByteDiffToolCheckBoxStateChanged
-
-    private void editAsBinaryForDbColumnCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_editAsBinaryForDbColumnCheckBoxStateChanged
-        notifyModified();
-    }//GEN-LAST:event_editAsBinaryForDbColumnCheckBoxStateChanged
+    }//GEN-LAST:event_registerDefaultPopupCheckBoxStateChanged
 
     private void languageComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_languageComboBoxItemStateChanged
         notifyModified();
     }//GEN-LAST:event_languageComboBoxItemStateChanged
 
-    private void nativeBinaryFileCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_nativeBinaryFileCheckBoxStateChanged
+    private void openAsBinaryInDebugViewCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openAsBinaryInDebugViewCheckBoxActionPerformed
         notifyModified();
-    }//GEN-LAST:event_nativeBinaryFileCheckBoxStateChanged
+    }//GEN-LAST:event_openAsBinaryInDebugViewCheckBoxActionPerformed
+
+    private void visualThemeComboBoxjComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_visualThemeComboBoxjComboBoxItemStateChanged
+        notifyModified();
+    }//GEN-LAST:event_visualThemeComboBoxjComboBoxItemStateChanged
+
+    private void visualThemeCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_visualThemeCheckBoxStateChanged
+        notifyModified();
+        visualThemeComboBox.setEnabled(visualThemeCheckBox.isSelected());
+    }//GEN-LAST:event_visualThemeCheckBoxStateChanged
+
+    private void byteToByteDiffToolCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_byteToByteDiffToolCheckBoxStateChanged
+        notifyModified();
+    }//GEN-LAST:event_byteToByteDiffToolCheckBoxStateChanged
+
+    private void byteToByteDiffToolCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_byteToByteDiffToolCheckBoxActionPerformed
+        notifyModified();
+    }//GEN-LAST:event_byteToByteDiffToolCheckBoxActionPerformed
 
     /**
      * Test method for this panel.
@@ -300,16 +322,15 @@ public class IntegrationOptionsPanel extends javax.swing.JPanel implements Optio
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox binaryEditorInContextOpenInCheckBox;
     private javax.swing.JCheckBox byteToByteDiffToolCheckBox;
-    private javax.swing.JCheckBox contextOpenAsBinaryCheckBox;
-    private javax.swing.JCheckBox editAsBinaryForDbColumnCheckBox;
     private javax.swing.JComboBox<LanguageRecord> languageComboBox;
     private javax.swing.JLabel languageLabel;
-    private javax.swing.JCheckBox nativeBinaryFileCheckBox;
     private javax.swing.JCheckBox openAsBinaryInDebugViewCheckBox;
-    private javax.swing.JCheckBox openFileAsBinaryCheckBox;
-    private javax.swing.JCheckBox openFileToolbarBinaryCheckBox;
+    private javax.swing.JCheckBox openWithAsBinaryCheckBox;
+    private javax.swing.JCheckBox registerDefaultPopupCheckBox;
+    private javax.swing.JCheckBox visualThemeCheckBox;
+    private javax.swing.JComboBox<String> visualThemeComboBox;
+    private javax.swing.JLabel visualThemeLabel;
     // End of variables declaration//GEN-END:variables
 
     private void notifyModified() {

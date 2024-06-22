@@ -12,6 +12,12 @@ Screenshot
 
 ![BinEd-Editor Screenshot](images/bined-eclipse-screenshot.png?raw=true)
 
+Usage
+-----
+
+  * Use "Open With/BinEd Binary/Hex Editor" action in project explorer context menu
+  * Use "View as Binary" in Variables window
+
 Features
 --------
 

@@ -31,20 +31,16 @@ import java.util.Locale;
 @ParametersAreNonnullByDefault
 public class IntegrationPreferences implements IntegrationOptions {
 
-    public static final String PREFERENCES_LOCALE_LANGUAGE = "locale.language";
-    public static final String PREFERENCES_LOCALE_COUNTRY = "locale.country";
-    public static final String PREFERENCES_LOCALE_VARIANT = "locale.variant";
-    public static final String PREFERENCES_LOCALE_TAG = "locale.tag";
-    public static final String PREFERENCES_REGISTER_FILE_MENU_OPEN_AS_BINARY = "registerFileMenuOpenAsBinary";
-    public static final String PREFERENCES_REGISTER_OPEN_FILE_AS_BINARY_VIA_TOOLBAR = "registerOpenFileAsBinaryViaToolbar";
-    public static final String PREFERENCES_REGISTER_CONTEXT_OPEN_AS_BINARY = "registerContextOpenAsBinary";
-    public static final String PREFERENCES_REGISTER_CONTEXT_OPEN_IN_BINARY_EDITOR = "registerContextOpenInBinaryEditor";
-    public static final String PREFERENCES_REGISTER_NATIVE_BINARY_FILE = "registerNativeBinaryFile";
-    public static final String PREFERENCES_REGISTER_DEBUG_VIEW_AS_BINARY = "registerDebugVariablesAsBinary";
-    public static final String PREFERENCES_REGISTER_BYTE_TO_BYTE_DIFF_TOOL = "registerByteToByteDiffTool";
-    public static final String PREFERENCES_REGISTER_DEFAULT_POPUP_MENU = "registerDefaultPopupMenu";
-
-    public static final String PREFERENCES_REGISTER_EDIT_AS_BINARY_FOR_DB_COLUMN = "registerEditAsBinaryForDbColumn";
+    public static final String PREFERENCES_LOCALE_LANGUAGE = "integration.locale.language";
+    public static final String PREFERENCES_LOCALE_COUNTRY = "integration.locale.country";
+    public static final String PREFERENCES_LOCALE_VARIANT = "integration.locale.variant";
+    public static final String PREFERENCES_LOCALE_TAG = "integration.locale.tag";
+    public static final String PREFERENCES_REGISTER_OPEN_WITH_AS_BINARY = "integration.registerOpenWithAsBinary";
+    public static final String PREFERENCES_REGISTER_DEBUG_VIEW_AS_BINARY = "integration.registerDebugVariablesAsBinary";
+    public static final String PREFERENCES_REGISTER_BYTE_TO_BYTE_DIFF_TOOL = "integration.registerByteToByteDiffTool";
+    public static final String PREFERENCES_REGISTER_DEFAULT_POPUP_MENU = "integration.registerDefaultPopupMenu";
+    public static final String PREFERENCES_CHANGE_VISUAL_THEME = "integration.changeVisualTheme";
+    public static final String PREFERENCES_VISUAL_THEME = "integration.visualTheme";
 
     private final Preferences preferences;
 
@@ -121,48 +117,12 @@ public class IntegrationPreferences implements IntegrationOptions {
     }
 
     @Override
-    public boolean isRegisterFileMenuOpenAsBinary() {
-        return preferences.getBoolean(PREFERENCES_REGISTER_FILE_MENU_OPEN_AS_BINARY, false);
+    public boolean isRegisterOpenWithAsBinary() {
+        return preferences.getBoolean(PREFERENCES_REGISTER_OPEN_WITH_AS_BINARY, true);
     }
 
-    public void setRegisterFileMenuOpenAsBinary(boolean registerFileMenuOpenAsBinary) {
-        preferences.putBoolean(PREFERENCES_REGISTER_FILE_MENU_OPEN_AS_BINARY, registerFileMenuOpenAsBinary);
-    }
-
-    @Override
-    public boolean isRegisterOpenFileAsBinaryViaToolbar() {
-        return preferences.getBoolean(PREFERENCES_REGISTER_OPEN_FILE_AS_BINARY_VIA_TOOLBAR, true);
-    }
-
-    public void setRegisterOpenFileAsBinaryViaToolbar(boolean registerOpenFileAsBinaryViaToolbar) {
-        preferences.putBoolean(PREFERENCES_REGISTER_OPEN_FILE_AS_BINARY_VIA_TOOLBAR, registerOpenFileAsBinaryViaToolbar);
-    }
-
-    @Override
-    public boolean isRegisterContextOpenAsBinary() {
-        return preferences.getBoolean(PREFERENCES_REGISTER_CONTEXT_OPEN_AS_BINARY, false);
-    }
-
-    public void setRegisterContextOpenAsBinary(boolean registerContextOpenAsBinary) {
-        preferences.putBoolean(PREFERENCES_REGISTER_CONTEXT_OPEN_AS_BINARY, registerContextOpenAsBinary);
-    }
-
-    @Override
-    public boolean isRegisterContextOpenInBinaryEditor() {
-        return preferences.getBoolean(PREFERENCES_REGISTER_CONTEXT_OPEN_IN_BINARY_EDITOR, true);
-    }
-
-    public void setRegisterContextOpenInBinaryEditor(boolean registerContextOpenInBinaryEditor) {
-        preferences.putBoolean(PREFERENCES_REGISTER_CONTEXT_OPEN_IN_BINARY_EDITOR, registerContextOpenInBinaryEditor);
-    }
-
-    @Override
-    public boolean isRegisterNativeBinaryFile() {
-        return preferences.getBoolean(PREFERENCES_REGISTER_NATIVE_BINARY_FILE, true);
-    }
-
-    public void setRegisterNativeBinaryFile(boolean registerNativeBinaryFile) {
-        preferences.putBoolean(PREFERENCES_REGISTER_NATIVE_BINARY_FILE, registerNativeBinaryFile);
+    public void setRegisterOpenWithAsBinary(boolean registerOpenWithAsBinary) {
+        preferences.putBoolean(PREFERENCES_REGISTER_OPEN_WITH_AS_BINARY, registerOpenWithAsBinary);
     }
 
     @Override
@@ -176,7 +136,7 @@ public class IntegrationPreferences implements IntegrationOptions {
 
     @Override
     public boolean isRegisterByteToByteDiffTool() {
-        return preferences.getBoolean(PREFERENCES_REGISTER_BYTE_TO_BYTE_DIFF_TOOL, true);
+        return preferences.getBoolean(PREFERENCES_REGISTER_BYTE_TO_BYTE_DIFF_TOOL, false);
     }
 
     public void setRegisterByteToByteDiffTool(boolean registerByteToByteDiffTool) {
@@ -184,14 +144,23 @@ public class IntegrationPreferences implements IntegrationOptions {
     }
 
     @Override
-    public boolean isRegisterEditAsBinaryForDbColumn() {
-        return preferences.getBoolean(PREFERENCES_REGISTER_EDIT_AS_BINARY_FOR_DB_COLUMN, true);
+    public boolean isChangeVisualTheme() {
+        return preferences.getBoolean(PREFERENCES_CHANGE_VISUAL_THEME, false);
     }
 
-    public void setRegisterEditAsBinaryForDbColumn(boolean registerEditAsBinaryForDbColumn) {
-        preferences.putBoolean(PREFERENCES_REGISTER_EDIT_AS_BINARY_FOR_DB_COLUMN, registerEditAsBinaryForDbColumn);
+    public void setChangeVisualTheme(boolean changeVisualTheme) {
+        preferences.putBoolean(PREFERENCES_CHANGE_VISUAL_THEME, changeVisualTheme);
     }
-    
+
+    @Override
+    public String getVisualTheme() {
+        return preferences.get(PREFERENCES_VISUAL_THEME, "");
+    }
+
+    public void setVisualTheme(String visualTheme) {
+        preferences.put(PREFERENCES_VISUAL_THEME, visualTheme);
+    }
+
     @Override
     public boolean isRegisterDefaultPopupMenu() {
         return preferences.getBoolean(PREFERENCES_REGISTER_DEFAULT_POPUP_MENU, false);

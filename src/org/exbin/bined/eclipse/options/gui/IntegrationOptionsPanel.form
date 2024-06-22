@@ -4,7 +4,7 @@
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="1"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
-    <AuxValue name="FormSettings_formBundle" type="java.lang.String" value="org/exbin/bined/intellij/options/gui/resources/IntegrationOptionsPanel"/>
+    <AuxValue name="FormSettings_formBundle" type="java.lang.String" value="org/exbin/bined/eclipse/options/gui/resources/IntegrationOptionsPanel"/>
     <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="true"/>
@@ -20,19 +20,20 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="openFileAsBinaryCheckBox" max="32767" attributes="0"/>
-                  <Component id="openFileToolbarBinaryCheckBox" alignment="0" max="32767" attributes="0"/>
-                  <Component id="contextOpenAsBinaryCheckBox" alignment="0" max="32767" attributes="0"/>
-                  <Component id="binaryEditorInContextOpenInCheckBox" alignment="0" max="32767" attributes="0"/>
+                  <Component id="openWithAsBinaryCheckBox" max="32767" attributes="0"/>
                   <Component id="openAsBinaryInDebugViewCheckBox" alignment="0" max="32767" attributes="0"/>
-                  <Component id="byteToByteDiffToolCheckBox" alignment="0" max="32767" attributes="0"/>
-                  <Component id="editAsBinaryForDbColumnCheckBox" alignment="1" max="32767" attributes="0"/>
                   <Component id="languageComboBox" alignment="1" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="languageLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="byteToByteDiffToolCheckBox" alignment="0" max="32767" attributes="0"/>
+                  <Component id="registerDefaultPopupCheckBox" alignment="1" max="32767" attributes="0"/>
+                  <Component id="visualThemeCheckBox" alignment="0" max="32767" attributes="0"/>
+                  <Component id="visualThemeComboBox" alignment="1" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="languageLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="visualThemeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="nativeBinaryFileCheckBox" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -46,27 +47,32 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="languageComboBox" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
-              <Component id="openFileAsBinaryCheckBox" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="openFileToolbarBinaryCheckBox" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="contextOpenAsBinaryCheckBox" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="binaryEditorInContextOpenInCheckBox" min="-2" max="-2" attributes="0"/>
+              <Component id="openWithAsBinaryCheckBox" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="openAsBinaryInDebugViewCheckBox" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="nativeBinaryFileCheckBox" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
               <Component id="byteToByteDiffToolCheckBox" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="visualThemeCheckBox" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="editAsBinaryForDbColumnCheckBox" min="-2" max="-2" attributes="0"/>
+              <Component id="visualThemeLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="visualThemeComboBox" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="registerDefaultPopupCheckBox" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
+    <Component class="javax.swing.JLabel" name="languageLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/exbin/bined/eclipse/options/gui/resources/IntegrationOptionsPanel.properties" key="languageLabel.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;) + &quot; *&quot;"/>
+        </Property>
+      </Properties>
+    </Component>
     <Component class="javax.swing.JComboBox" name="languageComboBox">
       <Events>
         <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="languageComboBoxItemStateChanged"/>
@@ -76,97 +82,80 @@
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;LanguageRecord&gt;"/>
       </AuxValues>
     </Component>
-    <Component class="javax.swing.JLabel" name="languageLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/exbin/bined/intellij/options/gui/resources/IntegrationOptionsPanel.properties" key="languageLabel.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;) + &quot; *&quot;"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JCheckBox" name="openFileAsBinaryCheckBox">
-      <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/exbin/bined/intellij/options/gui/resources/IntegrationOptionsPanel.properties" key="openFileAsBinaryCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="openFileAsBinaryCheckBoxStateChanged"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JCheckBox" name="openFileToolbarBinaryCheckBox">
+    <Component class="javax.swing.JCheckBox" name="openWithAsBinaryCheckBox">
       <Properties>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/exbin/bined/intellij/options/gui/resources/IntegrationOptionsPanel.properties" key="openFileToolbarBinaryCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/exbin/bined/eclipse/options/gui/resources/IntegrationOptionsPanel.properties" key="openWithAsBinaryCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
         </Property>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
-        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="openFileToolbarBinaryCheckBoxStateChanged"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JCheckBox" name="contextOpenAsBinaryCheckBox">
-      <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/exbin/bined/intellij/options/gui/resources/IntegrationOptionsPanel.properties" key="contextOpenAsBinaryCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="contextOpenAsBinaryCheckBoxStateChanged"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JCheckBox" name="binaryEditorInContextOpenInCheckBox">
-      <Properties>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/exbin/bined/intellij/options/gui/resources/IntegrationOptionsPanel.properties" key="binaryEditorInContextOpenInCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="binaryEditorInContextOpenInCheckBoxStateChanged"/>
+        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="openWithAsBinaryCheckBoxStateChanged"/>
       </Events>
     </Component>
     <Component class="javax.swing.JCheckBox" name="openAsBinaryInDebugViewCheckBox">
       <Properties>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/exbin/bined/intellij/options/gui/resources/IntegrationOptionsPanel.properties" key="openAsBinaryInDebugViewCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/exbin/bined/eclipse/options/gui/resources/IntegrationOptionsPanel.properties" key="openAsBinaryInDebugViewCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
         </Property>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="openAsBinaryInDebugViewCheckBoxStateChanged"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JCheckBox" name="nativeBinaryFileCheckBox">
-      <Properties>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/exbin/bined/intellij/options/gui/resources/IntegrationOptionsPanel.properties" key="nativeBinaryFileCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="nativeBinaryFileCheckBoxStateChanged"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openAsBinaryInDebugViewCheckBoxActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JCheckBox" name="byteToByteDiffToolCheckBox">
       <Properties>
-        <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/exbin/bined/intellij/options/gui/resources/IntegrationOptionsPanel.properties" key="byteToByteDiffToolCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/exbin/bined/eclipse/options/gui/resources/IntegrationOptionsPanel.properties" key="byteToByteDiffToolCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
         </Property>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="byteToByteDiffToolCheckBoxStateChanged"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="byteToByteDiffToolCheckBoxActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JCheckBox" name="editAsBinaryForDbColumnCheckBox">
+    <Component class="javax.swing.JCheckBox" name="visualThemeCheckBox">
       <Properties>
-        <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/exbin/bined/intellij/options/gui/resources/IntegrationOptionsPanel.properties" key="editAsBinaryForDbColumnCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/exbin/bined/eclipse/options/gui/resources/IntegrationOptionsPanel.properties" key="visualThemeCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;) + &quot; *&quot;"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="editAsBinaryForDbColumnCheckBoxStateChanged"/>
+        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="visualThemeCheckBoxStateChanged"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="visualThemeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/exbin/bined/eclipse/options/gui/resources/IntegrationOptionsPanel.properties" key="visualThemeLabel.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="visualThemeComboBox">
+      <Properties>
+        <Property name="enabled" type="boolean" value="false"/>
+      </Properties>
+      <Events>
+        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="visualThemeComboBoxjComboBoxItemStateChanged"/>
+      </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JComboBox&lt;&gt;();"/>
+        <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="registerDefaultPopupCheckBox">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/exbin/bined/eclipse/options/gui/resources/IntegrationOptionsPanel.properties" key="registerDefaultPopupCheckBox.text" replaceFormat="resourceBundle.getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="registerDefaultPopupCheckBoxStateChanged"/>
       </Events>
     </Component>
   </SubComponents>

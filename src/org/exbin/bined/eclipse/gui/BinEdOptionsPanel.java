@@ -34,6 +34,7 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 
 import org.exbin.bined.eclipse.main.BinEdApplyOptions;
@@ -134,6 +135,33 @@ public class BinEdOptionsPanel extends javax.swing.JPanel implements BinEdApplyO
 
     public BinEdOptionsPanel() {
         initComponents();
+
+        List<String> themes;
+        List<String> themeNames;
+
+        themes = new ArrayList<>();
+        themes.add("");
+        boolean extraCrossPlatformLAF = !"javax.swing.plaf.metal.MetalLookAndFeel".equals(UIManager.getCrossPlatformLookAndFeelClassName());
+        if (extraCrossPlatformLAF) {
+            themes.add(UIManager.getCrossPlatformLookAndFeelClassName());
+        }
+        themes.add("javax.swing.plaf.metal.MetalLookAndFeel");
+        themes.add("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+        themeNames = new ArrayList<>();
+        themeNames.add(resourceBundle.getString("theme.defaultTheme"));
+        if (extraCrossPlatformLAF) {
+            themeNames.add(resourceBundle.getString("theme.crossPlatformTheme"));
+        }
+        themeNames.add("Metal");
+        themeNames.add("Motif");
+        UIManager.LookAndFeelInfo[] infos = UIManager.getInstalledLookAndFeels();
+        for (UIManager.LookAndFeelInfo lookAndFeelInfo : infos) {
+            if (!themes.contains(lookAndFeelInfo.getClassName())) {
+                themes.add(lookAndFeelInfo.getClassName());
+                themeNames.add(lookAndFeelInfo.getName());
+            }
+        }
+        integrationOptionsPanel.setThemes(themes, themeNames);
 
         integrationOptionsPanel.setDefaultLocaleName("<" + resourceBundle.getString("locale.defaultLanguage") + ">");
         List<LanguageRecord> languageLocales = new ArrayList<>();

@@ -33,16 +33,14 @@ import java.util.Locale;
 public class IntegrationOptionsImpl implements OptionsData, IntegrationOptions {
 
     private Locale languageLocale;
-    private boolean registerFileMenuOpenAsBinary = false;
-    private boolean registerOpenFileAsBinaryViaToolbar = true;
-    private boolean registerContextOpenAsBinary = false;
-    private boolean registerContextOpenInBinaryEditor = true;
-    private boolean registerNativeBinaryFile = true;
+    private boolean registerOpenWithAsBinary = true;
     private boolean registerDebugViewAsBinary = true;
-    private boolean registerByteToByteDiffTool = true;
+    private boolean registerByteToByteDiffTool = false;
+    private boolean changeVisualTheme = false;
+    private String visualTheme = "";
     private boolean registerDefaultPopupMenu = false;
 
-    private boolean registerEditAsBinaryForDbColumn = true;
+//    private boolean registerEditAsBinaryForDbColumn = true;
 
     @Nonnull
     @Override
@@ -56,48 +54,12 @@ public class IntegrationOptionsImpl implements OptionsData, IntegrationOptions {
     }
 
     @Override
-    public boolean isRegisterFileMenuOpenAsBinary() {
-        return registerFileMenuOpenAsBinary;
+    public boolean isRegisterOpenWithAsBinary() {
+        return registerOpenWithAsBinary;
     }
 
-    public void setRegisterFileMenuOpenAsBinary(boolean registerFileMenuOpenAsBinary) {
-        this.registerFileMenuOpenAsBinary = registerFileMenuOpenAsBinary;
-    }
-
-    @Override
-    public boolean isRegisterOpenFileAsBinaryViaToolbar() {
-        return registerOpenFileAsBinaryViaToolbar;
-    }
-
-    public void setRegisterOpenFileAsBinaryViaToolbar(boolean registerOpenFileAsBinaryViaToolbar) {
-        this.registerOpenFileAsBinaryViaToolbar = registerOpenFileAsBinaryViaToolbar;
-    }
-
-    @Override
-    public boolean isRegisterContextOpenAsBinary() {
-        return registerContextOpenAsBinary;
-    }
-
-    public void setRegisterContextOpenAsBinary(boolean registerContextOpenAsBinary) {
-        this.registerContextOpenAsBinary = registerContextOpenAsBinary;
-    }
-
-    @Override
-    public boolean isRegisterContextOpenInBinaryEditor() {
-        return registerContextOpenInBinaryEditor;
-    }
-
-    public void setRegisterContextOpenInBinaryEditor(boolean registerContextOpenInBinaryEditor) {
-        this.registerContextOpenInBinaryEditor = registerContextOpenInBinaryEditor;
-    }
-
-    @Override
-    public boolean isRegisterNativeBinaryFile() {
-        return registerNativeBinaryFile;
-    }
-
-    public void setRegisterNativeBinaryFile(boolean registerNativeBinaryFile) {
-        this.registerNativeBinaryFile = registerNativeBinaryFile;
+    public void setRegisterOpenWithAsBinary(boolean registerOpenWithAsBinary) {
+        this.registerOpenWithAsBinary = registerOpenWithAsBinary;
     }
 
     @Override
@@ -117,14 +79,9 @@ public class IntegrationOptionsImpl implements OptionsData, IntegrationOptions {
         this.registerByteToByteDiffTool = registerByteToByteDiffTool;
     }
 
-    @Override
-    public boolean isRegisterEditAsBinaryForDbColumn() {
-        return registerEditAsBinaryForDbColumn;
-    }
-
-    public void setRegisterEditAsBinaryForDbColumn(boolean registerEditAsBinaryForDbColumn) {
+  /*  public void setRegisterEditAsBinaryForDbColumn(boolean registerEditAsBinaryForDbColumn) {
         this.registerEditAsBinaryForDbColumn = registerEditAsBinaryForDbColumn;
-    }
+    } */
 
     @Override
     public boolean isRegisterDefaultPopupMenu() {
@@ -135,42 +92,51 @@ public class IntegrationOptionsImpl implements OptionsData, IntegrationOptions {
         this.registerDefaultPopupMenu = registerDefaultPopupMenu;
     }
 
+    @Override
+    public boolean isChangeVisualTheme() {
+    	return changeVisualTheme;
+    }
+
+    public void setChangeVisualTheme(boolean changeVisualTheme) {
+        this.changeVisualTheme = changeVisualTheme;
+    }
+
+    @Override
+    public String getVisualTheme() {
+    	return visualTheme;
+    }
+
+    public void setVisualTheme(String visualTheme) {
+        this.visualTheme = visualTheme;
+    }
+
     public void loadFromPreferences(IntegrationPreferences preferences) {
         languageLocale = preferences.getLanguageLocale();
-        registerFileMenuOpenAsBinary = preferences.isRegisterFileMenuOpenAsBinary();
-        registerOpenFileAsBinaryViaToolbar = preferences.isRegisterOpenFileAsBinaryViaToolbar();
-        registerContextOpenAsBinary = preferences.isRegisterContextOpenAsBinary();
-        registerContextOpenInBinaryEditor = preferences.isRegisterContextOpenInBinaryEditor();
-        registerNativeBinaryFile = preferences.isRegisterNativeBinaryFile();
+        registerOpenWithAsBinary = preferences.isRegisterOpenWithAsBinary();
         registerDebugViewAsBinary = preferences.isRegisterDebugViewAsBinary();
         registerByteToByteDiffTool = preferences.isRegisterByteToByteDiffTool();
-        registerEditAsBinaryForDbColumn = preferences.isRegisterEditAsBinaryForDbColumn();
-        registerDefaultPopupMenu = preferences.isRegisterDefaultPopupMenu(); 
+        registerDefaultPopupMenu = preferences.isRegisterDefaultPopupMenu();
+        changeVisualTheme = preferences.isChangeVisualTheme();
+        visualTheme = preferences.getVisualTheme();
     }
 
     public void saveToPreferences(IntegrationPreferences preferences) {
         preferences.setLanguageLocale(languageLocale);
-        preferences.setRegisterFileMenuOpenAsBinary(registerFileMenuOpenAsBinary);
-        preferences.setRegisterOpenFileAsBinaryViaToolbar(registerOpenFileAsBinaryViaToolbar);
-        preferences.setRegisterContextOpenAsBinary(registerContextOpenAsBinary);
-        preferences.setRegisterContextOpenInBinaryEditor(registerContextOpenInBinaryEditor);
-        preferences.setRegisterNativeBinaryFile(registerNativeBinaryFile);
+        preferences.setRegisterOpenWithAsBinary(registerOpenWithAsBinary);
         preferences.setRegisterDebugViewAsBinary(registerDebugViewAsBinary);
         preferences.setRegisterByteToByteDiffTool(registerByteToByteDiffTool);
-        preferences.setRegisterEditAsBinaryForDbColumn(registerEditAsBinaryForDbColumn);
         preferences.setRegisterDefaultPopupMenu(registerDefaultPopupMenu);
+        preferences.setChangeVisualTheme(changeVisualTheme);
+        preferences.setVisualTheme(visualTheme);
     }
 
     public void setOptions(IntegrationOptionsImpl options) {
         languageLocale = options.getLanguageLocale();
-        registerFileMenuOpenAsBinary = options.isRegisterFileMenuOpenAsBinary();
-        registerOpenFileAsBinaryViaToolbar = options.isRegisterOpenFileAsBinaryViaToolbar();
-        registerContextOpenAsBinary = options.isRegisterContextOpenAsBinary();
-        registerContextOpenInBinaryEditor = options.isRegisterContextOpenInBinaryEditor();
-        registerNativeBinaryFile = options.isRegisterNativeBinaryFile();
+        registerOpenWithAsBinary = options.isRegisterOpenWithAsBinary();
         registerDebugViewAsBinary = options.isRegisterDebugViewAsBinary();
         registerByteToByteDiffTool = options.isRegisterByteToByteDiffTool();
-        registerEditAsBinaryForDbColumn = options.isRegisterEditAsBinaryForDbColumn();
         registerDefaultPopupMenu = options.isRegisterDefaultPopupMenu();
+        changeVisualTheme = options.isChangeVisualTheme();
+        visualTheme = options.getVisualTheme();
     }
 }
