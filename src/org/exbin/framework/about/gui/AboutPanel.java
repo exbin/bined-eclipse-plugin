@@ -15,6 +15,9 @@
  */
 package org.exbin.framework.about.gui;
 
+import org.exbin.framework.popup.DefaultPopupMenu;
+import org.exbin.framework.popup.LinkActionsHandler;
+import org.exbin.framework.utils.ClipboardUtils;
 import org.exbin.framework.utils.DesktopUtils;
 import org.exbin.framework.utils.LanguageUtils;
 import org.exbin.framework.utils.UiUtils;
@@ -23,11 +26,15 @@ import org.exbin.framework.utils.WindowUtils;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.table.DefaultTableModel;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
 import java.io.IOException;
@@ -427,5 +434,37 @@ public class AboutPanel extends javax.swing.JPanel implements HyperlinkListener 
         }
         appTitleLabel.setText(appBundle.getString("Application.title"));
         appDescLabel.setText(appBundle.getString("Application.description"));
+
+        appHomepageLabel.setComponentPopupMenu(new JPopupMenu() {
+            private boolean initialized = false;
+
+            @Override
+            public void show(Component invoker, int x, int y) {
+                if (!initialized) {
+                    DefaultPopupMenu.getInstance().appendLinkMenu(this, new LinkActionsHandler() {
+                        @Override
+                        public void performCopyLink() {
+                            String targetURL = appHomepageLink;
+                            StringSelection stringSelection = new StringSelection(targetURL);
+                            ClipboardUtils.getClipboard().setContents(stringSelection, stringSelection);
+                        }
+
+                        @Override
+                        public void performOpenLink() {
+                            String targetURL = appHomepageLink;
+                            DesktopUtils.openDesktopURL(targetURL);
+                        }
+
+                        @Override
+                        public boolean isLinkSelected() {
+                            return true;
+                        }
+                    });
+
+                    initialized = true;
+                }
+                super.show(invoker, x, y);
+            }
+        });
     }
 }

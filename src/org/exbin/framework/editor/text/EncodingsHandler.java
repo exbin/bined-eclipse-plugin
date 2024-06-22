@@ -218,7 +218,9 @@ public class EncodingsHandler {
             menuIndex++;
         }
         JMenuItem item = toolsEncodingMenu.getItem(menuIndex);
-        item.setSelected(true);
+        if (item != null) {
+        	item.setSelected(true);
+        }
     }
 
     public void loadFromPreferences(TextEncodingPreferences preferences) {

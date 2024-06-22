@@ -93,6 +93,7 @@ public class BinEdNativeFile extends BinEdFileHandler {
 				File documentFile = path.toFile();
 				openDocument(documentFile, documentFile.canWrite());
 		        getUndoHandler().clear();
+		        fileSync();
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -135,6 +136,7 @@ public class BinEdNativeFile extends BinEdFileHandler {
                 getEditorComponent().setContentData(data);
             }
         }
+        fileSync();
         codeArea.setEditMode(editable ? EditMode.EXPANDING : EditMode.READ_ONLY);
     }
 
@@ -145,6 +147,7 @@ public class BinEdNativeFile extends BinEdFileHandler {
         data.loadFromStream(stream);
         codeArea.setEditMode(editable ? EditMode.EXPANDING : EditMode.READ_ONLY);
         getEditorComponent().setContentData(data);
+        fileSync();
     }
 
     public void saveFile() {
@@ -163,7 +166,7 @@ public class BinEdNativeFile extends BinEdFileHandler {
 		            DeltaDocument document = (DeltaDocument) data;
 		            document.save();
 		        }
-		        getUndoHandler().setSyncPoint();
+		        fileSync();
 		        notifyChanged();
 		        getEditorComponent().getToolbarPanel().updateUndoState();
 			} catch (IOException ex) {
@@ -186,7 +189,7 @@ public class BinEdNativeFile extends BinEdFileHandler {
 //	            DeltaDocument document = (DeltaDocument) data;
 //	            document.save();
 	        }
-	        getUndoHandler().setSyncPoint();
+	        fileSync();
 	        notifyChanged();
 	        getEditorComponent().getToolbarPanel().updateUndoState();
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
