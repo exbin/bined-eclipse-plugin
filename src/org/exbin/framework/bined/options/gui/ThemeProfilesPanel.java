@@ -324,16 +324,17 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (addProfileOperation != null) {
-            ThemeProfilesPanel.ThemeProfile newProfileRecord = addProfileOperation.run(this, getNewProfileName());
-            if (newProfileRecord != null) {
-                if (selectedIndex >= 0) {
-                    profilesList.clearSelection();
-                    model.add(selectedIndex, newProfileRecord);
-                } else {
-                    model.add(newProfileRecord);
-                }
-                wasModified();
-            }
+            addProfileOperation.run(this, getNewProfileName(), (newProfileRecord) -> {
+	            if (newProfileRecord != null) {
+	                if (selectedIndex >= 0) {
+	                    profilesList.clearSelection();
+	                    model.add(selectedIndex, newProfileRecord);
+	                } else {
+	                    model.add(newProfileRecord);
+	                }
+	                wasModified();
+	            }
+        	});
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -358,14 +359,15 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
         ThemeProfile oldProfileRecord = model.getElementAt(selectedIndex);
 
         if (editProfileOperation != null) {
-            ThemeProfile newProfileRecord = editProfileOperation.run(this, oldProfileRecord);
-            if (newProfileRecord != null) {
-                ThemeProfile profileRecord = model.getElementAt(selectedIndex);
-                profileRecord.profileName = newProfileRecord.getProfileName();
-                profileRecord.themeProfile = newProfileRecord.themeProfile;
-                model.notifyProfileModified(selectedIndex);
-                wasModified();
-            }
+            editProfileOperation.run(this, oldProfileRecord, (newProfileRecord) -> {
+	            if (newProfileRecord != null) {
+	                ThemeProfile profileRecord = model.getElementAt(selectedIndex);
+	                profileRecord.profileName = newProfileRecord.getProfileName();
+	                profileRecord.themeProfile = newProfileRecord.themeProfile;
+	                model.notifyProfileModified(selectedIndex);
+	                wasModified();
+	            }
+	        });
         }
     }//GEN-LAST:event_editButtonActionPerformed
 
@@ -380,17 +382,18 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
         ThemeProfile profileRecord = new ThemeProfile(sourceProfile.profileName, sourceProfile.themeProfile);
 
         if (copyProfileOperation != null) {
-            ThemeProfile newProfileRecord = copyProfileOperation.run(this, profileRecord);
-            if (newProfileRecord != null) {
-                if (selectedIndex >= 0) {
-                    model.add(selectedIndex + 1, newProfileRecord);
-                    profilesList.setSelectedIndex(selectedIndex + 1);
-                } else {
-                    profilesList.clearSelection();
-                    model.add(newProfileRecord);
-                }
-                wasModified();
-            }
+            copyProfileOperation.run(this, profileRecord, (newProfileRecord) -> {
+	            if (newProfileRecord != null) {
+	                if (selectedIndex >= 0) {
+	                    model.add(selectedIndex + 1, newProfileRecord);
+	                    profilesList.setSelectedIndex(selectedIndex + 1);
+	                } else {
+	                    profilesList.clearSelection();
+	                    model.add(newProfileRecord);
+	                }
+	                wasModified();
+	            }
+            });
         }
     }//GEN-LAST:event_copyButtonActionPerformed
 
@@ -399,16 +402,17 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (templateProfileOperation != null) {
-            ThemeProfilesPanel.ThemeProfile newProfileRecord = templateProfileOperation.run(this);
-            if (newProfileRecord != null) {
-                if (selectedIndex >= 0) {
-                    profilesList.clearSelection();
-                    model.add(selectedIndex, newProfileRecord);
-                } else {
-                    model.add(newProfileRecord);
-                }
-                wasModified();
-            }
+            templateProfileOperation.run(this, (newProfileRecord) -> {
+	            if (newProfileRecord != null) {
+	                if (selectedIndex >= 0) {
+	                    profilesList.clearSelection();
+	                    model.add(selectedIndex, newProfileRecord);
+	                } else {
+	                    model.add(newProfileRecord);
+	                }
+	                wasModified();
+	            }
+            });
         }
     }//GEN-LAST:event_fromTemplateButtonActionPerformed
 
@@ -616,28 +620,28 @@ public class ThemeProfilesPanel extends javax.swing.JPanel implements ProfileLis
     @ParametersAreNonnullByDefault
     public static interface AddProfileOperation {
 
-        @Nullable
-        ThemeProfile run(JComponent parentComponent, String profileName);
+        void run(JComponent parentComponent, String profileName, ResultListener resultListener);
     }
 
     @ParametersAreNonnullByDefault
     public static interface EditProfileOperation {
 
-        @Nullable
-        ThemeProfile run(JComponent parentComponent, ThemeProfile profileRecord);
+        void run(JComponent parentComponent, ThemeProfile profileRecord, ResultListener resultListener);
     }
 
     @ParametersAreNonnullByDefault
     public static interface CopyProfileOperation {
 
-        @Nullable
-        ThemeProfile run(JComponent parentComponent, ThemeProfile profileRecord);
+        void run(JComponent parentComponent, ThemeProfile profileRecord, ResultListener resultListener);
     }
 
     @ParametersAreNonnullByDefault
     public static interface TemplateProfileOperation {
 
-        @Nullable
-        ThemeProfile run(JComponent parentComponent);
+        void run(JComponent parentComponent, ResultListener resultListener);
+    }
+
+    public static interface ResultListener {
+    	void result(@Nullable ThemeProfile profile);
     }
 }

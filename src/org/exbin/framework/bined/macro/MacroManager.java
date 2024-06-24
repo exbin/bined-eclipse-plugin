@@ -20,6 +20,9 @@ import org.exbin.framework.api.Preferences;
 import org.exbin.framework.api.XBApplication;
 import org.exbin.framework.bined.BinEdFileHandler;
 import org.exbin.framework.bined.BinedModule;
+import org.exbin.framework.bined.bookmarks.action.AddBookmarkAction;
+import org.exbin.framework.bined.bookmarks.action.EditBookmarkAction;
+import org.exbin.framework.bined.bookmarks.model.BookmarkRecord;
 import org.exbin.framework.bined.gui.BinEdComponentPanel;
 import org.exbin.framework.bined.macro.action.AddMacroAction;
 import org.exbin.framework.bined.macro.action.EditMacroAction;
@@ -47,6 +50,7 @@ import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.text.ParseException;
@@ -159,13 +163,16 @@ public class MacroManager {
             @Override
             public void addRecord() {
             	addMacroAction.setParentComponent(macrosManagerPanel);
+                addMacroAction.setOutputListener(new AddMacroAction.OutputListener() {
+					
+					@Override
+					public void outputRecord(MacroRecord macroRecord) {
+	                    List<MacroRecord> records = macrosManagerPanel.getMacroRecords();
+	                    records.add(macroRecord);
+	                    macrosManagerPanel.setMacroRecords(records);
+					}
+				});
                 addMacroAction.actionPerformed(null);
-                Optional<MacroRecord> macroRecord = addMacroAction.getMacroRecord();
-                if (macroRecord.isPresent()) {
-                    List<MacroRecord> records = macrosManagerPanel.getMacroRecords();
-                    records.add(macroRecord.get());
-                    macrosManagerPanel.setMacroRecords(records);
-                }
             }
 
             @Override
@@ -174,11 +181,14 @@ public class MacroManager {
                 MacroRecord selectedRecord = macrosManagerPanel.getMacroRecords().get(selectedRow);
             	editMacroAction.setParentComponent(macrosManagerPanel);
                 editMacroAction.setMacroRecord(new MacroRecord(selectedRecord));
+                editMacroAction.setOutputListener(new EditMacroAction.OutputListener() {
+					
+					@Override
+					public void outputRecord(MacroRecord macroRecord) {
+	                    macrosManagerPanel.updateRecord(macroRecord, selectedRow);
+					}
+				});
                 editMacroAction.actionPerformed(null);
-                Optional<MacroRecord> macroRecord = editMacroAction.getMacroRecord();
-                if (macroRecord.isPresent()) {
-                    macrosManagerPanel.updateRecord(macroRecord.get(), selectedRow);
-                }
             }
 
             @Override

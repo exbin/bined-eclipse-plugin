@@ -157,13 +157,16 @@ public class BookmarksManager {
                     addBookmarkAction.setCurrentSelection(codeArea.getSelectionHandler());
                 }
                 addBookmarkAction.setParentComponent(bookmarksManagerPanel);
+                addBookmarkAction.setOutputListener(new AddBookmarkAction.OutputListener() {
+					
+					@Override
+					public void outputRecord(BookmarkRecord bookmarkRecord) {
+	                    List<BookmarkRecord> records = bookmarksManagerPanel.getBookmarkRecords();
+	                    records.add(bookmarkRecord);
+	                    bookmarksManagerPanel.setBookmarkRecords(records);
+					}
+				});
                 addBookmarkAction.actionPerformed(null);
-                Optional<BookmarkRecord> bookmarkRecord = addBookmarkAction.getBookmarkRecord();
-                if (bookmarkRecord.isPresent()) {
-                    List<BookmarkRecord> records = bookmarksManagerPanel.getBookmarkRecords();
-                    records.add(bookmarkRecord.get());
-                    bookmarksManagerPanel.setBookmarkRecords(records);
-                }
             }
 
             @Override
@@ -178,11 +181,14 @@ public class BookmarksManager {
                 int selectedRow = bookmarksManagerPanel.getTable().getSelectedRow();
                 editBookmarkAction.setBookmarkRecord(new BookmarkRecord(selectedRecord));
                 editBookmarkAction.setParentComponent(bookmarksManagerPanel);
+                editBookmarkAction.setOutputListener(new EditBookmarkAction.OutputListener() {
+					
+					@Override
+					public void outputRecord(BookmarkRecord bookmarkRecord) {
+	                    bookmarksManagerPanel.updateRecord(bookmarkRecord, selectedRow);
+					}
+				});
                 editBookmarkAction.actionPerformed(null);
-                Optional<BookmarkRecord> bookmarkRecord = editBookmarkAction.getBookmarkRecord();
-                if (bookmarkRecord.isPresent()) {
-                    bookmarksManagerPanel.updateRecord(bookmarkRecord.get(), selectedRow);
-                }
             }
 
             @Override

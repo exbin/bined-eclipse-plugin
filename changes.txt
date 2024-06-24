@@ -1,4 +1,4 @@
-0.2.2
+0.2.2 (2024-06-24)
 - Added support for language switching (zh, jp, ko)
 - Added support for basic macro
 - Added support for bookmarks

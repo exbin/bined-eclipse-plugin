@@ -17,10 +17,8 @@ package org.exbin.framework.bined.macro.action;
 
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -45,8 +43,8 @@ public class AddMacroAction extends AbstractAction {
 
     private XBApplication application;
     private ResourceBundle resourceBundle;
+    private OutputListener outputListener;
     private JComponent parentComponent;
-    private MacroRecord macroRecord = null;
 
     public AddMacroAction() {
     }
@@ -59,11 +57,10 @@ public class AddMacroAction extends AbstractAction {
         putValue(ActionUtils.ACTION_DIALOG_MODE, true);
     }
 
-    @Nonnull
-    public Optional<MacroRecord> getMacroRecord() {
-        return Optional.ofNullable(macroRecord);
+    public void setOutputListener(OutputListener outputListener) {
+        this.outputListener = outputListener;
     }
-    
+
     public void setParentComponent(JComponent parentComponent) {
     	this.parentComponent = parentComponent;
     }
@@ -81,11 +78,10 @@ public class AddMacroAction extends AbstractAction {
         controlPanel.setHandler((actionType) -> {
             switch (actionType) {
                 case OK: {
-                    macroRecord = macroEditorPanel.getMacroRecord();
+                    outputListener.outputRecord(macroEditorPanel.getMacroRecord());
                     break;
                 }
                 case CANCEL: {
-                    macroRecord = null;
                     break;
                 }
             }
@@ -93,5 +89,9 @@ public class AddMacroAction extends AbstractAction {
         });
 
         dialog.showCentered(parentComponent);
+    }
+
+    public static interface OutputListener {
+    	void outputRecord(MacroRecord macroRecord);
     }
 }

@@ -326,16 +326,17 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (addProfileOperation != null) {
-            LayoutProfilesPanel.LayoutProfile newProfileRecord = addProfileOperation.run(this, getNewProfileName());
-            if (newProfileRecord != null) {
-                if (selectedIndex >= 0) {
-                    profilesList.clearSelection();
-                    model.add(selectedIndex, newProfileRecord);
-                } else {
-                    model.add(newProfileRecord);
-                }
-                wasModified();
-            }
+            addProfileOperation.run(this, getNewProfileName(), (newProfileRecord) -> {
+	            if (newProfileRecord != null) {
+	                if (selectedIndex >= 0) {
+	                    profilesList.clearSelection();
+	                    model.add(selectedIndex, newProfileRecord);
+	                } else {
+	                    model.add(newProfileRecord);
+	                }
+	                wasModified();
+	            }
+            });
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
@@ -360,14 +361,15 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         LayoutProfile oldProfileRecord = model.getElementAt(selectedIndex);
 
         if (editProfileOperation != null) {
-            LayoutProfile newProfileRecord = editProfileOperation.run(this, oldProfileRecord);
-            if (newProfileRecord != null) {
-                LayoutProfile profileRecord = model.getElementAt(selectedIndex);
-                profileRecord.profileName = newProfileRecord.getProfileName();
-                profileRecord.layoutProfile = newProfileRecord.layoutProfile;
-                model.notifyProfileModified(selectedIndex);
-                wasModified();
-            }
+            editProfileOperation.run(this, oldProfileRecord, (newProfileRecord) -> {
+	            if (newProfileRecord != null) {
+	                LayoutProfile profileRecord = model.getElementAt(selectedIndex);
+	                profileRecord.profileName = newProfileRecord.getProfileName();
+	                profileRecord.layoutProfile = newProfileRecord.layoutProfile;
+	                model.notifyProfileModified(selectedIndex);
+	                wasModified();
+	            }
+            });
         }
     }//GEN-LAST:event_editButtonActionPerformed
 
@@ -382,17 +384,18 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         LayoutProfile profileRecord = new LayoutProfile(sourceProfile.profileName, sourceProfile.layoutProfile);
 
         if (copyProfileOperation != null) {
-            LayoutProfile newProfileRecord = copyProfileOperation.run(this, profileRecord);
-            if (newProfileRecord != null) {
-                if (selectedIndex >= 0) {
-                    model.add(selectedIndex + 1, newProfileRecord);
-                    profilesList.setSelectedIndex(selectedIndex + 1);
-                } else {
-                    profilesList.clearSelection();
-                    model.add(newProfileRecord);
-                }
-                wasModified();
-            }
+            copyProfileOperation.run(this, profileRecord, (newProfileRecord) -> {
+	            if (newProfileRecord != null) {
+	                if (selectedIndex >= 0) {
+	                    model.add(selectedIndex + 1, newProfileRecord);
+	                    profilesList.setSelectedIndex(selectedIndex + 1);
+	                } else {
+	                    profilesList.clearSelection();
+	                    model.add(newProfileRecord);
+	                }
+	                wasModified();
+	            }
+            });
         }
     }//GEN-LAST:event_copyButtonActionPerformed
 
@@ -401,16 +404,17 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
         int selectedIndex = profilesList.getSelectedIndex();
 
         if (templateProfileOperation != null) {
-            LayoutProfile newProfileRecord = templateProfileOperation.run(this);
-            if (newProfileRecord != null) {
-                if (selectedIndex >= 0) {
-                    profilesList.clearSelection();
-                    model.add(selectedIndex, newProfileRecord);
-                } else {
-                    model.add(newProfileRecord);
-                }
-                wasModified();
-            }
+            templateProfileOperation.run(this, (newProfileRecord) -> {
+	            if (newProfileRecord != null) {
+	                if (selectedIndex >= 0) {
+	                    profilesList.clearSelection();
+	                    model.add(selectedIndex, newProfileRecord);
+	                } else {
+	                    model.add(newProfileRecord);
+	                }
+	                wasModified();
+	            }
+            });
         }
     }//GEN-LAST:event_fromTemplateButtonActionPerformed
 
@@ -616,28 +620,28 @@ public class LayoutProfilesPanel extends javax.swing.JPanel implements ProfileLi
     @ParametersAreNonnullByDefault
     public static interface AddProfileOperation {
 
-        @Nullable
-        LayoutProfile run(JComponent parentComponent, String profileName);
+        void run(JComponent parentComponent, String profileName, ResultListener resultListener);
     }
 
     @ParametersAreNonnullByDefault
     public static interface EditProfileOperation {
 
-        @Nullable
-        LayoutProfile run(JComponent parentComponent, LayoutProfile profileRecord);
+        void run(JComponent parentComponent, LayoutProfile profileRecord, ResultListener resultListener);
     }
 
     @ParametersAreNonnullByDefault
     public static interface CopyProfileOperation {
 
-        @Nullable
-        LayoutProfile run(JComponent parentComponent, LayoutProfile profileRecord);
+        void run(JComponent parentComponent, LayoutProfile profileRecord, ResultListener resultListener);
     }
 
     @ParametersAreNonnullByDefault
     public static interface TemplateProfileOperation {
 
-        @Nullable
-        LayoutProfile run(JComponent parentComponent);
+        void run(JComponent parentComponent, ResultListener resultListener);
+    }
+
+    public static interface ResultListener {
+    	void result(@Nullable LayoutProfile layoutProfile);
     }
 }

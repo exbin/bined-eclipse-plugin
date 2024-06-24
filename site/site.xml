@@ -3,7 +3,7 @@
    <description name="BinEd Binary/Hex Editor" url="https://bined.exbin.org/eclipse-plugin/update">
       Eclipse plugin for BinEd editor
    </description>
-   <feature url="features/org.exbin.bined.eclipse.feature_0.2.2.snapshot.jar" id="org.exbin.bined.eclipse.feature" version="0.2.2.snapshot">
+   <feature url="features/org.exbin.bined.eclipse.feature_0.2.2.jar" id="org.exbin.bined.eclipse.feature" version="0.2.2">
       <category name="Editors"/>
    </feature>
    <category-def name="Editors" label="Editors">

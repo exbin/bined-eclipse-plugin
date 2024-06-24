@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-
    <extension
          point="org.eclipse.ui.editors">
       <editor
@@ -64,4 +63,18 @@
             name="View as Binary">
       </command>
    </extension>
+   <!--
+   <extension point="org.eclipse.compare.contentMergeViewers"> 
+     <viewer 
+         id="org.exbin.bined.eclipse.diff.contentMergeViewers" 
+         class="org.exbin.bined.eclipse.diff.BinaryDiffMergeViewerCreator" 
+         label="Binary Compare" />
+   </extension>
+   <extension
+         point="org.eclipse.compare.contentViewers">
+     <viewer 
+         id="org.exbin.bined.eclipse.diff.contentViewers" 
+         class="org.exbin.bined.eclipse.diff.BinaryDiffViewerCreator" />
+   </extension>
+   -->
 </plugin>

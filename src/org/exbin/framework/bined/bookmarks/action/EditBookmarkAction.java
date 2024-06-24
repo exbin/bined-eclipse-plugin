@@ -29,6 +29,7 @@ import javax.swing.JComponent;
 import org.exbin.bined.CodeAreaSelection;
 import org.exbin.framework.api.XBApplication;
 import org.exbin.framework.utils.ActionUtils;
+import org.exbin.framework.bined.bookmarks.action.AddBookmarkAction.OutputListener;
 import org.exbin.framework.bined.bookmarks.gui.BookmarkEditorPanel;
 import org.exbin.framework.bined.bookmarks.model.BookmarkRecord;
 import org.exbin.framework.frame.api.FrameModuleApi;
@@ -49,6 +50,7 @@ public class EditBookmarkAction extends AbstractAction {
     private ResourceBundle resourceBundle;
     private JComponent parentComponent;
     private BookmarkRecord bookmarkRecord;
+    private OutputListener outputListener;
     private CodeAreaSelection currentSelection;
 
     public EditBookmarkAction() {
@@ -66,13 +68,12 @@ public class EditBookmarkAction extends AbstractAction {
         this.currentSelection = currentSelection;
     }
 
-    @Nonnull
-    public Optional<BookmarkRecord> getBookmarkRecord() {
-        return Optional.ofNullable(bookmarkRecord);
-    }
-
     public void setBookmarkRecord(@Nullable BookmarkRecord bookmarkRecord) {
         this.bookmarkRecord = bookmarkRecord;
+    }
+
+    public void setOutputListener(OutputListener outputListener) {
+        this.outputListener = outputListener;
     }
 
     public void setParentComponent(JComponent parentComponent) {
@@ -93,11 +94,10 @@ public class EditBookmarkAction extends AbstractAction {
         controlPanel.setHandler((actionType) -> {
             switch (actionType) {
                 case OK: {
-                    bookmarkRecord.setRecord(bookmarkEditorPanel.getBookmarkRecord());
+                	outputListener.outputRecord(bookmarkEditorPanel.getBookmarkRecord());
                     break;
                 }
                 case CANCEL: {
-                    bookmarkRecord = null;
                     break;
                 }
             }
@@ -105,5 +105,9 @@ public class EditBookmarkAction extends AbstractAction {
         });
 
         dialog.showCentered(parentComponent);
+    }
+
+    public static interface OutputListener {
+    	void outputRecord(BookmarkRecord bookmarkRecord);
     }
 }

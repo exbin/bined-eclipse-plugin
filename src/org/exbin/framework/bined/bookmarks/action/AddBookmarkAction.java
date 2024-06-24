@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -46,7 +47,7 @@ public class AddBookmarkAction extends AbstractAction {
 
     private XBApplication application;
     private ResourceBundle resourceBundle;
-    private BookmarkRecord bookmarkRecord = null;
+    private OutputListener outputListener;
     private JComponent parentComponent;
     private CodeAreaSelection currentSelection;
 
@@ -65,9 +66,8 @@ public class AddBookmarkAction extends AbstractAction {
         this.currentSelection = currentSelection;
     }
 
-    @Nonnull
-    public Optional<BookmarkRecord> getBookmarkRecord() {
-        return Optional.ofNullable(bookmarkRecord);
+    public void setOutputListener(OutputListener outputListener) {
+        this.outputListener = outputListener;
     }
 
     public void setParentComponent(JComponent parentComponent) {
@@ -88,11 +88,10 @@ public class AddBookmarkAction extends AbstractAction {
         controlPanel.setHandler((actionType) -> {
             switch (actionType) {
                 case OK: {
-                    bookmarkRecord = bookmarkEditorPanel.getBookmarkRecord();
+                	outputListener.outputRecord(bookmarkEditorPanel.getBookmarkRecord());
                     break;
                 }
                 case CANCEL: {
-                    bookmarkRecord = null;
                     break;
                 }
             }
@@ -100,5 +99,9 @@ public class AddBookmarkAction extends AbstractAction {
         });
 
         dialog.showCentered(parentComponent);
+    }
+    
+    public static interface OutputListener {
+    	void outputRecord(BookmarkRecord bookmarkRecord);
     }
 }

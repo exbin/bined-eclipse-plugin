@@ -27,6 +27,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 
 import org.exbin.framework.api.XBApplication;
+import org.exbin.framework.bined.macro.action.AddMacroAction.OutputListener;
 import org.exbin.framework.bined.macro.gui.MacroEditorPanel;
 import org.exbin.framework.utils.ActionUtils;
 import org.exbin.framework.bined.macro.model.MacroRecord;
@@ -47,6 +48,7 @@ public class EditMacroAction extends AbstractAction {
     private XBApplication application;
     private ResourceBundle resourceBundle;
     private JComponent parentComponent;
+    private OutputListener outputListener;
     private MacroRecord macroRecord;
 
     public EditMacroAction() {
@@ -60,13 +62,12 @@ public class EditMacroAction extends AbstractAction {
         putValue(ActionUtils.ACTION_DIALOG_MODE, true);
     }
 
-    public void setParentComponent(JComponent parentComponent) {
-    	this.parentComponent = parentComponent;
+    public void setOutputListener(OutputListener outputListener) {
+        this.outputListener = outputListener;
     }
 
-    @Nonnull
-    public Optional<MacroRecord> getMacroRecord() {
-        return Optional.ofNullable(macroRecord);
+    public void setParentComponent(JComponent parentComponent) {
+    	this.parentComponent = parentComponent;
     }
 
     public void setMacroRecord(@Nullable MacroRecord macroRecord) {
@@ -86,11 +87,10 @@ public class EditMacroAction extends AbstractAction {
         controlPanel.setHandler((actionType) -> {
             switch (actionType) {
                 case OK: {
-                    macroRecord.setRecord(macroEditorPanel.getMacroRecord());
+                	outputListener.outputRecord(macroEditorPanel.getMacroRecord());
                     break;
                 }
                 case CANCEL: {
-                    macroRecord = null;
                     break;
                 }
             }
@@ -98,5 +98,9 @@ public class EditMacroAction extends AbstractAction {
         });
 
         dialog.showCentered(parentComponent);
+    }
+
+    public static interface OutputListener {
+    	void outputRecord(MacroRecord macroRecord);
     }
 }
