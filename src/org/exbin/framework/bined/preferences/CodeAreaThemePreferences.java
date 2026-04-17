@@ -1,5 +1,5 @@
 /*
- * Copyright (C) ExBin Project
+ * Copyright (C) ExBin Project, https://exbin.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,6 @@ import org.exbin.framework.bined.options.CodeAreaThemeOptions;
 
 /**
  * Code area theme preferences.
- *
- * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class CodeAreaThemePreferences implements CodeAreaThemeOptions {

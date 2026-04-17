@@ -1,5 +1,5 @@
 /*
- * Copyright (C) ExBin Project
+ * Copyright (C) ExBin Project, https://exbin.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,9 @@ import org.exbin.framework.options.api.OptionsComponent;
 
 /**
  * Binary viewer/editor appearance options panel.
- *
- * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
-public class BinaryAppearanceOptionsPanel extends javax.swing.JPanel implements OptionsComponent<BinaryAppearanceOptionsImpl> {
+public class BinaryAppearanceOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
 
     private OptionsModifiedListener optionsModifiedListener;
     private final ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(BinaryAppearanceOptionsPanel.class);

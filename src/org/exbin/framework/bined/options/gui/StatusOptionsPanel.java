@@ -1,5 +1,5 @@
 /*
- * Copyright (C) ExBin Project
+ * Copyright (C) ExBin Project, https://exbin.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,9 @@ import org.exbin.framework.options.api.OptionsComponent;
 
 /**
  * Editor status bar options panel.
- *
- * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
-public class StatusOptionsPanel extends javax.swing.JPanel implements OptionsComponent<StatusOptionsImpl> {
+public class StatusOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(StatusOptionsPanel.class);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) ExBin Project
+ * Copyright (C) ExBin Project, https://exbin.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,6 @@ import org.exbin.framework.frame.api.FrameModuleApi;
 
 /**
  * Go to position action.
- *
- * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class GoToPositionAction extends AbstractAction implements CodeAreaAction {

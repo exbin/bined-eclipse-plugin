@@ -1,5 +1,5 @@
 /*
- * Copyright (C) ExBin Project
+ * Copyright (C) ExBin Project, https://exbin.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,13 +39,11 @@ import org.exbin.framework.bined.options.impl.CodeAreaLayoutOptionsImpl;
 import org.exbin.framework.bined.preferences.CodeAreaLayoutPreferences;
 import org.exbin.framework.utils.LanguageUtils;
 import org.exbin.framework.utils.WindowUtils;
-import org.exbin.framework.preferences.PreferencesWrapper;
+import org.exbin.framework.options.PreferencesWrapper;
 import org.exbin.framework.preferences.StreamPreferences;
 
 /**
  * Manage list of layout profiles panel.
- *
- * @author ExBin Project (https://exbin.org)
  */
 @ParametersAreNonnullByDefault
 public class LayoutTemplatePanel extends javax.swing.JPanel implements ProfileListPanel {
