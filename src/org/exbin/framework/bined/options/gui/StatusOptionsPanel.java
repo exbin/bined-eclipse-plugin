@@ -32,7 +32,7 @@ import org.exbin.framework.options.api.OptionsComponent;
  * Editor status bar options panel.
  */
 @ParametersAreNonnullByDefault
-public class StatusOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
+public class StatusOptionsPanel extends javax.swing.JPanel implements OptionsComponent<StatusOptionsImpl> {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(StatusOptionsPanel.class);
 

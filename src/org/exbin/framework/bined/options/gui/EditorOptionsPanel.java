@@ -32,7 +32,7 @@ import org.exbin.framework.options.api.OptionsComponent;
  * Editor preference parameters panel.
  */
 @ParametersAreNonnullByDefault
-public class EditorOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
+public class EditorOptionsPanel extends javax.swing.JPanel implements OptionsComponent<EditorOptionsImpl> {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(EditorOptionsPanel.class);
 

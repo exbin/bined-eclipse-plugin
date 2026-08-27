@@ -29,7 +29,7 @@ import org.exbin.framework.options.api.OptionsComponent;
  * Theme profiles options panel.
  */
 @ParametersAreNonnullByDefault
-public class ThemeProfilesOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
+public class ThemeProfilesOptionsPanel extends javax.swing.JPanel implements OptionsComponent<CodeAreaThemeOptionsImpl> {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(ThemeProfilesOptionsPanel.class);
 

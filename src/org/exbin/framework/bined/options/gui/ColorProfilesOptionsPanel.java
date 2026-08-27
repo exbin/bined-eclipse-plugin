@@ -29,7 +29,7 @@ import org.exbin.framework.options.api.OptionsComponent;
  * Color profiles options panel.
  */
 @ParametersAreNonnullByDefault
-public class ColorProfilesOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
+public class ColorProfilesOptionsPanel extends javax.swing.JPanel implements OptionsComponent<CodeAreaColorOptionsImpl> {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(ColorProfilesOptionsPanel.class);
 

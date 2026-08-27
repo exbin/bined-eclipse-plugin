@@ -29,7 +29,7 @@ import org.exbin.framework.options.api.OptionsComponent;
  * Layout profiles options panel.
  */
 @ParametersAreNonnullByDefault
-public class LayoutProfilesOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
+public class LayoutProfilesOptionsPanel extends javax.swing.JPanel implements OptionsComponent<CodeAreaLayoutOptionsImpl> {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(LayoutProfilesOptionsPanel.class);
 

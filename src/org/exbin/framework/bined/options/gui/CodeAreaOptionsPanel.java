@@ -34,7 +34,7 @@ import org.exbin.framework.options.api.OptionsComponent;
  * Code area preference parameters panel.
  */
 @ParametersAreNonnullByDefault
-public class CodeAreaOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
+public class CodeAreaOptionsPanel extends javax.swing.JPanel implements OptionsComponent<CodeAreaOptionsImpl> {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(CodeAreaOptionsPanel.class);
 

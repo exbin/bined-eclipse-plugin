@@ -28,7 +28,7 @@ import org.exbin.framework.options.api.OptionsModifiedListener;
  * Data inspector options panel.
  */
 @ParametersAreNonnullByDefault
-public class DataInspectorOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
+public class DataInspectorOptionsPanel extends javax.swing.JPanel implements OptionsComponent<DataInspectorOptionsImpl> {
 
     private OptionsModifiedListener optionsModifiedListener;
     private final ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(DataInspectorOptionsPanel.class);

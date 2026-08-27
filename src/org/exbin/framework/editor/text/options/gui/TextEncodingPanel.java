@@ -37,7 +37,7 @@ import org.exbin.framework.options.api.OptionsComponent;
  * Text encoding selection panel.
  */
 @ParametersAreNonnullByDefault
-public class TextEncodingPanel extends javax.swing.JPanel implements SettingsComponent {
+public class TextEncodingPanel extends javax.swing.JPanel implements OptionsComponent<TextEncodingOptionsImpl> {
 
     private OptionsModifiedListener optionsModifiedListener;
     private final ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(TextEncodingPanel.class);

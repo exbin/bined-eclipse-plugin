@@ -28,7 +28,7 @@ import org.exbin.framework.options.api.OptionsComponent;
  * Binary viewer/editor appearance options panel.
  */
 @ParametersAreNonnullByDefault
-public class BinaryAppearanceOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
+public class BinaryAppearanceOptionsPanel extends javax.swing.JPanel implements OptionsComponent<BinaryAppearanceOptionsImpl> {
 
     private OptionsModifiedListener optionsModifiedListener;
     private final ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(BinaryAppearanceOptionsPanel.class);

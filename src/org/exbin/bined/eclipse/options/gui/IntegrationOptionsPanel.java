@@ -40,7 +40,7 @@ import org.exbin.framework.options.api.OptionsModifiedListener;
  * Integration preference parameters panel.
  */
 @ParametersAreNonnullByDefault
-public class IntegrationOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
+public class IntegrationOptionsPanel extends javax.swing.JPanel implements OptionsComponent<IntegrationOptionsImpl> {
 
     private final java.util.ResourceBundle resourceBundle = LanguageUtils.getResourceBundleByClass(IntegrationOptionsPanel.class);
     private OptionsModifiedListener optionsModifiedListener;

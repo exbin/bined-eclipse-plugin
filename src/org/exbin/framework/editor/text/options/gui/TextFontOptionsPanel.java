@@ -32,7 +32,7 @@ import org.exbin.framework.options.api.OptionsComponent;
  * Text font options panel.
  */
 @ParametersAreNonnullByDefault
-public class TextFontOptionsPanel extends javax.swing.JPanel implements SettingsComponent {
+public class TextFontOptionsPanel extends javax.swing.JPanel implements OptionsComponent<TextFontOptionsImpl> {
 
     private OptionsModifiedListener optionsModifiedListener;
     private FontChangeAction fontChangeAction;
