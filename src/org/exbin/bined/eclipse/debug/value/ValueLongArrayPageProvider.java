@@ -23,17 +23,16 @@ import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
 import org.eclipse.jdt.debug.core.IJavaValue;
 import org.exbin.bined.eclipse.data.PageProvider;
 import org.exbin.bined.eclipse.data.PageProviderBinaryData;
-import org.exbin.framework.bined.inspector.gui.BasicValuesPanel;
+import org.exbin.bined.jaguif.inspector.gui.BasicValuesPanel;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
 
 import java.math.BigInteger;
 
 /**
  * Long array data source for debugger view.
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 public class ValueLongArrayPageProvider implements PageProvider {
 
     private final IJavaArray arrayRef;
@@ -42,7 +41,6 @@ public class ValueLongArrayPageProvider implements PageProvider {
         this.arrayRef = arrayRef;
     }
 
-    @Nonnull
     @Override
     public byte[] getPage(long pageIndex) {
         try {

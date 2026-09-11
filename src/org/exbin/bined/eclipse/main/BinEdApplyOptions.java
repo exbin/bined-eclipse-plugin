@@ -15,53 +15,41 @@
  */
 package org.exbin.bined.eclipse.main;
 
-import org.exbin.bined.eclipse.options.IntegrationOptions;
-import org.exbin.framework.bined.inspector.options.DataInspectorOptions;
-import org.exbin.framework.bined.options.CodeAreaColorOptions;
-import org.exbin.framework.bined.options.CodeAreaLayoutOptions;
-import org.exbin.framework.bined.options.CodeAreaOptions;
-import org.exbin.framework.bined.options.CodeAreaThemeOptions;
-import org.exbin.framework.bined.options.EditorOptions;
-import org.exbin.framework.bined.options.StatusOptions;
-import org.exbin.framework.editor.text.options.TextEncodingOptions;
-import org.exbin.framework.editor.text.options.TextFontOptions;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.exbin.bined.eclipse.settings.IntegrationOptions;
+import org.exbin.bined.jaguif.editor.settings.BinaryEditorOptions;
+import org.exbin.bined.jaguif.inspector.settings.DataInspectorOptions;
+import org.exbin.bined.jaguif.theme.settings.CodeAreaColorOptions;
+import org.exbin.bined.jaguif.theme.settings.CodeAreaLayoutOptions;
+import org.exbin.bined.jaguif.theme.settings.CodeAreaThemeOptions;
+import org.exbin.bined.jaguif.viewer.settings.CodeAreaOptions;
+import org.exbin.bined.jaguif.viewer.settings.CodeAreaStatusOptions;
+import org.exbin.jaguif.text.encoding.settings.TextEncodingOptions;
+import org.exbin.jaguif.text.font.settings.TextFontOptions;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Options for apply operation.
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 public interface BinEdApplyOptions {
 
-    @Nonnull
     CodeAreaOptions getCodeAreaOptions();
 
-    @Nonnull
     TextEncodingOptions getEncodingOptions();
 
-    @Nonnull
     TextFontOptions getFontOptions();
 
-    @Nonnull
     IntegrationOptions getIntegrationOptions();
 
-    @Nonnull
-    EditorOptions getEditorOptions();
+    BinaryEditorOptions getEditorOptions();
 
-    @Nonnull
-    StatusOptions getStatusOptions();
+    CodeAreaStatusOptions getStatusOptions();
 
-    @Nonnull
     DataInspectorOptions getDataInspectorOptions();
 
-    @Nonnull
     CodeAreaLayoutOptions getLayoutOptions();
 
-    @Nonnull
     CodeAreaColorOptions getColorOptions();
 
-    @Nonnull
     CodeAreaThemeOptions getThemeOptions();
 }

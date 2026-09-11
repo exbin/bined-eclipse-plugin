@@ -21,7 +21,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.JPanel;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -38,14 +37,17 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.exbin.bined.eclipse.debug.DebugViewDataProvider;
 import org.exbin.bined.eclipse.debug.gui.DebugViewPanel;
 import org.exbin.bined.eclipse.debug.value.ValueNodeConverter;
-import org.exbin.framework.utils.WindowUtils;
-import org.exbin.framework.utils.WindowUtils.DialogWrapper;
-import org.exbin.framework.utils.gui.CloseControlPanel;
+import org.exbin.bined.eclipse.main.EclipseWindowModule;
+import org.exbin.jaguif.App;
+import org.exbin.jaguif.window.api.WindowHandler;
+import org.exbin.jaguif.window.api.WindowModuleApi;
+import org.exbin.jaguif.window.api.gui.CloseControlPanel;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Views variable as binary data.
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 public class ViewAsBinaryVariableHandler extends AbstractHandler {
 
 	@Nullable
@@ -63,14 +65,15 @@ public class ViewAsBinaryVariableHandler extends AbstractHandler {
 				debugViewPanel.addProvider(provider);
 			}
 			CloseControlPanel controlPanel = new CloseControlPanel();
-			JPanel dialogPanel = WindowUtils.createDialogPanel(debugViewPanel, controlPanel);
+	        WindowModuleApi windowModule = App.getModule(WindowModuleApi.class);
+            JPanel dialogPanel = windowModule.createDialogPanel(debugViewPanel, controlPanel);
 			Event triggerEvent = (Event) event.getTrigger();
 			MenuItem menuItem = ((MenuItem) triggerEvent.widget);
 			Menu menu = menuItem.getParent();
-			final DialogWrapper dialog = WindowUtils.createDialog(dialogPanel, menu.getShell(), "View as Binary", Dialog.ModalityType.APPLICATION_MODAL);
+            final WindowHandler dialog = EclipseWindowModule.createDialog(dialogPanel, menu.getShell(), "View as Binary", Dialog.ModalityType.APPLICATION_MODAL);
 
 //	        debugViewPanel.initFocus();
-			controlPanel.setHandler(() -> {
+			controlPanel.setController(() -> {
 				dialog.close();
 				dialog.dispose();
 			});

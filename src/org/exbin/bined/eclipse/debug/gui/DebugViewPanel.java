@@ -16,47 +16,118 @@
 package org.exbin.bined.eclipse.debug.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.JPanel;
+
+import org.exbin.bined.CodeAreaUtils;
+import org.exbin.bined.CodeType;
 import org.exbin.bined.EditMode;
 import org.exbin.auxiliary.binary_data.BinaryData;
 import org.exbin.bined.eclipse.debug.DebugViewDataProvider;
-import org.exbin.bined.eclipse.main.BinEdManager;
-import org.exbin.framework.bined.BinEdEditorComponent;
-import org.exbin.framework.bined.BinEdFileManager;
-import org.exbin.framework.bined.gui.BinEdComponentPanel;
-
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.exbin.bined.eclipse.gui.BinEdToolbarPanel;
+import org.exbin.bined.highlight.swing.NonprintablesCodeAreaAssessor;
+import org.exbin.bined.jaguif.component.BinEdDataComponent;
+import org.exbin.bined.jaguif.component.gui.BinEdComponentPanel;
+import org.exbin.bined.jaguif.document.BinEdFileManager;
+import org.exbin.bined.jaguif.document.BinedDocumentModule;
+import org.exbin.bined.jaguif.viewer.status.gui.BinaryDataSizeComponent;
+import org.exbin.bined.section.layout.SectionCodeAreaLayoutProfile;
+import org.exbin.bined.swing.CodeAreaSwingUtils;
+import org.exbin.bined.swing.basic.color.CodeAreaColorsProfile;
+import org.exbin.bined.swing.capability.ColorAssessorPainterCapable;
+import org.exbin.bined.swing.section.SectCodeArea;
+import org.exbin.bined.swing.section.theme.SectionCodeAreaThemeProfile;
+import org.exbin.jaguif.App;
+import org.exbin.jaguif.language.api.LanguageModuleApi;
+import org.exbin.jaguif.statusbar.api.StatusBar;
+import org.exbin.jaguif.statusbar.api.StatusBarComponent;
+import org.exbin.jaguif.utils.DesktopUtils;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Panel to show debug view.
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 public class DebugViewPanel extends javax.swing.JPanel {
 
     private final List<DebugViewDataProvider> providers = new ArrayList<>();
     private int selectedProvider = 0;
 
-    private final BinEdEditorComponent editorComponent = new BinEdEditorComponent();
+    protected final Font defaultFont;
+    protected final SectionCodeAreaLayoutProfile defaultLayoutProfile;
+    protected final SectionCodeAreaThemeProfile defaultThemeProfile;
+    protected final CodeAreaColorsProfile defaultColorProfile;
+
+    protected final JPanel panel;
+    protected BinEdToolbarPanel toolbarPanel = new BinEdToolbarPanel();
+    protected StatusBar statusBar;
+    private final BinEdDataComponent dataComponent;
 
     public DebugViewPanel() {
-        BinEdManager binEdManager = BinEdManager.getInstance();
-	    BinEdFileManager fileManager = binEdManager.getFileManager();
-	    BinEdComponentPanel componentPanel = editorComponent.getComponentPanel();
-	    fileManager.initComponentPanel(componentPanel);
-	    binEdManager.initEditorComponent(editorComponent);
+        panel = new JPanel(new BorderLayout());
+        dataComponent = new BinEdDataComponent(new BinEdComponentPanel());
+
+        SectCodeArea codeArea = (SectCodeArea) dataComponent.getCodeArea();
+        defaultFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+        defaultLayoutProfile = codeArea.getLayoutProfile();
+        defaultThemeProfile = codeArea.getThemeProfile();
+        defaultColorProfile = codeArea.getColorsProfile();
 
         initComponents();
         init();
     }
 
     private void init() {
-        BinEdComponentPanel componentPanel = editorComponent.getComponentPanel();
-        editorComponent.getCodeArea().setEditMode(EditMode.READ_ONLY);
+        BinedDocumentModule binedDocumentModule = App.getModule(BinedDocumentModule.class);
+        BinEdFileManager fileManager = binedDocumentModule.getFileManager();
+        fileManager.initDataComponent(dataComponent);
 
-        this.add(editorComponent.getComponent(), BorderLayout.CENTER);
+        BinEdComponentPanel componentPanel = (BinEdComponentPanel) dataComponent.getComponent();
+        SectCodeArea codeArea = componentPanel.getCodeArea();
+        codeArea.setEditMode(EditMode.READ_ONLY);
+
+        toolbarPanel.setTargetComponent(componentPanel);
+        toolbarPanel.setCodeAreaControl(new BinEdToolbarPanel.Control() {
+            @Override
+            public CodeType getCodeType() {
+                return codeArea.getCodeType();
+            }
+
+            @Override
+            public void setCodeType(CodeType codeType) {
+                codeArea.setCodeType(codeType);
+            }
+
+            @Override
+            public boolean isShowNonprintables() {
+                ColorAssessorPainterCapable painter = (ColorAssessorPainterCapable) codeArea.getPainter();
+                NonprintablesCodeAreaAssessor nonprintablesCodeAreaAssessor =
+                        CodeAreaSwingUtils.findColorAssessor(painter, NonprintablesCodeAreaAssessor.class);
+                return CodeAreaUtils.requireNonNull(nonprintablesCodeAreaAssessor).isShowNonprintables();
+            }
+
+            @Override
+            public void setShowNonprintables(boolean showNonprintables) {
+                ColorAssessorPainterCapable painter = (ColorAssessorPainterCapable) codeArea.getPainter();
+                NonprintablesCodeAreaAssessor nonprintablesCodeAreaAssessor =
+                        CodeAreaSwingUtils.findColorAssessor(painter, NonprintablesCodeAreaAssessor.class);
+                CodeAreaUtils.requireNonNull(nonprintablesCodeAreaAssessor).setShowNonprintables(showNonprintables);
+            }
+
+            @Override
+            public void repaint() {
+                codeArea.repaint();
+            }
+        });
+        toolbarPanel.setOnlineHelpAction(createOnlineHelpAction());
+
+        this.add(dataComponent.getComponent(), BorderLayout.CENTER);
         this.invalidate();
     }
 
@@ -103,6 +174,32 @@ public class DebugViewPanel extends javax.swing.JPanel {
     }
 
     public void setContentData(@Nullable BinaryData data) {
-        editorComponent.setContentData(data);
+        dataComponent.getCodeArea().setContentData(data);
+        dataSync();
+    }
+
+    private void dataSync() {
+        long dataSize = dataComponent.getCodeArea().getDataSize();
+        BinaryDataSizeComponent dataSizeComponent = null;
+        for (int i = 0; i < statusBar.getItemsCount(); i++) {
+            StatusBarComponent component = statusBar.getItem(i);
+            if (component instanceof BinaryDataSizeComponent) {
+                dataSizeComponent = (BinaryDataSizeComponent) component;
+                break;
+            }
+        }
+        if (dataSizeComponent != null) {
+            dataSizeComponent.setOriginalDataSize(dataSize);
+        }
+    }
+
+    private AbstractAction createOnlineHelpAction() {
+        return new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                LanguageModuleApi languageModuleApi = App.getModule(LanguageModuleApi.class);
+                DesktopUtils.openDesktopURL(languageModuleApi.getAppBundle().getString("online_help_url"));
+            }
+        };
     }
 }

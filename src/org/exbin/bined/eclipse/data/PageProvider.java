@@ -15,13 +15,14 @@
  */
 package org.exbin.bined.eclipse.data;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Simplified page provider.
  */
+@NullMarked
 public interface PageProvider {
-    @Nonnull
+
     byte[] getPage(long pageIndex);
 
     long getDocumentSize();

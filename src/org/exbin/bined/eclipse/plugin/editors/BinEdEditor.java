@@ -19,8 +19,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -51,15 +49,14 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.part.EditorPart;
 import org.exbin.bined.eclipse.main.BinEdNativeFile;
-import org.exbin.framework.utils.WindowUtils;
-import org.exbin.xbup.operation.Command;
-import org.exbin.xbup.operation.undo.XBUndoHandler;
-import org.exbin.xbup.operation.undo.XBUndoUpdateListener;
+import org.exbin.bined.eclipse.main.EclipseWindowModule;
+import org.exbin.bined.operation.command.BinaryDataUndoRedo;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Implementation of the binary/hexadecimal editor.
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 public final class BinEdEditor extends EditorPart implements ISelectionProvider {
 
 	private List<ISelectionChangedListener> selectionChangedListeners = new ArrayList<>();
@@ -77,7 +74,6 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		selectionChangedListeners.add(listener);
 	}
 
-	@Nonnull
 	@Override
 	public ISelection getSelection() {
 		return new ISelection() {
@@ -177,12 +173,12 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 		java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
 		Shell shell = parent.getShell();
-		WindowUtils.frameShells.put(frame, shell);
+		EclipseWindowModule.frameShells.put(frame, shell);
 		shell.addDisposeListener((e) -> {
-			WindowUtils.frameShells.remove(frame);
+		    EclipseWindowModule.frameShells.remove(frame);
 		});
 
-		frame.add(editorFile.getEditorComponent().getComponent());
+		frame.add(editorFile.getComponent());
 		final org.eclipse.swt.graphics.Rectangle size = wrapper.getClientArea();
 		SwingUtilities.invokeLater(() -> {
 			frame.invalidate();
@@ -200,7 +196,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		bars.setGlobalActionHandler(ActionFactory.UNDO.getId(), new Action() {
 			@Override
 			public void run() {
-				XBUndoHandler undoHandler = editorFile.getUndoHandler();
+			    BinaryDataUndoRedo undoHandler = editorFile.getUndoHandler();
 				if (!undoHandler.canUndo())
 					return;
 
@@ -215,7 +211,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		bars.setGlobalActionHandler(ActionFactory.REDO.getId(), new Action() {
 			@Override
 			public void run() {
-				XBUndoHandler undoHandler = editorFile.getUndoHandler();
+			    BinaryDataUndoRedo undoHandler = editorFile.getUndoHandler();
 				if (!undoHandler.canRedo())
 					return;
 
@@ -264,13 +260,13 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		IActionBars bars = getEditorSite().getActionBars();
 		IAction undoAction = bars.getGlobalActionHandler(ActionFactory.UNDO.getId());
 		if (undoAction != null) {
-			XBUndoHandler undoHandler = editorFile.getUndoHandler();
+		    BinaryDataUndoRedo undoHandler = editorFile.getUndoHandler();
 			undoAction.setEnabled(undoHandler.canUndo());
 		}
 
 		IAction redoAction = bars.getGlobalActionHandler(ActionFactory.REDO.getId());
 		if (redoAction != null) {
-			XBUndoHandler undoHandler = editorFile.getUndoHandler();
+		    BinaryDataUndoRedo undoHandler = editorFile.getUndoHandler();
 			redoAction.setEnabled(undoHandler.canRedo());
 		}
 

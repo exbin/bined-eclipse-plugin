@@ -22,15 +22,14 @@ import org.eclipse.jdt.debug.core.IJavaFieldVariable;
 import org.eclipse.jdt.debug.core.IJavaObject;
 import org.eclipse.jdt.debug.core.IJavaPrimitiveValue;
 import org.exbin.auxiliary.binary_data.BinaryData;
-import org.exbin.auxiliary.binary_data.ByteArrayData;
+import org.exbin.auxiliary.binary_data.array.ByteArrayData;
 import org.exbin.bined.eclipse.data.PageProviderBinaryData;
 import org.exbin.bined.eclipse.debug.DebugViewDataProvider;
 import org.exbin.bined.eclipse.debug.DefaultDebugViewDataProvider;
-import org.exbin.framework.bined.inspector.gui.BasicValuesPanel;
+import org.exbin.bined.jaguif.inspector.gui.BasicValuesPanel;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -41,7 +40,7 @@ import java.util.List;
 /**
  * Debug values converter.
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 public class ValueNodeConverter {
 
 	public static final String VALUE_VARIABLE = "value";
@@ -51,7 +50,6 @@ public class ValueNodeConverter {
     public ValueNodeConverter() {
     }
 
-    @Nonnull
     public List<DebugViewDataProvider> identifyAvailableProviders(IValue value) {
 
         List<DebugViewDataProvider> providers = new ArrayList<>();
@@ -70,13 +68,11 @@ public class ValueNodeConverter {
         try {
         	final String valueString = value.getValueString();
             providers.add(new DebugViewDataProvider() {
-                @Nonnull
                 @Override
                 public String getName() {
                     return "toString()";
                 }
 
-                @Nonnull
                 @Override
                 public BinaryData getData() {
                     return new ByteArrayData(valueString.getBytes(Charset.defaultCharset()));

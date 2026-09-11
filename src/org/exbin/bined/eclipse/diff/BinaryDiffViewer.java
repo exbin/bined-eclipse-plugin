@@ -15,7 +15,7 @@
  */
 package org.exbin.bined.eclipse.diff;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
 
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.Viewer;
@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Control;
 /**
  * Binary viewer.
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 public class BinaryDiffViewer extends Viewer {
 
 	@Override

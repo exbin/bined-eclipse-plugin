@@ -15,8 +15,7 @@
  */
 package org.exbin.bined.eclipse.diff;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.IViewerCreator;
@@ -26,10 +25,9 @@ import org.eclipse.swt.widgets.Composite;
 /**
  * Binary viewer creator.
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 public class BinaryDiffViewerCreator implements IViewerCreator {
 
-	@Nonnull
 	@Override
 	public Viewer createViewer(Composite parent, CompareConfiguration configuration) {
 		return new BinaryDiffViewer();

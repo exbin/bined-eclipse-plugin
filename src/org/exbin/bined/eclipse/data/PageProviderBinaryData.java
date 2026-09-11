@@ -16,10 +16,10 @@
 package org.exbin.bined.eclipse.data;
 
 import org.exbin.auxiliary.binary_data.BinaryData;
-import org.exbin.auxiliary.binary_data.ByteArrayEditableData;
+import org.exbin.auxiliary.binary_data.array.ByteArrayEditableData;
+import org.jspecify.annotations.NullMarked;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,7 +27,7 @@ import java.io.OutputStream;
 /**
  * Debugger value dual page data source.
  */
-@ParametersAreNonnullByDefault
+@NullMarked
 public class PageProviderBinaryData implements BinaryData {
 
     public static final int PAGE_SIZE = 2048;
