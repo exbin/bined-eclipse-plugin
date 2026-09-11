@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.exbin.bined.eclipse.main;
+package org.exbin.bined.eclipse.plugin;
 
 import java.awt.Component;
 import java.io.File;
@@ -33,11 +33,13 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.exbin.auxiliary.binary_data.BinaryData;
 import org.exbin.auxiliary.binary_data.delta.DeltaDocument;
 import org.exbin.bined.eclipse.gui.BinEdFilePanel;
+import org.exbin.bined.jaguif.component.BinEdDataComponent;
 import org.exbin.bined.jaguif.document.BinEdFileManager;
 import org.exbin.bined.jaguif.document.BinaryFileDocument;
 import org.exbin.bined.jaguif.document.BinedDocumentModule;
 import org.exbin.bined.jaguif.document.FileProcessingMode;
 import org.exbin.bined.jaguif.document.settings.BinaryFileProcessingOptions;
+import org.exbin.bined.jaguif.search.BinedSearchModule;
 import org.exbin.bined.operation.BinaryDataUndoRedoChangeListener;
 import org.exbin.bined.operation.command.BinaryDataUndoRedo;
 import org.exbin.bined.swing.section.SectCodeArea;
@@ -67,8 +69,11 @@ public class BinEdNativeFile {
         BinedDocumentModule binedDocumentModule = App.getModule(BinedDocumentModule.class);
         BinEdFileManager fileManager = binedDocumentModule.getFileManager();
         filePanel.setDocument(fileDocument);
-        fileManager.initDataComponent(fileDocument.getDataComponent());
-        fileManager.initCommandHandler(fileDocument.getDataComponent());
+        BinEdDataComponent dataComponent = fileDocument.getDataComponent();
+        fileManager.initDataComponent(dataComponent);
+        fileManager.initCommandHandler(dataComponent);
+        BinedSearchModule searchModule = App.getModule(BinedSearchModule.class);
+        dataComponent.setSearchController(searchModule.createBinarySearchController(dataComponent));
     	
         OptionsModuleApi optionsModule = App.getModule(OptionsModuleApi.class);
         OptionsStorage optionsStorage = optionsModule.getAppOptions();
@@ -81,6 +86,10 @@ public class BinEdNativeFile {
 				notifyChanged();
 			}
 		});
+        filePanel.getToolbarPanel().setUndoHandler(getUndoHandler());
+        filePanel.getToolbarPanel().setSaveAction(event -> {
+            saveFile();
+        });
 
         OptionsSettingsModuleApi optionsSettingsModule = App.getModule(OptionsSettingsModuleApi.class);
         OptionsSettingsManagement settingsManager = optionsSettingsModule.getMainSettingsManager();
@@ -105,7 +114,6 @@ public class BinEdNativeFile {
 				File documentFile = path.toFile();
 				openDocument(documentFile, documentFile.canWrite());
 		        getUndoHandler().clear();
-		        fileDocument.fileSync();
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -125,6 +133,7 @@ public class BinEdNativeFile {
 
     public void openDocument(File file, boolean editable) throws IOException {
         fileDocument.loadFrom(new FileDocumentSource(file));
+        fileSync();
     }
 
     public void openDocument(InputStream stream, boolean editable) throws IOException {
@@ -146,8 +155,8 @@ public class BinEdNativeFile {
                 // TODO Auto-generated method stub
                 return null;
             }
-            
         });
+        fileSync();
     }
 
     public void saveFile() {
@@ -166,9 +175,8 @@ public class BinEdNativeFile {
 		            DeltaDocument document = (DeltaDocument) data;
 		            document.save();
 		        }
-		        fileDocument.fileSync();
+		        fileSync();
 		        notifyChanged();
-		        filePanel.getToolbarPanel().updateUndoState();
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -189,14 +197,18 @@ public class BinEdNativeFile {
 //	            DeltaDocument document = (DeltaDocument) data;
 //	            document.save();
 	        }
-	        fileDocument.fileSync();
+	        fileSync();
 	        notifyChanged();
-	        filePanel.getToolbarPanel().updateUndoState();
             IWorkspace workspace = ResourcesPlugin.getWorkspace();
     		dataObject = new FileEditorInput(workspace.getRoot().getFileForLocation(org.eclipse.core.runtime.Path.fromOSString(file.getAbsolutePath())));
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+    }
+    
+    public void fileSync() {
+        fileDocument.fileSync();
+        filePanel.notifyFileSync();
     }
 
     public void reloadFile() {
@@ -216,6 +228,7 @@ public class BinEdNativeFile {
     }
     
     public void notifyChanged() {
+        filePanel.getToolbarPanel().updateUndoState();
     	if (changeListener != null) {
     		changeListener.stateChanged(null);
     	}

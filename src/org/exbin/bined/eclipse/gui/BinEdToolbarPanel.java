@@ -298,7 +298,7 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
         toolBar.setFloatable(false);
         toolBar.setRollover(true);
 
-        saveFileButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/exbin/bined/eclipse/resources/icons/document-save.png"))); // NOI18N
+        saveFileButton.setIcon(new javax.swing.ImageIcon(getClass().getResource(dockingResourceBundle.getString("saveFileAction.smallIcon")))); // NOI18N
         saveFileButton.setToolTipText(dockingResourceBundle.getString("saveFileAction.shortDescription")); // NOI18N
         saveFileButton.setEnabled(false);
         saveFileButton.setFocusable(false);
@@ -312,7 +312,7 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
         toolBar.add(saveFileButton);
         toolBar.add(separator1);
 
-        undoEditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/exbin/bined/eclipse/resources/icons/edit-undo.png"))); // NOI18N
+        undoEditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource(operationUndoResourceBundle.getString("editUndoAction.smallIcon")))); // NOI18N
         undoEditButton.setToolTipText(operationUndoResourceBundle.getString("editUndoAction.shortDescription")); // NOI18N
         undoEditButton.setFocusable(false);
         undoEditButton.setEnabled(false);
@@ -325,7 +325,7 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
         });
         toolBar.add(undoEditButton);
 
-        redoEditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/exbin/bined/eclipse/resources/icons/edit-redo.png"))); // NOI18N
+        redoEditButton.setIcon(new javax.swing.ImageIcon(getClass().getResource(operationUndoResourceBundle.getString("editRedoAction.smallIcon")))); // NOI18N
         redoEditButton.setToolTipText(operationUndoResourceBundle.getString("editRedoAction.shortDescription")); // NOI18N
         redoEditButton.setFocusable(false);
         redoEditButton.setEnabled(false);
@@ -339,7 +339,7 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
         toolBar.add(redoEditButton);
         toolBar.add(separator2);
 
-        showNonprintablesToggleButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/exbin/bined/eclipse/resources/icons/insert-pilcrow.png"))); // NOI18N
+        showNonprintablesToggleButton.setIcon(new javax.swing.ImageIcon(getClass().getResource(componentResourceBundle.getString("toggleNonprintablesAction.smallIcon")))); // NOI18N
         showNonprintablesToggleButton.setToolTipText(componentResourceBundle.getString("viewNonprintablesAction.shortDescription")); // NOI18N
         showNonprintablesToggleButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

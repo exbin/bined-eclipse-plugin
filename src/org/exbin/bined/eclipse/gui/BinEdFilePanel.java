@@ -27,7 +27,7 @@ import javax.swing.JViewport;
 import org.exbin.bined.CodeAreaUtils;
 import org.exbin.bined.CodeType;
 import org.exbin.bined.eclipse.action.CompareFilesAction;
-import org.exbin.bined.eclipse.main.BinEdEclipseDocking;
+import org.exbin.bined.eclipse.plugin.BinEdEclipseDocking;
 import org.exbin.bined.eclipse.utils.ActionUtils;
 import org.exbin.bined.highlight.swing.NonprintablesCodeAreaAssessor;
 import org.exbin.bined.jaguif.bookmarks.BinedBookmarksModule;
@@ -281,6 +281,10 @@ public class BinEdFilePanel extends JPanel {
 
     public SectCodeArea getCodeArea() {
         return (SectCodeArea) fileDocument.getCodeArea();
+    }
+    
+    public void notifyFileSync() {
+        statusContextManager.updateActiveState(ContextDocument.class, fileDocument, BinaryFileDocument.UpdateType.ORIGINAL_SIZE);
     }
 
     private AbstractAction createOnlineHelpAction() {

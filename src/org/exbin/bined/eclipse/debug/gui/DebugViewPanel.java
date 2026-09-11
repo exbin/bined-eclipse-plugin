@@ -18,34 +18,63 @@ package org.exbin.bined.eclipse.debug.gui;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
+import org.exbin.auxiliary.binary_data.BinaryData;
 import org.exbin.bined.CodeAreaUtils;
 import org.exbin.bined.CodeType;
 import org.exbin.bined.EditMode;
-import org.exbin.auxiliary.binary_data.BinaryData;
+import org.exbin.bined.capability.CharsetCapable;
 import org.exbin.bined.eclipse.debug.DebugViewDataProvider;
 import org.exbin.bined.eclipse.gui.BinEdToolbarPanel;
 import org.exbin.bined.highlight.swing.NonprintablesCodeAreaAssessor;
 import org.exbin.bined.jaguif.component.BinEdDataComponent;
+import org.exbin.bined.jaguif.component.BinedComponentModule;
 import org.exbin.bined.jaguif.component.gui.BinEdComponentPanel;
 import org.exbin.bined.jaguif.document.BinEdFileManager;
 import org.exbin.bined.jaguif.document.BinedDocumentModule;
+import org.exbin.bined.jaguif.editor.settings.BinaryEditorOptions;
+import org.exbin.bined.jaguif.theme.settings.CodeAreaColorOptions;
+import org.exbin.bined.jaguif.theme.settings.CodeAreaLayoutOptions;
+import org.exbin.bined.jaguif.theme.settings.CodeAreaThemeOptions;
+import org.exbin.bined.jaguif.viewer.BinedViewerModule;
+import org.exbin.bined.jaguif.viewer.settings.BinaryEncodingSettingsApplier;
+import org.exbin.bined.jaguif.viewer.settings.CodeAreaOptions;
+import org.exbin.bined.jaguif.viewer.settings.CodeAreaViewerSettingsApplier;
 import org.exbin.bined.jaguif.viewer.status.gui.BinaryDataSizeComponent;
+import org.exbin.bined.operation.swing.CodeAreaOperationCommandHandler;
 import org.exbin.bined.section.layout.SectionCodeAreaLayoutProfile;
 import org.exbin.bined.swing.CodeAreaSwingUtils;
 import org.exbin.bined.swing.basic.color.CodeAreaColorsProfile;
 import org.exbin.bined.swing.capability.ColorAssessorPainterCapable;
+import org.exbin.bined.swing.capability.FontCapable;
 import org.exbin.bined.swing.section.SectCodeArea;
 import org.exbin.bined.swing.section.theme.SectionCodeAreaThemeProfile;
 import org.exbin.jaguif.App;
+import org.exbin.jaguif.context.ContextStateManager;
+import org.exbin.jaguif.context.api.ContextComponent;
+import org.exbin.jaguif.context.api.ContextModuleApi;
+import org.exbin.jaguif.context.api.ContextMonitoringManagement;
+import org.exbin.jaguif.context.api.ContextMonitoringRegistration;
+import org.exbin.jaguif.context.api.ContextStateManagement;
+import org.exbin.jaguif.frame.api.FrameModuleApi;
 import org.exbin.jaguif.language.api.LanguageModuleApi;
+import org.exbin.jaguif.options.api.OptionsModuleApi;
+import org.exbin.jaguif.options.api.OptionsStorage;
+import org.exbin.jaguif.options.settings.action.SettingsAction;
+import org.exbin.jaguif.options.settings.api.OptionsSettingsModuleApi;
 import org.exbin.jaguif.statusbar.api.StatusBar;
 import org.exbin.jaguif.statusbar.api.StatusBarComponent;
+import org.exbin.jaguif.statusbar.api.StatusBarModuleApi;
+import org.exbin.jaguif.text.encoding.ContextEncoding;
+import org.exbin.jaguif.text.encoding.settings.TextEncodingOptions;
+import org.exbin.jaguif.text.font.settings.TextFontOptions;
 import org.exbin.jaguif.utils.DesktopUtils;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -127,10 +156,106 @@ public class DebugViewPanel extends javax.swing.JPanel {
         });
         toolbarPanel.setOnlineHelpAction(createOnlineHelpAction());
 
+        OptionsSettingsModuleApi optionsSettingsModule = App.getModule(OptionsSettingsModuleApi.class);
+        SettingsAction settingsAction = (SettingsAction) optionsSettingsModule.createSettingsAction();
+        FrameModuleApi frameModule = App.getModule(FrameModuleApi.class);
+        settingsAction.setDialogParentComponent(() -> frameModule.getFrame());
+        BinedViewerModule binedViewerModule = App.getModule(BinedViewerModule.class);
+
+        AbstractAction wrapperAction = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                settingsAction.actionPerformed(e);
+                toolbarPanel.applyFromCodeArea();
+            }
+        };
+        toolbarPanel.setOptionsAction(wrapperAction);
+
+        BinedComponentModule binedComponentModule = App.getModule(BinedComponentModule.class);
+        JPopupMenu codeAreaPopupMenu = binedComponentModule.createCodeAreaPopupMenu();
+        codeArea.setComponentPopupMenu(codeAreaPopupMenu);
+
+        StatusBarModuleApi statusBarModule = App.getModule(StatusBarModuleApi.class);
+
+        // TODO Temporary workaround for unfinished rework of actions
+        {
+            ContextModuleApi contextModule = App.getModule(ContextModuleApi.class);
+            ContextStateManagement stateManagement = new ContextStateManager();
+            ContextMonitoringManagement updateManagement = contextModule.createMonitoringManager(stateManagement);
+            ContextMonitoringRegistration contextRegistrar = contextModule.createMonitoringRegistrator(updateManagement, stateManagement);
+            stateManagement.changeActiveState(ContextComponent.class, dataComponent);
+            stateManagement.changeActiveState(ContextEncoding.class, dataComponent);
+            statusBar = statusBarModule.createStatusBar(BinedComponentModule.BINARY_STATUS_BAR_ID, contextRegistrar);
+            dataComponent.setStateManagement(stateManagement);
+
+            BinaryEncodingSettingsApplier settingsApplier = new BinaryEncodingSettingsApplier();
+            settingsApplier.applySettings(
+                    stateManagement,
+                    optionsSettingsModule.getMainSettingsManager().getSettingsOptionsProvider());
+        }
+
+        initialLoadFromPreferences();
+
+        this.add(toolbarPanel, BorderLayout.NORTH);
+        this.add(statusBar.getComponent(), BorderLayout.SOUTH);
         this.add(dataComponent.getComponent(), BorderLayout.CENTER);
-        this.invalidate();
+        this.revalidate();
+        this.repaint();
     }
 
+    private void initialLoadFromPreferences() {
+        OptionsModuleApi optionsModule = App.getModule(OptionsModuleApi.class);
+        OptionsStorage preferences = optionsModule.getAppOptions();
+        SectCodeArea codeArea = (SectCodeArea) dataComponent.getCodeArea();
+
+        applyOptions(preferences, codeArea);
+
+        toolbarPanel.applyFromCodeArea();
+        toolbarPanel.loadFromOptions(preferences);
+    }
+
+    private void applyOptions(OptionsStorage optionsStorage, SectCodeArea codeArea) {
+        CodeAreaViewerSettingsApplier.applyToCodeArea(new CodeAreaOptions(optionsStorage), codeArea);
+
+        TextEncodingOptions encodingOptions = new TextEncodingOptions(optionsStorage);
+        ((CharsetCapable) codeArea).setCharset(Charset.forName(encodingOptions
+                .getSelectedEncoding()));
+        TextFontOptions fontOptions = new TextFontOptions(optionsStorage);
+        ((FontCapable) codeArea).setCodeFont(fontOptions.isUseDefaultFont() ?
+                defaultFont :
+                fontOptions.getFont(defaultFont));
+
+        BinaryEditorOptions editorOptions = new BinaryEditorOptions(optionsStorage);
+        //        switchShowValuesPanel(editorOptions.isShowValuesPanel());
+        if (codeArea.getCommandHandler() instanceof CodeAreaOperationCommandHandler) {
+            ((CodeAreaOperationCommandHandler) codeArea.getCommandHandler()).setEnterKeyHandlingMode(editorOptions.getEnterKeyHandlingMode());
+        }
+
+        CodeAreaLayoutOptions layoutOptions = new CodeAreaLayoutOptions(optionsStorage);
+        int selectedLayoutProfile = layoutOptions.getSelectedProfile();
+        if (selectedLayoutProfile >= 0) {
+            codeArea.setLayoutProfile(layoutOptions.getLayoutProfile(selectedLayoutProfile));
+        } else {
+            codeArea.setLayoutProfile(defaultLayoutProfile);
+        }
+
+        CodeAreaThemeOptions themeOptions = new CodeAreaThemeOptions(optionsStorage);
+        int selectedThemeProfile = themeOptions.getSelectedProfile();
+        if (selectedThemeProfile >= 0) {
+            codeArea.setThemeProfile(themeOptions.getThemeProfile(selectedThemeProfile));
+        } else {
+            codeArea.setThemeProfile(defaultThemeProfile);
+        }
+
+        CodeAreaColorOptions colorOptions = new CodeAreaColorOptions(optionsStorage);
+        int selectedColorProfile = colorOptions.getSelectedProfile();
+        if (selectedColorProfile >= 0) {
+            codeArea.setColorsProfile(colorOptions.getColorsProfile(selectedColorProfile));
+        } else {
+            codeArea.setColorsProfile(defaultColorProfile);
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

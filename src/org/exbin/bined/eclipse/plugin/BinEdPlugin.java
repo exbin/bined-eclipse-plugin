@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,9 +37,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.exbin.bined.eclipse.main.BinEdEclipseDocking;
-import org.exbin.bined.eclipse.main.EclipseWindowModule;
 import org.exbin.bined.eclipse.settings.EclipseOptionsStorage;
 import org.exbin.bined.eclipse.settings.IntegrationOptions;
 import org.exbin.bined.eclipse.settings.IntegrationSettingsComponent;
@@ -49,7 +47,6 @@ import org.exbin.bined.jaguif.bookmarks.BinedBookmarksModule;
 import org.exbin.bined.jaguif.compare.BinedCompareModule;
 import org.exbin.bined.jaguif.compare.action.CompareFilesAction;
 import org.exbin.bined.jaguif.component.BinedComponentModule;
-import org.exbin.bined.jaguif.document.BinEdFileManager;
 import org.exbin.bined.jaguif.document.BinedDocumentModule;
 import org.exbin.bined.jaguif.editor.BinedEditorModule;
 import org.exbin.bined.jaguif.inspector.BinedInspectorModule;
@@ -61,7 +58,6 @@ import org.exbin.bined.jaguif.operation.bouncycastle.BinedOperationBouncycastleM
 import org.exbin.bined.jaguif.operation.code.BinedOperationCodeModule;
 import org.exbin.bined.jaguif.operation.method.BinedOperationMethodModule;
 import org.exbin.bined.jaguif.search.BinedSearchModule;
-import org.exbin.bined.jaguif.search.DefaultBinEdComponentSearch;
 import org.exbin.bined.jaguif.theme.BinedThemeModule;
 import org.exbin.bined.jaguif.tool.content.BinedToolContentModule;
 import org.exbin.bined.jaguif.tool.content.action.ClipboardContentAction;
@@ -191,19 +187,46 @@ public class BinEdPlugin extends AbstractUIPlugin {
 //				// contentTypeManager.addContentType();
 //			}
 //		}
-		
-        if (initialIntegrationOptions == null) {
-            // initIntegrations();
-
-            initialIntegrationOptions = new IntegrationOptions(new EclipseOptionsStorage(BinEdPlugin.getDefault().getPreferenceStore()));
-        }
-
-        applyIntegrationOptions(initialIntegrationOptions);
 	}
 
     public static void initialize() {
         if (!initialized) {
             initialized = true;
+
+            // Invoke Swing UI look&feel change
+            initialIntegrationOptions = new IntegrationOptions(
+                new EclipseOptionsStorage(BinEdPlugin.getDefault().getPreferenceStore())
+            );
+            if (initialIntegrationOptions.isChangeVisualTheme() && false) {
+                String laf = initialIntegrationOptions.getVisualTheme();
+                try {
+                    if (laf.isEmpty()) {
+                        String osName = System.getProperty("os.name").toLowerCase();
+                        if (!osName.startsWith("windows") && !osName.startsWith("mac")) {
+                            // Try "GTK+" on linux
+                            try {
+                                UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+                            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+                                laf = UIManager.getSystemLookAndFeelClassName();
+                            }
+                        } else {
+                            laf = UIManager.getSystemLookAndFeelClassName();
+                        }
+                    }
+
+                    if (laf != null && !laf.isEmpty()) {
+//                        LookAndFeelApplier applier = lafPlugins.get(laf);
+//                        if (applier != null) {
+//                            applier.applyLookAndFeel(laf);
+//                        } else {
+                        UIManager.setLookAndFeel(laf);
+//                        }
+                    }
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+                    Logger.getLogger(BinEdPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
             AppModuleProvider appModuleProvider = new AppModuleProvider();
             appModuleProvider.createModules();
             App.setModuleProvider(appModuleProvider);
@@ -283,36 +306,6 @@ public class BinEdPlugin extends AbstractUIPlugin {
         }
         for (IntegrationOptionsListener listener : INTEGRATION_OPTIONS_LISTENERS) {
             listener.integrationInit(integrationOptions);
-        }
-        
-        if (integrationOptions.isChangeVisualTheme()) {
-        	String laf = integrationOptions.getVisualTheme();
-            try {
-                if (laf.isEmpty()) {
-                    String osName = System.getProperty("os.name").toLowerCase();
-                    if (!osName.startsWith("windows") && !osName.startsWith("mac")) {
-                        // Try "GTK+" on linux
-                        try {
-                            UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
-                        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-                            laf = UIManager.getSystemLookAndFeelClassName();
-                        }
-                    } else {
-                        laf = UIManager.getSystemLookAndFeelClassName();
-                    }
-                }
-
-                if (laf != null && !laf.isEmpty()) {
-//                    LookAndFeelApplier applier = lafPlugins.get(laf);
-//                    if (applier != null) {
-//                        applier.applyLookAndFeel(laf);
-//                    } else {
-                    UIManager.setLookAndFeel(laf);
-//                    }
-                }
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-                Logger.getLogger(BinEdPlugin.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
         
         String iconSet = integrationOptions.getIconSet();
@@ -410,7 +403,6 @@ public class BinEdPlugin extends AbstractUIPlugin {
 
             App.getModule(IconSetMaterialModule.class).register();
 
-            
             BinedBookmarksModule binedBookmarksModule = App.getModule(BinedBookmarksModule.class);
             binedBookmarksModule.register();
             BinedMacroModule binedMacroModule = App.getModule(BinedMacroModule.class);
@@ -425,9 +417,8 @@ public class BinEdPlugin extends AbstractUIPlugin {
             ResourceBundle bundle = languageModule.getBundle(BinEdPlugin.class);
             languageModule.setAppBundle(bundle);
 
-            initialIntegrationOptions = new IntegrationOptions(preferences);
             applyIntegrationOptions(initialIntegrationOptions);
-
+            
             UiModuleApi uiModule = App.getModule(UiModuleApi.class);
             uiModule.executePostInitActions();
             FrameModuleApi frameModule = App.getModule(FrameModuleApi.class);
@@ -467,9 +458,6 @@ public class BinEdPlugin extends AbstractUIPlugin {
             BinedThemeModule binedThemeModule = App.getModule(BinedThemeModule.class);
             BinedSearchModule binedSearchModule = App.getModule(BinedSearchModule.class);
             binedSearchModule.registerSearchComponent();
-
-            BinEdFileManager fileManager = binedDocumentModule.getFileManager();
-            fileManager.addBinEdComponentExtension(component -> Optional.of(new DefaultBinEdComponentSearch()));
 
             BinedOperationMethodModule binedOperationModule = App.getModule(BinedOperationMethodModule.class);
             binedOperationModule.addBasicMethods();
@@ -517,6 +505,7 @@ public class BinEdPlugin extends AbstractUIPlugin {
             binedToolContentModule.registerDragDropContentMenu();
             binedInspectorModule.registerSettings();
             binedViewerModule.registerFrameStatusBar();
+            fileModule.registerSettings();
 
             FrameModuleApi frameModuleApi = App.getModule(FrameModuleApi.class);
             ContextStateManagement contextManagement = frameModuleApi.getFrameStateManager();

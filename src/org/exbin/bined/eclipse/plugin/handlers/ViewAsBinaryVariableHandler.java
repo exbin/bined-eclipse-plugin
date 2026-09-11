@@ -37,7 +37,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.exbin.bined.eclipse.debug.DebugViewDataProvider;
 import org.exbin.bined.eclipse.debug.gui.DebugViewPanel;
 import org.exbin.bined.eclipse.debug.value.ValueNodeConverter;
-import org.exbin.bined.eclipse.main.EclipseWindowModule;
+import org.exbin.bined.eclipse.plugin.EclipseWindowModule;
 import org.exbin.jaguif.App;
 import org.exbin.jaguif.window.api.WindowHandler;
 import org.exbin.jaguif.window.api.WindowModuleApi;

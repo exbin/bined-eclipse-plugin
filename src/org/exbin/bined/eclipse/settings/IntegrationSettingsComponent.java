@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
+import javax.swing.UIManager;
 
 import org.exbin.bined.eclipse.settings.gui.IntegrationSettingsPanel;
 import org.exbin.jaguif.App;
@@ -44,12 +45,12 @@ public class IntegrationSettingsComponent implements SettingsComponentProvider {
     @Override
     public SettingsComponent createComponent() {
         IntegrationSettingsPanel panel = new IntegrationSettingsPanel();
-        ResourceBundle resourceBundle = App.getModule(LanguageModuleApi.class).getBundle(
+        ResourceBundle languageResourceBundle = App.getModule(LanguageModuleApi.class).getBundle(
                 LanguageSettingsPanel.class);
-        panel.setDefaultLocaleName("<" + resourceBundle.getString("locale.defaultLanguage") + ">");
+        panel.setDefaultLocaleName("<" + languageResourceBundle.getString("locale.defaultLanguage") + ">");
         List<LanguageRecord> languageLocales = new ArrayList<>();
         languageLocales.add(new LanguageRecord(Locale.ROOT, null));
-        languageLocales.add(new LanguageRecord(Locale.forLanguageTag("en-US"), new ImageIcon(getClass().getResource(resourceBundle.getString("locale.englishFlag")))));
+        languageLocales.add(new LanguageRecord(Locale.forLanguageTag("en-US"), new ImageIcon(getClass().getResource(languageResourceBundle.getString("locale.englishFlag")))));
 
         List<LanguageRecord> languageRecords = new ArrayList<>();
         LanguageModuleApi languageModule = App.getModule(LanguageModuleApi.class);
@@ -58,6 +59,31 @@ public class IntegrationSettingsComponent implements SettingsComponentProvider {
             languageRecords.add(new LanguageRecord(languageProvider.getLocale(), languageProvider.getFlag().orElse(null)));
         }
         languageLocales.addAll(languageRecords);
+
+        ResourceBundle resourceBundle = App.getModule(LanguageModuleApi.class).getBundle(IntegrationSettingsPanel.class);
+        List<String> themes = new ArrayList<>();
+        themes.add("");
+        boolean extraCrossPlatformLAF = !"javax.swing.plaf.metal.MetalLookAndFeel".equals(UIManager.getCrossPlatformLookAndFeelClassName());
+        if (extraCrossPlatformLAF) {
+            themes.add(UIManager.getCrossPlatformLookAndFeelClassName());
+        }
+        themes.add("javax.swing.plaf.metal.MetalLookAndFeel");
+        themes.add("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+        List<String> themeNames = new ArrayList<>();
+        themeNames.add(resourceBundle.getString("theme.defaultTheme"));
+        if (extraCrossPlatformLAF) {
+            themeNames.add(resourceBundle.getString("theme.crossPlatformTheme"));
+        }
+        themeNames.add("Metal");
+        themeNames.add("Motif");
+        UIManager.LookAndFeelInfo[] infos = UIManager.getInstalledLookAndFeels();
+        for (UIManager.LookAndFeelInfo lookAndFeelInfo : infos) {
+            if (!themes.contains(lookAndFeelInfo.getClassName())) {
+                themes.add(lookAndFeelInfo.getClassName());
+                themeNames.add(lookAndFeelInfo.getName());
+            }
+        }
+        panel.setThemes(themes, themeNames);
 
         List<String> iconSets = new ArrayList<>();
         iconSets.add("");

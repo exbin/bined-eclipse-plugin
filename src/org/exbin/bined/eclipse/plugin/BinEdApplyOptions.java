@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.exbin.bined.eclipse.main;
+package org.exbin.bined.eclipse.plugin;
 
 import org.exbin.bined.eclipse.settings.IntegrationOptions;
 import org.exbin.bined.jaguif.editor.settings.BinaryEditorOptions;
