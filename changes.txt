@@ -8,6 +8,7 @@
 - Added option for inspector input fields font
 - Added icon set support
 - Added option for legacy AWT file dialogs
+- Minor fixes
 
 0.2.2 (2024-06-24)
 - Added support for language switching (zh, jp, ko)

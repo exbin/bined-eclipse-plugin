@@ -185,7 +185,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 			frame.setSize(size.width, size.height);
 		});
 
-		Display.getDefault().asyncExec(() -> {
+        SwingUtilities.invokeLater(() -> {
             binaryFile.openFile(getEditorInput());
             registerActionBars();
         });

@@ -197,7 +197,7 @@ public class BinEdPlugin extends AbstractUIPlugin {
             initialIntegrationOptions = new IntegrationOptions(
                 new EclipseOptionsStorage(BinEdPlugin.getDefault().getPreferenceStore())
             );
-            if (initialIntegrationOptions.isChangeVisualTheme() && false) {
+            if (initialIntegrationOptions.isChangeVisualTheme()) {
                 String laf = initialIntegrationOptions.getVisualTheme();
                 try {
                     if (laf.isEmpty()) {
