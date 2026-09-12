@@ -165,6 +165,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		wrapper.addTraverseListener(new TraverseListener() {
 			public void keyTraversed(TraverseEvent e) {
 				if (e.detail == SWT.TRAVERSE_TAB_NEXT) {
+				    binaryFile.tabPressed();
 					e.doit = false;
 					e.detail = SWT.TRAVERSE_NONE;
 				}

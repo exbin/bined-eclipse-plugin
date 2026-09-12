@@ -285,6 +285,7 @@ public class BinEdFilePanel extends JPanel {
     
     public void notifyFileSync() {
         statusContextManager.updateActiveState(ContextDocument.class, fileDocument, BinaryFileDocument.UpdateType.ORIGINAL_SIZE);
+        statusContextManager.updateActiveState(ContextDocument.class, fileDocument, BinaryFileDocument.UpdateType.PROCESSING_MODE);
     }
 
     private AbstractAction createOnlineHelpAction() {

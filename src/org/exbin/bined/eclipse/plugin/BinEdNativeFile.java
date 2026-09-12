@@ -32,6 +32,8 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.exbin.auxiliary.binary_data.BinaryData;
 import org.exbin.auxiliary.binary_data.delta.DeltaDocument;
+import org.exbin.bined.EditMode;
+import org.exbin.bined.capability.EditModeCapable;
 import org.exbin.bined.eclipse.gui.BinEdFilePanel;
 import org.exbin.bined.jaguif.component.BinEdDataComponent;
 import org.exbin.bined.jaguif.document.BinEdFileManager;
@@ -42,6 +44,7 @@ import org.exbin.bined.jaguif.document.settings.BinaryFileProcessingOptions;
 import org.exbin.bined.jaguif.search.BinedSearchModule;
 import org.exbin.bined.operation.BinaryDataUndoRedoChangeListener;
 import org.exbin.bined.operation.command.BinaryDataUndoRedo;
+import org.exbin.bined.swing.CodeAreaCommandHandler;
 import org.exbin.bined.swing.section.SectCodeArea;
 import org.exbin.jaguif.App;
 import org.exbin.jaguif.document.api.StreamDocumentSource;
@@ -104,6 +107,12 @@ public class BinEdNativeFile {
     public Component getComponent() {
         return filePanel;
     }
+    
+    public void tabPressed() {
+        SectCodeArea codeArea = filePanel.getCodeArea();
+        CodeAreaCommandHandler commandHandler = codeArea.getCommandHandler();
+        commandHandler.tabPressed();
+    }
 
     public void openFile(IEditorInput dataObject) {
         this.dataObject = dataObject;
@@ -133,6 +142,9 @@ public class BinEdNativeFile {
 
     public void openDocument(File file, boolean editable) throws IOException {
         fileDocument.loadFrom(new FileDocumentSource(file));
+        if (!editable) {
+            ((EditModeCapable) fileDocument.getCodeArea()).setEditMode(EditMode.READ_ONLY);
+        }
         fileSync();
     }
 
