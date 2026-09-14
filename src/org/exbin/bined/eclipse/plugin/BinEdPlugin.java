@@ -37,7 +37,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.exbin.bined.eclipse.settings.EclipseOptionsStorage;
 import org.exbin.bined.eclipse.settings.IntegrationOptions;
@@ -48,6 +47,7 @@ import org.exbin.bined.jaguif.compare.BinedCompareModule;
 import org.exbin.bined.jaguif.compare.action.CompareFilesAction;
 import org.exbin.bined.jaguif.component.BinedComponentModule;
 import org.exbin.bined.jaguif.document.BinedDocumentModule;
+import org.exbin.bined.jaguif.document.contribution.ReloadFileContribution;
 import org.exbin.bined.jaguif.editor.BinedEditorModule;
 import org.exbin.bined.jaguif.inspector.BinedInspectorModule;
 import org.exbin.bined.jaguif.inspector.settings.DataInspectorFontContextInference;
@@ -78,7 +78,6 @@ import org.exbin.jaguif.contribution.ContributionModule;
 import org.exbin.jaguif.contribution.api.ContributionModuleApi;
 import org.exbin.jaguif.contribution.api.GroupSequenceContributionRule;
 import org.exbin.jaguif.contribution.api.PositionSequenceContributionRule;
-import org.exbin.jaguif.contribution.api.RelativeSequenceContributionRule;
 import org.exbin.jaguif.contribution.api.SeparationSequenceContributionRule;
 import org.exbin.jaguif.contribution.api.SequenceContribution;
 import org.exbin.jaguif.docking.DockingModule;
@@ -111,7 +110,6 @@ import org.exbin.jaguif.operation.undo.OperationUndoModule;
 import org.exbin.jaguif.operation.undo.api.OperationUndoModuleApi;
 import org.exbin.jaguif.options.OptionsModule;
 import org.exbin.jaguif.options.api.OptionsModuleApi;
-import org.exbin.jaguif.options.api.OptionsStorage;
 import org.exbin.jaguif.options.settings.OptionsSettingsModule;
 import org.exbin.jaguif.options.settings.api.OptionsSettingsManagement;
 import org.exbin.jaguif.options.settings.api.OptionsSettingsModuleApi;
@@ -395,8 +393,6 @@ public class BinEdPlugin extends AbstractUIPlugin {
             OptionsModule optionsModule = (OptionsModule) App.getModule(OptionsModuleApi.class);
             optionsModule.setAppOptions(new EclipseOptionsStorage(BinEdPlugin.getDefault().getPreferenceStore()));
 
-            OptionsStorage preferences = optionsModule.getAppOptions();
-
             App.getModule(LanguageJaJpModule.class).register();
             App.getModule(LanguageKoKrModule.class).register();
             App.getModule(LanguageZhHansModule.class).register();
@@ -514,15 +510,17 @@ public class BinEdPlugin extends AbstractUIPlugin {
             settingsManager.registerInferenceOptions(TextFontInference.class, new TextFontContextInference((contextManagement)));
             settingsManager.registerInferenceOptions(DataInspectorFontInference.class, new DataInspectorFontContextInference(contextManagement));
 
-            String toolsSubMenuId = BinEdPlugin.PLUGIN_PREFIX + "toolsMenu";
             MenuModuleApi menuModule = App.getModule(MenuModuleApi.class);
             MenuDefinitionManagement menuManagement = menuModule.getMainMenuDefinition(BinedComponentModule.CODE_AREA_POPUP_MENU_ID, BinedComponentModule.MODULE_ID);
-            SequenceContribution contribution = new SettingsContribution();
-
+            SequenceContribution contribution = new ReloadFileContribution();
             menuManagement.registerMenuContribution(contribution);
-            menuManagement.registerMenuRule(contribution, new SeparationSequenceContributionRule(SeparationSequenceContributionRule.SeparationMode.AROUND));
-            menuManagement.registerMenuRule(contribution, new RelativeSequenceContributionRule(RelativeSequenceContributionRule.NextToMode.AFTER, "binarySearchReplace"));
+            menuManagement.registerMenuRule(contribution, new PositionSequenceContributionRule(PositionSequenceContributionRule.PositionMode.BOTTOM_LAST));
+            
+            contribution = new SettingsContribution();
+            menuManagement.registerMenuContribution(contribution);
+            menuManagement.registerMenuRule(contribution, new PositionSequenceContributionRule(PositionSequenceContributionRule.PositionMode.BOTTOM_LAST));
 
+            String toolsSubMenuId = BinEdPlugin.PLUGIN_PREFIX + "toolsMenu";
             Action toolsSubMenuAction = new AbstractAction(frameModule.getResourceBundle().getString("toolsMenu.text")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -628,6 +626,7 @@ public class BinEdPlugin extends AbstractUIPlugin {
         public void initDefaultPopupMenu() {
             ResourceBundle resourceBundle = App.getModule(LanguageModuleApi.class).getBundle(DefaultPopupMenu.class);
             initDefaultPopupMenu(resourceBundle, this.getClass());
+            inheritClipboardActionsIcons();
         }
         
         public void processAWTEvent(AWTEvent event) {

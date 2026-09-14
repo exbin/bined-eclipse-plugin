@@ -59,11 +59,12 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public final class BinEdEditor extends EditorPart implements ISelectionProvider {
 
-	private List<ISelectionChangedListener> selectionChangedListeners = new ArrayList<>();
-	private BinEdNativeFile binaryFile;
+    protected Composite composite;
+	protected List<ISelectionChangedListener> selectionChangedListeners = new ArrayList<>();
+	protected BinEdNativeFile binaryFile;
 
     protected String displayName;
-    private ActionsStateListener actionsStateListener;
+    protected ActionsStateListener actionsStateListener;
 
     public BinEdEditor() {
 		super();
@@ -161,8 +162,8 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 			}
 		});
 
-		Composite wrapper = new Composite(parent, SWT.EMBEDDED);
-		wrapper.addTraverseListener(new TraverseListener() {
+		composite = new Composite(parent, SWT.EMBEDDED);
+		composite.addTraverseListener(new TraverseListener() {
 			public void keyTraversed(TraverseEvent e) {
 				if (e.detail == SWT.TRAVERSE_TAB_NEXT) {
 				    binaryFile.tabPressed();
@@ -172,7 +173,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 			}
 		});
 
-		java.awt.Frame frame = SWT_AWT.new_Frame(wrapper);
+		java.awt.Frame frame = SWT_AWT.new_Frame(composite);
 		Shell shell = parent.getShell();
 		EclipseWindowModule.frameShells.put(frame, shell);
 		shell.addDisposeListener((e) -> {
@@ -180,7 +181,7 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 		});
 
 		frame.add(binaryFile.getComponent());
-		final org.eclipse.swt.graphics.Rectangle size = wrapper.getClientArea();
+		final org.eclipse.swt.graphics.Rectangle size = composite.getClientArea();
 		SwingUtilities.invokeLater(() -> {
 			frame.invalidate();
 			frame.setSize(size.width, size.height);
@@ -306,6 +307,9 @@ public final class BinEdEditor extends EditorPart implements ISelectionProvider 
 
 	@Override
 	public void setFocus() {
+	    if (composite != null) {
+	        composite.setFocus();
+	    }
 		binaryFile.requestFocus();
 	}
 

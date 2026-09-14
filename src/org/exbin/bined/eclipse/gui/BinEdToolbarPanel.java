@@ -180,14 +180,6 @@ public class BinEdToolbarPanel extends javax.swing.JPanel {
         toolBar.add(onlineHelpButton);
 }
 
-    public void setOptionsAction(AbstractAction optionsAction) {
-        this.optionsAction = optionsAction;
-    }
-
-    public void setOnlineHelpAction(AbstractAction onlineHelpAction) {
-        this.onlineHelpAction = onlineHelpAction;
-    }
-
     private void updateCycleButtonState() {
         CodeType codeType = codeAreaControl.getCodeType();
         codeTypeDropDown.setActionText(codeType.name().substring(0, 3));

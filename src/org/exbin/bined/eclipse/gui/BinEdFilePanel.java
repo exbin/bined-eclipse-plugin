@@ -26,17 +26,16 @@ import javax.swing.JViewport;
 
 import org.exbin.bined.CodeAreaUtils;
 import org.exbin.bined.CodeType;
-import org.exbin.bined.eclipse.action.CompareFilesAction;
 import org.exbin.bined.eclipse.plugin.BinEdEclipseDocking;
 import org.exbin.bined.eclipse.utils.ActionUtils;
 import org.exbin.bined.highlight.swing.NonprintablesCodeAreaAssessor;
 import org.exbin.bined.jaguif.bookmarks.BinedBookmarksModule;
-import org.exbin.bined.jaguif.compare.BinedCompareModule;
 import org.exbin.bined.jaguif.component.BinedComponentModule;
 import org.exbin.bined.jaguif.component.gui.BinEdComponentPanel;
 import org.exbin.bined.jaguif.document.BinaryFileDocument;
+import org.exbin.bined.jaguif.document.BinedDocumentModule;
+import org.exbin.bined.jaguif.document.action.ReloadFileAction;
 import org.exbin.bined.jaguif.macro.BinedMacroModule;
-import org.exbin.bined.jaguif.viewer.BinedViewerModule;
 import org.exbin.bined.swing.CodeAreaSwingUtils;
 import org.exbin.bined.swing.capability.ColorAssessorPainterCapable;
 import org.exbin.bined.swing.section.SectCodeArea;
@@ -59,10 +58,7 @@ import org.exbin.jaguif.frame.api.FrameModuleApi;
 import org.exbin.jaguif.language.api.LanguageModuleApi;
 import org.exbin.jaguif.options.settings.action.SettingsAction;
 import org.exbin.jaguif.options.settings.api.OptionsSettingsModuleApi;
-import org.exbin.jaguif.search.SearchModule;
-import org.exbin.jaguif.search.action.FindReplaceActions;
 import org.exbin.jaguif.search.api.ContextSearch;
-import org.exbin.jaguif.search.api.SearchModuleApi;
 import org.exbin.jaguif.statusbar.api.StatusBar;
 import org.exbin.jaguif.statusbar.api.StatusBarModuleApi;
 import org.exbin.jaguif.text.encoding.ContextEncoding;
@@ -147,7 +143,7 @@ public class BinEdFilePanel extends JPanel {
         contextManager.removeChangeListener(contextChangeListener);
     }
 
-    public void setDocument(BinaryFileDocument fileDocument) {
+    public void setDocument(BinaryFileDocument fileDocument, ReloadFileMethod reloadFileMethod) {
         this.fileDocument = fileDocument;
         statusContextManager.changeActiveState(ContextDocument.class, fileDocument);
         statusContextManager.changeActiveState(ContextComponent.class, fileDocument.getDataComponent());
@@ -156,9 +152,6 @@ public class BinEdFilePanel extends JPanel {
 
         BinEdComponentPanel componentPanel = fileDocument.getComponent();
         SectCodeArea codeArea = (SectCodeArea) fileDocument.getCodeArea();
-
-        SearchModule searchModule = (SearchModule) App.getModule(SearchModuleApi.class);
-        FindReplaceActions findReplaceActions = searchModule.getFindReplaceActions();
 
         toolbarPanel.setTargetComponent(componentPanel);
         toolbarPanel.setCodeAreaControl(new BinEdToolbarPanel.Control() {
@@ -205,13 +198,10 @@ public class BinEdFilePanel extends JPanel {
                 toolbarPanel.applyFromCodeArea();
             }
         };
-        AbstractAction wrapperCompareAction = new AbstractAction() {
+        AbstractAction wrapperReloadFileAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                CompareFilesAction compareFilesAction = new CompareFilesAction();
-                compareFilesAction.setDialogParentComponent(() -> frameModule.getFrame());
-                compareFilesAction.setDocumentDocking(docking);
-                compareFilesAction.actionPerformed(e);
+                reloadFileMethod.reloadFile(docking);
             }
         };
         LanguageModuleApi languageModule = App.getModule(LanguageModuleApi.class);
@@ -220,16 +210,13 @@ public class BinEdFilePanel extends JPanel {
         actionModule.initAction(wrapperSettingsAction, optionsSettingsResourceBundle, SettingsAction.ACTION_ID);
         wrapperSettingsAction.putValue(ActionConsts.ACTION_DIALOG_MODE, true);
         toolbarPanel.setOptionsAction(wrapperSettingsAction);
-        BinedCompareModule compareModule = App.getModule(BinedCompareModule.class);
-        actionModule.initAction(wrapperCompareAction, compareModule.getResourceBundle(), CompareFilesAction.ACTION_ID);
-        wrapperCompareAction.putValue(ActionConsts.ACTION_DIALOG_MODE, true);
+        BinedDocumentModule documentModule = App.getModule(BinedDocumentModule.class);
+        actionModule.initAction(wrapperReloadFileAction, documentModule.getResourceBundle(), ReloadFileAction.ACTION_ID);
 
         BinedComponentModule binedComponentModule = App.getModule(BinedComponentModule.class);
-        BinedViewerModule binedViewerModule = App.getModule(BinedViewerModule.class);
         codeArea.setComponentPopupMenu(new JPopupMenu() {
             @Override
             public void show(Component invoker, int x, int y) {
-                String popupMenuId = "BinEdFilePanel.popup";
                 int clickedX = x;
                 int clickedY = y;
                 if (invoker instanceof JViewport) {
@@ -260,7 +247,7 @@ public class BinEdFilePanel extends JPanel {
 
                 JPopupMenu popupMenu = binedComponentModule.createBinaryDocumentPopupMenu(codeArea, clickedX, clickedY);
                 ActionUtils.replaceAction(popupMenu, SettingsAction.ACTION_ID + "Action", wrapperSettingsAction);
-                ActionUtils.replaceAction(popupMenu, CompareFilesAction.ACTION_ID + "Action", wrapperCompareAction);
+                ActionUtils.replaceAction(popupMenu, ReloadFileAction.ACTION_ID + "Action", wrapperReloadFileAction);
                 popupMenu.show(invoker, x, y);
             }
         });
@@ -296,5 +283,9 @@ public class BinEdFilePanel extends JPanel {
                 DesktopUtils.openDesktopURL(languageModuleApi.getAppBundle().getString("online_help_url"));
             }
         };
+    }
+    
+    public static interface ReloadFileMethod {
+        void reloadFile(BinEdEclipseDocking docking);
     }
 }

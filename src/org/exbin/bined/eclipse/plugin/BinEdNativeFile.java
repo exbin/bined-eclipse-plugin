@@ -71,12 +71,12 @@ public class BinEdNativeFile {
     public BinEdNativeFile() {
         BinedDocumentModule binedDocumentModule = App.getModule(BinedDocumentModule.class);
         BinEdFileManager fileManager = binedDocumentModule.getFileManager();
-        filePanel.setDocument(fileDocument);
         BinEdDataComponent dataComponent = fileDocument.getDataComponent();
         fileManager.initDataComponent(dataComponent);
         fileManager.initCommandHandler(dataComponent);
         BinedSearchModule searchModule = App.getModule(BinedSearchModule.class);
         dataComponent.setSearchController(searchModule.createBinarySearchController(dataComponent));
+        filePanel.setDocument(fileDocument, this::reloadFile);
     	
         OptionsModuleApi optionsModule = App.getModule(OptionsModuleApi.class);
         OptionsStorage optionsStorage = optionsModule.getAppOptions();
@@ -223,8 +223,11 @@ public class BinEdNativeFile {
         filePanel.notifyFileSync();
     }
 
-    public void reloadFile() {
-        openFile(dataObject);
+    public void reloadFile(BinEdEclipseDocking docking) {
+        if (docking.releaseDocument(fileDocument)) {
+            openFile(dataObject);
+            fileSync();
+        }
     }
 
     public void saveDocument() {
